@@ -8,7 +8,8 @@ import {
   Volume2,
   Maximize2,
   ListMusic,
-  Heart
+  Heart,
+  Mic2
 } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { cn } from "@/lib/utils";
@@ -19,6 +20,7 @@ interface Track {
   album: string;
   image: string;
   duration: number;
+  videoId?: string;
 }
 
 interface PlayerBarProps {
@@ -33,6 +35,8 @@ interface PlayerBarProps {
   onVolumeChange: (value: number[]) => void;
   isLiked: boolean;
   onLikeToggle: () => void;
+  onLyricsToggle?: () => void;
+  showLyrics?: boolean;
 }
 
 function formatTime(seconds: number): string {
@@ -53,6 +57,8 @@ export function PlayerBar({
   onVolumeChange,
   isLiked,
   onLikeToggle,
+  onLyricsToggle,
+  showLyrics,
 }: PlayerBarProps) {
   if (!currentTrack) return null;
 
@@ -136,6 +142,14 @@ export function PlayerBar({
 
       {/* Right: Volume & Actions */}
       <div className="w-[280px] flex items-center justify-end gap-2">
+        {currentTrack.videoId && (
+          <button 
+            onClick={onLyricsToggle}
+            className={cn("player-control", showLyrics && "text-primary")}
+          >
+            <Mic2 className="w-5 h-5" />
+          </button>
+        )}
         <button className="player-control">
           <ListMusic className="w-5 h-5" />
         </button>
