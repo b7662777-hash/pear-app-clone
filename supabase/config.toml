@@ -1,0 +1,4 @@
+project_id = "tlmgfyumjusewjecskkl"
+
+[functions.youtube-music]
+verify_jwt = false
