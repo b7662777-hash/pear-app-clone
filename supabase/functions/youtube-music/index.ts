@@ -5,8 +5,33 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Get API key from environment
+const YTM_API_KEY = Deno.env.get('YOUTUBE_API_KEY');
+
 // YouTube Music API base URL
 const YTM_BASE_URL = "https://music.youtube.com/youtubei/v1";
+
+// Input validation
+const MAX_QUERY_LENGTH = 200;
+const VIDEO_ID_REGEX = /^[a-zA-Z0-9_-]{11}$/;
+
+function validateQuery(query: string): void {
+  if (!query || typeof query !== 'string') {
+    throw new Error('Query is required and must be a string');
+  }
+  if (query.length > MAX_QUERY_LENGTH) {
+    throw new Error(`Query must be less than ${MAX_QUERY_LENGTH} characters`);
+  }
+}
+
+function validateVideoId(videoId: string): void {
+  if (!videoId || typeof videoId !== 'string') {
+    throw new Error('VideoId is required and must be a string');
+  }
+  if (!VIDEO_ID_REGEX.test(videoId)) {
+    throw new Error('Invalid video ID format');
+  }
+}
 
 // Common request headers for YouTube Music API
 const getYTMHeaders = () => ({
@@ -30,9 +55,10 @@ const getContext = () => ({
 
 // Search YouTube Music
 async function searchYouTubeMusic(query: string) {
+  validateQuery(query);
   console.log(`Searching YouTube Music for: ${query}`);
   
-  const url = `${YTM_BASE_URL}/search?key=AIzaSyC9XL3ZjWddXya6X74dJoCTL-WEYFDNX30`;
+  const url = `${YTM_BASE_URL}/search?key=${YTM_API_KEY}`;
   
   const body = {
     context: getContext(),
@@ -147,11 +173,12 @@ function parseSearchResults(data: any) {
 
 // Get lyrics for a video
 async function getLyrics(videoId: string) {
+  validateVideoId(videoId);
   console.log(`Getting lyrics for video: ${videoId}`);
   
   try {
     // First, get the browse ID for lyrics
-    const watchUrl = `${YTM_BASE_URL}/next?key=AIzaSyC9XL3ZjWddXya6X74dJoCTL-WEYFDNX30`;
+    const watchUrl = `${YTM_BASE_URL}/next?key=${YTM_API_KEY}`;
     
     const watchBody = {
       context: getContext(),
@@ -191,7 +218,7 @@ async function getLyrics(videoId: string) {
     }
 
     // Fetch lyrics content
-    const browseUrl = `${YTM_BASE_URL}/browse?key=AIzaSyC9XL3ZjWddXya6X74dJoCTL-WEYFDNX30`;
+    const browseUrl = `${YTM_BASE_URL}/browse?key=${YTM_API_KEY}`;
     
     const browseBody = {
       context: getContext(),
