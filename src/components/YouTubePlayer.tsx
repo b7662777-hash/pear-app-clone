@@ -1,5 +1,12 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 
+// Video ID validation regex (YouTube IDs are 11 characters: a-z, A-Z, 0-9, -, _)
+const VIDEO_ID_REGEX = /^[a-zA-Z0-9_-]{11}$/;
+
+function isValidVideoId(videoId: string | null): boolean {
+  return typeof videoId === 'string' && VIDEO_ID_REGEX.test(videoId);
+}
+
 interface YouTubePlayerProps {
   videoId: string | null;
   isPlaying: boolean;
@@ -107,6 +114,12 @@ export function YouTubePlayer({
   // Handle video changes
   useEffect(() => {
     if (!playerRef.current || !videoId || videoId === currentVideoId) return;
+    
+    // Validate video ID before loading
+    if (!isValidVideoId(videoId)) {
+      console.error("Invalid video ID format:", videoId);
+      return;
+    }
 
     console.log("Loading video:", videoId);
     setCurrentVideoId(videoId);
