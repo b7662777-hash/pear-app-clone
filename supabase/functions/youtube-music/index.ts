@@ -290,9 +290,19 @@ serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error: any) {
+    // Log detailed error server-side for debugging
     console.error('Error in youtube-music function:', error);
-    return new Response(JSON.stringify({ success: false, error: error.message || 'Unknown error' }), {
-      status: 500,
+    
+    // Return generic error to client to prevent information leakage
+    const isValidationError = error.message?.includes('required') || 
+                              error.message?.includes('Invalid') ||
+                              error.message?.includes('must be');
+    
+    return new Response(JSON.stringify({ 
+      success: false, 
+      error: isValidationError ? 'Invalid request' : 'Service temporarily unavailable'
+    }), {
+      status: isValidationError ? 400 : 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }

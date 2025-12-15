@@ -2,6 +2,13 @@ import { useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
+// Video ID validation regex (YouTube IDs are 11 characters: a-z, A-Z, 0-9, -, _)
+const VIDEO_ID_REGEX = /^[a-zA-Z0-9_-]{11}$/;
+
+function isValidVideoId(videoId: string): boolean {
+  return typeof videoId === 'string' && VIDEO_ID_REGEX.test(videoId);
+}
+
 export interface YouTubeTrack {
   videoId: string;
   title: string;
@@ -43,9 +50,13 @@ export function useYouTubeMusic() {
       }
 
       if (data?.success && data?.data) {
-        console.log("Search results:", data.data.length);
-        setSearchResults(data.data);
-        return data.data;
+        // Filter results to only include tracks with valid video IDs
+        const validResults = data.data.filter((track: YouTubeTrack) => 
+          track.videoId && isValidVideoId(track.videoId)
+        );
+        console.log("Search results:", validResults.length);
+        setSearchResults(validResults);
+        return validResults;
       }
 
       return [];
@@ -63,6 +74,12 @@ export function useYouTubeMusic() {
   }, [toast]);
 
   const fetchLyrics = useCallback(async (videoId: string) => {
+    // Validate video ID before making API call
+    if (!isValidVideoId(videoId)) {
+      console.error("Invalid video ID format:", videoId);
+      return null;
+    }
+    
     setIsLoadingLyrics(true);
     setLyrics(null);
     
