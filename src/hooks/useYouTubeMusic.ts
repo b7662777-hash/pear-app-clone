@@ -18,10 +18,21 @@ export interface YouTubeTrack {
   thumbnail: string;
 }
 
+export interface SyncedLyricLine {
+  time: number;
+  text: string;
+}
+
+export interface LyricsData {
+  synced: boolean;
+  lyrics: SyncedLyricLine[] | null;
+  plainLyrics: string | null;
+}
+
 export function useYouTubeMusic() {
   const [isSearching, setIsSearching] = useState(false);
   const [searchResults, setSearchResults] = useState<YouTubeTrack[]>([]);
-  const [lyrics, setLyrics] = useState<string | null>(null);
+  const [lyricsData, setLyricsData] = useState<LyricsData | null>(null);
   const [isLoadingLyrics, setIsLoadingLyrics] = useState(false);
   const { toast } = useToast();
 
@@ -73,15 +84,47 @@ export function useYouTubeMusic() {
     }
   }, [toast]);
 
+  const fetchSyncedLyrics = useCallback(async (title: string, artist: string) => {
+    setIsLoadingLyrics(true);
+    setLyricsData(null);
+    
+    try {
+      console.log("Fetching synced lyrics for:", title, "by", artist);
+      
+      const { data, error } = await supabase.functions.invoke("youtube-music", {
+        body: { action: "synced-lyrics", title, artist },
+      });
+
+      if (error) {
+        console.error("Synced lyrics error:", error);
+        return null;
+      }
+
+      if (data?.success && data?.data) {
+        console.log("Lyrics found, synced:", data.data.synced);
+        setLyricsData(data.data);
+        return data.data;
+      }
+
+      console.log("No lyrics available");
+      return null;
+    } catch (error) {
+      console.error("Synced lyrics error:", error);
+      return null;
+    } finally {
+      setIsLoadingLyrics(false);
+    }
+  }, []);
+
+  // Legacy fetchLyrics for backward compatibility
   const fetchLyrics = useCallback(async (videoId: string) => {
-    // Validate video ID before making API call
     if (!isValidVideoId(videoId)) {
       console.error("Invalid video ID format:", videoId);
       return null;
     }
     
     setIsLoadingLyrics(true);
-    setLyrics(null);
+    setLyricsData(null);
     
     try {
       console.log("Fetching lyrics for:", videoId);
@@ -97,7 +140,11 @@ export function useYouTubeMusic() {
 
       if (data?.success && data?.data) {
         console.log("Lyrics found");
-        setLyrics(data.data);
+        setLyricsData({
+          synced: false,
+          lyrics: null,
+          plainLyrics: data.data,
+        });
         return data.data;
       }
 
@@ -116,8 +163,11 @@ export function useYouTubeMusic() {
   }, []);
 
   const clearLyrics = useCallback(() => {
-    setLyrics(null);
+    setLyricsData(null);
   }, []);
+
+  // Backward compatibility getter
+  const lyrics = lyricsData?.plainLyrics || null;
 
   return {
     isSearching,
@@ -125,8 +175,10 @@ export function useYouTubeMusic() {
     searchTracks,
     clearSearch,
     lyrics,
+    lyricsData,
     isLoadingLyrics,
     fetchLyrics,
+    fetchSyncedLyrics,
     clearLyrics,
   };
 }

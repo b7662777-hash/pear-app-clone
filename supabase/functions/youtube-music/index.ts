@@ -171,7 +171,87 @@ function parseSearchResults(data: any) {
   return results.slice(0, 20); // Return max 20 results
 }
 
-// Get lyrics for a video
+// Get synced lyrics from LRCLIB
+async function getSyncedLyrics(title: string, artist: string) {
+  console.log(`Getting synced lyrics for: ${title} by ${artist}`);
+  
+  try {
+    // Search LRCLIB for synced lyrics
+    const searchUrl = `https://lrclib.net/api/search?track_name=${encodeURIComponent(title)}&artist_name=${encodeURIComponent(artist)}`;
+    
+    const response = await fetch(searchUrl, {
+      headers: {
+        'User-Agent': 'Lovable Music App/1.0',
+      },
+    });
+
+    if (!response.ok) {
+      console.error(`LRCLIB search error: ${response.status}`);
+      return null;
+    }
+
+    const results = await response.json();
+    
+    if (!results || results.length === 0) {
+      console.log("No results from LRCLIB");
+      return null;
+    }
+
+    // Find a result with synced lyrics
+    const withSyncedLyrics = results.find((r: any) => r.syncedLyrics);
+    
+    if (withSyncedLyrics?.syncedLyrics) {
+      console.log("Synced lyrics found");
+      return {
+        synced: true,
+        lyrics: parseLRC(withSyncedLyrics.syncedLyrics),
+        plainLyrics: withSyncedLyrics.plainLyrics || null,
+      };
+    }
+
+    // Fall back to plain lyrics if available
+    if (results[0]?.plainLyrics) {
+      console.log("Only plain lyrics available");
+      return {
+        synced: false,
+        lyrics: null,
+        plainLyrics: results[0].plainLyrics,
+      };
+    }
+
+    return null;
+  } catch (error) {
+    console.error("Error getting synced lyrics:", error);
+    return null;
+  }
+}
+
+// Parse LRC format to array of {time, text}
+function parseLRC(lrc: string): Array<{time: number, text: string}> {
+  const lines = lrc.split('\n');
+  const result: Array<{time: number, text: string}> = [];
+  
+  const timeRegex = /\[(\d{2}):(\d{2})\.(\d{2,3})\]/;
+  
+  for (const line of lines) {
+    const match = line.match(timeRegex);
+    if (match) {
+      const minutes = parseInt(match[1], 10);
+      const seconds = parseInt(match[2], 10);
+      const milliseconds = parseInt(match[3].padEnd(3, '0'), 10);
+      const time = minutes * 60 + seconds + milliseconds / 1000;
+      const text = line.replace(timeRegex, '').trim();
+      
+      if (text) {
+        result.push({ time, text });
+      }
+    }
+  }
+  
+  return result.sort((a, b) => a.time - b.time);
+}
+
+// Get lyrics for a video (fallback to YouTube Music)
 async function getLyrics(videoId: string) {
   validateVideoId(videoId);
   console.log(`Getting lyrics for video: ${videoId}`);
@@ -262,8 +342,8 @@ serve(async (req) => {
   }
 
   try {
-    const { action, query, videoId } = await req.json();
-    console.log(`Action: ${action}, Query: ${query}, VideoId: ${videoId}`);
+    const { action, query, videoId, title, artist } = await req.json();
+    console.log(`Action: ${action}, Query: ${query}, VideoId: ${videoId}, Title: ${title}, Artist: ${artist}`);
 
     let result;
 
@@ -280,6 +360,13 @@ serve(async (req) => {
           throw new Error("VideoId is required for lyrics");
         }
         result = await getLyrics(videoId);
+        break;
+
+      case "synced-lyrics":
+        if (!title || !artist) {
+          throw new Error("Title and artist are required for synced lyrics");
+        }
+        result = await getSyncedLyrics(title, artist);
         break;
         
       default:
