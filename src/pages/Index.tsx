@@ -40,6 +40,7 @@ const Index = () => {
   const [isLiked, setIsLiked] = useState(false);
   const [duration, setDuration] = useState(0);
   const [showLyrics, setShowLyrics] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
   
   const playerContainerRef = useRef<HTMLDivElement>(null);
 
@@ -49,9 +50,9 @@ const Index = () => {
     searchResults,
     searchTracks,
     clearSearch,
-    lyrics,
+    lyricsData,
     isLoadingLyrics,
-    fetchLyrics,
+    fetchSyncedLyrics,
     clearLyrics,
   } = useYouTubeMusic();
 
@@ -169,6 +170,7 @@ const Index = () => {
     if (totalDuration > 0) {
       setProgress((current / totalDuration) * 100);
       setDuration(totalDuration);
+      setCurrentTime(current);
     }
   }, []);
 
@@ -194,11 +196,25 @@ const Index = () => {
 
   // Toggle lyrics panel
   const handleLyricsToggle = useCallback(() => {
-    if (!showLyrics && currentTrack?.videoId) {
-      fetchLyrics(currentTrack.videoId);
+    if (!showLyrics && currentTrack) {
+      fetchSyncedLyrics(currentTrack.title, currentTrack.artist);
     }
     setShowLyrics(!showLyrics);
-  }, [showLyrics, currentTrack, fetchLyrics]);
+  }, [showLyrics, currentTrack, fetchSyncedLyrics]);
+
+  // Handle lyrics seek
+  const handleLyricsSeek = useCallback((time: number) => {
+    if (currentTrack?.videoId && duration > 0) {
+      const newProgress = (time / duration) * 100;
+      setProgress(newProgress);
+      setCurrentTime(time);
+      
+      const playerElement = document.getElementById("youtube-player");
+      if (playerElement && (playerElement as any).seekTo) {
+        (playerElement as any).seekTo(time);
+      }
+    }
+  }, [currentTrack, duration]);
 
   return (
     <div className="flex h-screen bg-background overflow-hidden">
@@ -290,10 +306,12 @@ const Index = () => {
       <LyricsPanel
         isOpen={showLyrics}
         onClose={() => setShowLyrics(false)}
-        lyrics={lyrics}
+        lyricsData={lyricsData}
         isLoading={isLoadingLyrics}
         trackTitle={currentTrack?.title}
         trackArtist={currentTrack?.artist}
+        currentTime={currentTime}
+        onSeek={handleLyricsSeek}
       />
 
       {/* Player Bar */}
