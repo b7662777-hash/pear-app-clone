@@ -8,7 +8,7 @@ import { PlayerBar } from "@/components/PlayerBar";
 import { YouTubePlayer } from "@/components/YouTubePlayer";
 import { LyricsPanel } from "@/components/LyricsPanel";
 import { SearchResults } from "@/components/SearchResults";
-import { useYouTubeMusic, YouTubeTrack } from "@/hooks/useYouTubeMusic";
+import { useYouTubeMusic, YouTubeTrack, LyricsProvider } from "@/hooks/useYouTubeMusic";
 import { 
   quickPickTracks, 
   throwbackAlbums, 
@@ -41,6 +41,7 @@ const Index = () => {
   const [duration, setDuration] = useState(0);
   const [showLyrics, setShowLyrics] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
+  const [lyricsProvider, setLyricsProvider] = useState<LyricsProvider>("lrclib");
   
   const playerContainerRef = useRef<HTMLDivElement>(null);
 
@@ -197,10 +198,18 @@ const Index = () => {
   // Toggle lyrics panel
   const handleLyricsToggle = useCallback(() => {
     if (!showLyrics && currentTrack) {
-      fetchSyncedLyrics(currentTrack.title, currentTrack.artist);
+      fetchSyncedLyrics(currentTrack.title, currentTrack.artist, lyricsProvider, currentTrack.videoId);
     }
     setShowLyrics(!showLyrics);
-  }, [showLyrics, currentTrack, fetchSyncedLyrics]);
+  }, [showLyrics, currentTrack, fetchSyncedLyrics, lyricsProvider]);
+
+  // Handle provider change
+  const handleProviderChange = useCallback((provider: LyricsProvider) => {
+    setLyricsProvider(provider);
+    if (currentTrack) {
+      fetchSyncedLyrics(currentTrack.title, currentTrack.artist, provider, currentTrack.videoId);
+    }
+  }, [currentTrack, fetchSyncedLyrics]);
 
   // Handle lyrics seek
   const handleLyricsSeek = useCallback((time: number) => {
@@ -312,6 +321,8 @@ const Index = () => {
         trackArtist={currentTrack?.artist}
         currentTime={currentTime}
         onSeek={handleLyricsSeek}
+        provider={lyricsProvider}
+        onProviderChange={handleProviderChange}
       />
 
       {/* Player Bar */}
