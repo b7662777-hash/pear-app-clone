@@ -1,7 +1,14 @@
 import { X, Music } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { SyncedLyrics } from "@/components/SyncedLyrics";
-import { LyricsData } from "@/hooks/useYouTubeMusic";
+import { LyricsData, LyricsProvider } from "@/hooks/useYouTubeMusic";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface LyricsPanelProps {
   isOpen: boolean;
@@ -12,7 +19,15 @@ interface LyricsPanelProps {
   trackArtist?: string;
   currentTime?: number;
   onSeek?: (time: number) => void;
+  provider: LyricsProvider;
+  onProviderChange: (provider: LyricsProvider) => void;
 }
+
+const providerLabels: Record<LyricsProvider, string> = {
+  lrclib: "LRCLIB",
+  musixmatch: "Musixmatch",
+  youtube: "YouTube Music",
+};
 
 export function LyricsPanel({
   isOpen,
@@ -23,6 +38,8 @@ export function LyricsPanel({
   trackArtist,
   currentTime = 0,
   onSeek,
+  provider,
+  onProviderChange,
 }: LyricsPanelProps) {
   if (!isOpen) return null;
 
@@ -48,6 +65,25 @@ export function LyricsPanel({
         >
           <X className="w-5 h-5" />
         </button>
+      </div>
+
+      {/* Provider Selector */}
+      <div className="px-4 py-2 border-b border-border/30">
+        <Select value={provider} onValueChange={(v) => onProviderChange(v as LyricsProvider)}>
+          <SelectTrigger className="w-full h-8 text-sm">
+            <SelectValue placeholder="Select provider" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="lrclib">LRCLIB (Synced)</SelectItem>
+            <SelectItem value="musixmatch">Musixmatch</SelectItem>
+            <SelectItem value="youtube">YouTube Music</SelectItem>
+          </SelectContent>
+        </Select>
+        {lyricsData?.source && (
+          <p className="text-xs text-muted-foreground mt-1">
+            Source: {providerLabels[lyricsData.source as LyricsProvider] || lyricsData.source}
+          </p>
+        )}
       </div>
 
       {/* Track Info */}
@@ -84,7 +120,7 @@ export function LyricsPanel({
             <Music className="w-12 h-12 text-muted-foreground/50 mb-4" />
             <p className="text-muted-foreground">No lyrics available</p>
             <p className="text-sm text-muted-foreground/70 mt-1">
-              Lyrics are not available for this track
+              Try a different provider
             </p>
           </div>
         )}

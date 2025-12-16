@@ -27,7 +27,10 @@ export interface LyricsData {
   synced: boolean;
   lyrics: SyncedLyricLine[] | null;
   plainLyrics: string | null;
+  source?: string;
 }
+
+export type LyricsProvider = "lrclib" | "musixmatch" | "youtube";
 
 export function useYouTubeMusic() {
   const [isSearching, setIsSearching] = useState(false);
@@ -84,15 +87,20 @@ export function useYouTubeMusic() {
     }
   }, [toast]);
 
-  const fetchSyncedLyrics = useCallback(async (title: string, artist: string) => {
+  const fetchSyncedLyrics = useCallback(async (
+    title: string, 
+    artist: string, 
+    provider: LyricsProvider = "lrclib",
+    videoId?: string
+  ) => {
     setIsLoadingLyrics(true);
     setLyricsData(null);
     
     try {
-      console.log("Fetching synced lyrics for:", title, "by", artist);
+      console.log("Fetching synced lyrics for:", title, "by", artist, "from", provider);
       
       const { data, error } = await supabase.functions.invoke("youtube-music", {
-        body: { action: "synced-lyrics", title, artist },
+        body: { action: "synced-lyrics", title, artist, provider, videoId },
       });
 
       if (error) {
@@ -101,7 +109,7 @@ export function useYouTubeMusic() {
       }
 
       if (data?.success && data?.data) {
-        console.log("Lyrics found, synced:", data.data.synced);
+        console.log("Lyrics found, synced:", data.data.synced, "source:", data.data.source);
         setLyricsData(data.data);
         return data.data;
       }
