@@ -9,7 +9,8 @@ import {
   Maximize2,
   ListMusic,
   Heart,
-  Mic2
+  Mic2,
+  Loader2
 } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { cn } from "@/lib/utils";
@@ -37,6 +38,7 @@ interface PlayerBarProps {
   onLikeToggle: () => void;
   onLyricsToggle?: () => void;
   showLyrics?: boolean;
+  isBuffering?: boolean;
 }
 
 function formatTime(seconds: number): string {
@@ -59,6 +61,7 @@ export function PlayerBar({
   onLikeToggle,
   onLyricsToggle,
   showLyrics,
+  isBuffering,
 }: PlayerBarProps) {
   if (!currentTrack) return null;
 
@@ -106,9 +109,11 @@ export function PlayerBar({
           </button>
           <button
             onClick={onPlayPause}
-            className="player-control-main"
+            className="player-control-main relative"
           >
-            {isPlaying ? (
+            {isBuffering ? (
+              <Loader2 className="w-5 h-5 animate-spin" />
+            ) : isPlaying ? (
               <Pause className="w-5 h-5 fill-current" />
             ) : (
               <Play className="w-5 h-5 fill-current ml-0.5" />

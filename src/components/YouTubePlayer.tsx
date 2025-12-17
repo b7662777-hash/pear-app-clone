@@ -15,6 +15,7 @@ interface YouTubePlayerProps {
   onStateChange?: (state: number) => void;
   onProgress?: (current: number, duration: number) => void;
   onEnded?: () => void;
+  onBuffering?: (isBuffering: boolean) => void;
 }
 
 declare global {
@@ -32,6 +33,7 @@ export function YouTubePlayer({
   onStateChange,
   onProgress,
   onEnded,
+  onBuffering,
 }: YouTubePlayerProps) {
   const playerRef = useRef<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -97,6 +99,9 @@ export function YouTubePlayer({
           if (event.data === 0) {
             onEnded?.();
           }
+          
+          // Handle buffering state
+          onBuffering?.(event.data === 3 || event.data === -1);
           
           // Start/stop progress tracking
           if (event.data === 1 || event.data === 3) {

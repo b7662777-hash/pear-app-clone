@@ -42,6 +42,7 @@ const Index = () => {
   const [showLyrics, setShowLyrics] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [lyricsProvider, setLyricsProvider] = useState<LyricsProvider>("lrclib");
+  const [isBuffering, setIsBuffering] = useState(false);
   
   const playerContainerRef = useRef<HTMLDivElement>(null);
 
@@ -180,6 +181,11 @@ const Index = () => {
     handleNext();
   }, [handleNext]);
 
+  // Handle buffering
+  const handleBuffering = useCallback((buffering: boolean) => {
+    setIsBuffering(buffering);
+  }, []);
+
   // Handle progress bar seek
   const handleProgressChange = useCallback((value: number[]) => {
     const newProgress = value[0];
@@ -235,6 +241,7 @@ const Index = () => {
           volume={volume}
           onProgress={handleProgress}
           onEnded={handleEnded}
+          onBuffering={handleBuffering}
         />
       )}
 
@@ -340,6 +347,7 @@ const Index = () => {
         onLikeToggle={() => setIsLiked(!isLiked)}
         onLyricsToggle={handleLyricsToggle}
         showLyrics={showLyrics}
+        isBuffering={isBuffering}
       />
     </div>
   );
