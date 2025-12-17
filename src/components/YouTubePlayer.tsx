@@ -73,7 +73,7 @@ export function YouTubePlayer({
       height: "0",
       width: "0",
       playerVars: {
-        autoplay: 0,
+        autoplay: 1,
         controls: 0,
         disablekb: 1,
         fs: 0,
@@ -81,6 +81,7 @@ export function YouTubePlayer({
         modestbranding: 1,
         rel: 0,
         showinfo: 0,
+        playsinline: 1,
       },
       events: {
         onReady: () => {
@@ -98,9 +99,9 @@ export function YouTubePlayer({
           }
           
           // Start/stop progress tracking
-          if (event.data === 1) {
+          if (event.data === 1 || event.data === 3) {
             startProgressTracking();
-          } else {
+          } else if (event.data === 0 || event.data === 2) {
             stopProgressTracking();
           }
         },
@@ -172,7 +173,7 @@ export function YouTubePlayer({
           // Player might not be ready
         }
       }
-    }, 500);
+    }, 250);
   }, [onProgress]);
 
   const stopProgressTracking = useCallback(() => {

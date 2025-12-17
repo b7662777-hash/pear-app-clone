@@ -159,23 +159,31 @@ async function mxmRequest(endpoint: string, params: Record<string, string>): Pro
 }
 
 async function searchMxmTracks(query: string): Promise<any[]> {
-  const data = await mxmRequest("track.search", {
-    q: query,
-    f_has_lyrics: "true",
-    page_size: "20",
-    page: "1",
-  });
-  
-  const trackList = data?.message?.body?.track_list || [];
-  return trackList.map((item: any) => ({
-    track_id: item.track.track_id,
-    commontrack_id: item.track.commontrack_id,
-    track_name: item.track.track_name,
-    artist_name: item.track.artist_name,
-    album_name: item.track.album_name,
-    has_lyrics: item.track.has_lyrics,
-    has_richsync: item.track.has_richsync,
-  }));
+  try {
+    const data = await mxmRequest("track.search", {
+      q: query,
+      f_has_lyrics: "1",
+      page_size: "10",
+      page: "1",
+      s_track_rating: "desc",
+    });
+    
+    console.log("Musixmatch search response status:", data?.message?.header?.status_code);
+    
+    const trackList = data?.message?.body?.track_list || [];
+    return trackList.map((item: any) => ({
+      track_id: item.track.track_id,
+      commontrack_id: item.track.commontrack_id,
+      track_name: item.track.track_name,
+      artist_name: item.track.artist_name,
+      album_name: item.track.album_name,
+      has_lyrics: item.track.has_lyrics,
+      has_richsync: item.track.has_richsync,
+    }));
+  } catch (error) {
+    console.error("Musixmatch search error:", error);
+    return [];
+  }
 }
 
 async function getMxmLyrics(trackId: number): Promise<string | null> {
@@ -211,17 +219,32 @@ async function getMusixmatchLyrics(title: string, artist: string) {
   console.log(`Getting Musixmatch lyrics for: ${title} by ${artist}`);
   
   try {
-    // Search for the track
-    const tracks = await searchMxmTracks(`${title} ${artist}`);
+    // Clean up title and artist for better matching
+    const cleanTitle = title.replace(/\(.*?\)/g, '').replace(/\[.*?\]/g, '').trim();
+    const cleanArtist = artist.split(/[,&]/)[0].trim();
+    
+    // Try multiple search strategies
+    const searchQueries = [
+      `${cleanTitle} ${cleanArtist}`,
+      cleanTitle,
+      `${title} ${artist}`,
+    ];
+    
+    let tracks: any[] = [];
+    for (const query of searchQueries) {
+      console.log(`Trying Musixmatch search: ${query}`);
+      tracks = await searchMxmTracks(query);
+      if (tracks && tracks.length > 0) break;
+    }
     
     if (!tracks || tracks.length === 0) {
-      console.log("No tracks found on Musixmatch");
+      console.log("No tracks found on Musixmatch after all attempts");
       return null;
     }
     
-    // Find best match
-    const track = tracks[0];
-    console.log(`Found track: ${track.track_name} by ${track.artist_name} (ID: ${track.track_id})`);
+    // Find best match - prefer tracks with richsync
+    let track = tracks.find(t => t.has_richsync) || tracks.find(t => t.has_lyrics) || tracks[0];
+    console.log(`Found track: ${track.track_name} by ${track.artist_name} (ID: ${track.track_id}, richsync: ${track.has_richsync})`);
     
     // Try richsync first (synced lyrics)
     if (track.has_richsync) {
@@ -241,7 +264,7 @@ async function getMusixmatchLyrics(title: string, artist: string) {
     if (track.has_lyrics) {
       const lyrics = await getMxmLyrics(track.track_id);
       if (lyrics) {
-        console.log("Plain lyrics found");
+        console.log("Plain lyrics found from Musixmatch");
         return {
           synced: false,
           lyrics: null,
