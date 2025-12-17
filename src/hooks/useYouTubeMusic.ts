@@ -32,6 +32,8 @@ export interface LyricsData {
 
 export type LyricsProvider = "lrclib" | "musixmatch" | "youtube";
 
+const PROVIDER_ORDER: LyricsProvider[] = ["lrclib", "musixmatch", "youtube"];
+
 export function useYouTubeMusic() {
   const [isSearching, setIsSearching] = useState(false);
   const [searchResults, setSearchResults] = useState<YouTubeTrack[]>([]);
@@ -87,34 +89,70 @@ export function useYouTubeMusic() {
     }
   }, [toast]);
 
-  const fetchSyncedLyrics = useCallback(async (
-    title: string, 
-    artist: string, 
-    provider: LyricsProvider = "lrclib",
+  const fetchFromProvider = useCallback(async (
+    title: string,
+    artist: string,
+    provider: LyricsProvider,
     videoId?: string
-  ) => {
-    setIsLoadingLyrics(true);
-    setLyricsData(null);
-    
+  ): Promise<LyricsData | null> => {
     try {
-      console.log("Fetching synced lyrics for:", title, "by", artist, "from", provider);
+      console.log(`Trying ${provider} for: ${title} by ${artist}`);
       
       const { data, error } = await supabase.functions.invoke("youtube-music", {
         body: { action: "synced-lyrics", title, artist, provider, videoId },
       });
 
       if (error) {
-        console.error("Synced lyrics error:", error);
+        console.error(`${provider} error:`, error);
         return null;
       }
 
-      if (data?.success && data?.data) {
-        console.log("Lyrics found, synced:", data.data.synced, "source:", data.data.source);
-        setLyricsData(data.data);
+      if (data?.success && data?.data && (data.data.lyrics || data.data.plainLyrics)) {
+        console.log(`Lyrics found from ${provider}, synced:`, data.data.synced);
         return data.data;
       }
 
-      console.log("No lyrics available");
+      return null;
+    } catch (error) {
+      console.error(`${provider} error:`, error);
+      return null;
+    }
+  }, []);
+
+  const fetchSyncedLyrics = useCallback(async (
+    title: string, 
+    artist: string, 
+    provider: LyricsProvider = "lrclib",
+    videoId?: string,
+    autoFallback: boolean = true
+  ) => {
+    setIsLoadingLyrics(true);
+    setLyricsData(null);
+    
+    try {
+      // First try the requested provider
+      let result = await fetchFromProvider(title, artist, provider, videoId);
+      
+      if (result) {
+        setLyricsData(result);
+        return result;
+      }
+
+      // If autoFallback enabled, try other providers
+      if (autoFallback) {
+        const otherProviders = PROVIDER_ORDER.filter(p => p !== provider);
+        
+        for (const fallbackProvider of otherProviders) {
+          result = await fetchFromProvider(title, artist, fallbackProvider, videoId);
+          if (result) {
+            console.log(`Fallback to ${fallbackProvider} successful`);
+            setLyricsData(result);
+            return result;
+          }
+        }
+      }
+
+      console.log("No lyrics available from any provider");
       return null;
     } catch (error) {
       console.error("Synced lyrics error:", error);
@@ -122,7 +160,7 @@ export function useYouTubeMusic() {
     } finally {
       setIsLoadingLyrics(false);
     }
-  }, []);
+  }, [fetchFromProvider]);
 
   // Legacy fetchLyrics for backward compatibility
   const fetchLyrics = useCallback(async (videoId: string) => {
