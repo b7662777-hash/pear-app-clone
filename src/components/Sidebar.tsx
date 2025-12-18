@@ -56,7 +56,7 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
   };
 
   return (
-    <aside className="w-60 h-full bg-background flex flex-col border-r border-border/50">
+    <aside className="w-60 h-full bg-background/80 backdrop-blur-xl flex flex-col border-r border-border/30">
       {/* Logo */}
       <div className="p-6 flex items-center gap-2">
         <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">

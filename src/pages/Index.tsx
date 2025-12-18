@@ -89,6 +89,8 @@ const Index = () => {
     } else {
       setCurrentTrack(newTrack);
       setProgress(0);
+      setCurrentTime(0);
+      setIsBuffering(true);
       setIsPlaying(true);
       setIsLiked(false);
       clearLyrics();

@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { getCachedLyrics, setCachedLyrics } from "@/hooks/useLyricsCache";
 
 // Video ID validation regex (YouTube IDs are 11 characters: a-z, A-Z, 0-9, -, _)
 const VIDEO_ID_REGEX = /^[a-zA-Z0-9_-]{11}$/;
@@ -126,6 +127,13 @@ export function useYouTubeMusic() {
     videoId?: string,
     autoFallback: boolean = true
   ) => {
+    // Check cache first
+    const cached = getCachedLyrics(title, artist);
+    if (cached) {
+      setLyricsData(cached);
+      return cached;
+    }
+
     setIsLoadingLyrics(true);
     setLyricsData(null);
     
@@ -134,6 +142,7 @@ export function useYouTubeMusic() {
       let result = await fetchFromProvider(title, artist, provider, videoId);
       
       if (result) {
+        setCachedLyrics(title, artist, result);
         setLyricsData(result);
         return result;
       }
@@ -146,6 +155,7 @@ export function useYouTubeMusic() {
           result = await fetchFromProvider(title, artist, fallbackProvider, videoId);
           if (result) {
             console.log(`Fallback to ${fallbackProvider} successful`);
+            setCachedLyrics(title, artist, result);
             setLyricsData(result);
             return result;
           }

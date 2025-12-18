@@ -47,7 +47,7 @@ export function LyricsPanel({
   const hasPlainLyrics = lyricsData?.plainLyrics;
 
   return (
-    <div className="fixed right-0 top-0 bottom-[72px] w-[350px] bg-card border-l border-border/50 z-40 flex flex-col animate-slide-up">
+    <div className="fixed right-0 top-0 bottom-[72px] w-[350px] bg-background/90 backdrop-blur-xl border-l border-border/30 z-40 flex flex-col animate-slide-up">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-border/50">
         <div className="flex items-center gap-2">
