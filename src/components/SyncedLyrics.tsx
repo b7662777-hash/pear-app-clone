@@ -43,33 +43,21 @@ export const SyncedLyrics = forwardRef<HTMLDivElement, SyncedLyricsProps>(
         ref={containerRef}
         className="h-full overflow-y-auto scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent"
       >
-        <div className="py-6 px-4 space-y-2">
+        <div className="py-6 px-4 space-y-4">
           {lyrics.map((line, index) => {
             const isActive = index === activeIndex;
             const isPast = index < activeIndex;
-            const isFuture = index > activeIndex;
-            
-            // Calculate opacity based on distance from active line
-            let opacity = 1;
-            if (isFuture) {
-              const distance = index - activeIndex;
-              opacity = Math.max(0.3, 1 - distance * 0.12);
-            } else if (isPast) {
-              const distance = activeIndex - index;
-              opacity = Math.max(0.2, 0.6 - distance * 0.08);
-            }
             
             return (
               <div
                 key={`${line.time}-${index}`}
                 ref={isActive ? activeLineRef : null}
                 onClick={() => onSeek?.(line.time)}
-                style={{ opacity: isActive ? 1 : opacity }}
                 className={cn(
-                  "text-lg leading-relaxed cursor-pointer transition-all duration-300 py-2 px-3 rounded-lg",
-                  isActive && "text-primary font-bold text-2xl scale-[1.02] origin-left",
-                  isPast && "text-foreground/50",
-                  !isActive && !isPast && "text-foreground/70 hover:text-foreground/90 hover:bg-muted/20"
+                  "text-lg font-medium leading-relaxed cursor-pointer transition-all duration-300",
+                  isActive && "text-foreground text-xl",
+                  isPast && "text-muted-foreground/40",
+                  !isActive && !isPast && "text-muted-foreground/60 hover:text-muted-foreground"
                 )}
               >
                 {line.text || "♪"}
