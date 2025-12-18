@@ -43,7 +43,7 @@ export const SyncedLyrics = forwardRef<HTMLDivElement, SyncedLyricsProps>(
         ref={containerRef}
         className="h-full overflow-y-auto scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent"
       >
-        <div className="py-6 px-4 space-y-3">
+        <div className="py-6 px-4 space-y-2">
           {lyrics.map((line, index) => {
             const isActive = index === activeIndex;
             const isPast = index < activeIndex;
@@ -53,10 +53,10 @@ export const SyncedLyrics = forwardRef<HTMLDivElement, SyncedLyricsProps>(
             let opacity = 1;
             if (isFuture) {
               const distance = index - activeIndex;
-              opacity = Math.max(0.2, 1 - distance * 0.15);
+              opacity = Math.max(0.3, 1 - distance * 0.12);
             } else if (isPast) {
               const distance = activeIndex - index;
-              opacity = Math.max(0.15, 0.5 - distance * 0.1);
+              opacity = Math.max(0.2, 0.6 - distance * 0.08);
             }
             
             return (
@@ -66,10 +66,10 @@ export const SyncedLyrics = forwardRef<HTMLDivElement, SyncedLyricsProps>(
                 onClick={() => onSeek?.(line.time)}
                 style={{ opacity: isActive ? 1 : opacity }}
                 className={cn(
-                  "text-lg leading-relaxed cursor-pointer transition-all duration-500 py-2 px-3 rounded-lg",
-                  isActive && "text-primary font-bold text-2xl scale-[1.02] origin-left bg-primary/10 shadow-lg shadow-primary/5",
-                  isPast && "text-muted-foreground blur-[0.3px]",
-                  !isActive && !isPast && "text-foreground/70 hover:text-foreground hover:bg-muted/30"
+                  "text-lg leading-relaxed cursor-pointer transition-all duration-300 py-2 px-3 rounded-lg",
+                  isActive && "text-primary font-bold text-2xl scale-[1.02] origin-left",
+                  isPast && "text-foreground/50",
+                  !isActive && !isPast && "text-foreground/70 hover:text-foreground/90 hover:bg-muted/20"
                 )}
               >
                 {line.text || "♪"}
