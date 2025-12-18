@@ -8,6 +8,7 @@ import { PlayerBar } from "@/components/PlayerBar";
 import { YouTubePlayer } from "@/components/YouTubePlayer";
 import { LyricsPanel } from "@/components/LyricsPanel";
 import { SearchResults } from "@/components/SearchResults";
+import { ExpandedPlayer } from "@/components/ExpandedPlayer";
 import { useYouTubeMusic, YouTubeTrack, LyricsProvider } from "@/hooks/useYouTubeMusic";
 import { 
   quickPickTracks, 
@@ -43,6 +44,7 @@ const Index = () => {
   const [currentTime, setCurrentTime] = useState(0);
   const [lyricsProvider, setLyricsProvider] = useState<LyricsProvider>("lrclib");
   const [isBuffering, setIsBuffering] = useState(false);
+  const [showExpandedPlayer, setShowExpandedPlayer] = useState(false);
   
   const playerContainerRef = useRef<HTMLDivElement>(null);
 
@@ -211,6 +213,14 @@ const Index = () => {
     setShowLyrics(!showLyrics);
   }, [showLyrics, currentTrack, fetchSyncedLyrics, lyricsProvider]);
 
+  // Handle expanded player toggle
+  const handleExpandPlayer = useCallback(() => {
+    if (currentTrack) {
+      fetchSyncedLyrics(currentTrack.title, currentTrack.artist, lyricsProvider, currentTrack.videoId);
+    }
+    setShowExpandedPlayer(true);
+  }, [currentTrack, fetchSyncedLyrics, lyricsProvider]);
+
   // Handle provider change
   const handleProviderChange = useCallback((provider: LyricsProvider) => {
     setLyricsProvider(provider);
@@ -334,6 +344,29 @@ const Index = () => {
         onProviderChange={handleProviderChange}
       />
 
+      {/* Expanded Player */}
+      <ExpandedPlayer
+        isOpen={showExpandedPlayer}
+        onClose={() => setShowExpandedPlayer(false)}
+        currentTrack={currentTrack}
+        isPlaying={isPlaying}
+        progress={progress}
+        volume={volume}
+        onPlayPause={handlePlayPause}
+        onNext={handleNext}
+        onPrevious={handlePrevious}
+        onProgressChange={handleProgressChange}
+        isLiked={isLiked}
+        onLikeToggle={() => setIsLiked(!isLiked)}
+        isBuffering={isBuffering}
+        lyricsData={lyricsData}
+        currentTime={currentTime}
+        onSeek={handleLyricsSeek}
+        provider={lyricsProvider}
+        onProviderChange={handleProviderChange}
+        isLoadingLyrics={isLoadingLyrics}
+      />
+
       {/* Player Bar */}
       <PlayerBar
         currentTrack={currentTrack}
@@ -350,6 +383,7 @@ const Index = () => {
         onLyricsToggle={handleLyricsToggle}
         showLyrics={showLyrics}
         isBuffering={isBuffering}
+        onExpandClick={handleExpandPlayer}
       />
     </div>
   );

@@ -39,6 +39,7 @@ interface PlayerBarProps {
   onLyricsToggle?: () => void;
   showLyrics?: boolean;
   isBuffering?: boolean;
+  onExpandClick?: () => void;
 }
 
 function formatTime(seconds: number): string {
@@ -62,6 +63,7 @@ export function PlayerBar({
   onLyricsToggle,
   showLyrics,
   isBuffering,
+  onExpandClick,
 }: PlayerBarProps) {
   if (!currentTrack) return null;
 
@@ -70,8 +72,11 @@ export function PlayerBar({
   return (
     <div className="fixed bottom-0 left-0 right-0 h-[72px] bg-background/80 backdrop-blur-xl border-t border-border/30 flex items-center px-4 z-50" style={{ boxShadow: 'var(--shadow-player)' }}>
       {/* Left: Current Track */}
-      <div className="flex items-center gap-3 w-[280px]">
-        <div className="w-14 h-14 rounded-md overflow-hidden flex-shrink-0">
+      <div 
+        className="flex items-center gap-3 w-[280px] cursor-pointer group"
+        onClick={onExpandClick}
+      >
+        <div className="w-14 h-14 rounded-md overflow-hidden flex-shrink-0 group-hover:shadow-lg transition-shadow">
           <img
             src={currentTrack.image}
             alt={currentTrack.title}
