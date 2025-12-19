@@ -38,6 +38,8 @@ const PROVIDER_ORDER: LyricsProvider[] = ["lrclib", "musixmatch", "youtube"];
 export function useYouTubeMusic() {
   const [isSearching, setIsSearching] = useState(false);
   const [searchResults, setSearchResults] = useState<YouTubeTrack[]>([]);
+  const [relatedTracks, setRelatedTracks] = useState<YouTubeTrack[]>([]);
+  const [isLoadingRelated, setIsLoadingRelated] = useState(false);
   const [lyricsData, setLyricsData] = useState<LyricsData | null>(null);
   const [isLoadingLyrics, setIsLoadingLyrics] = useState(false);
   const { toast } = useToast();
@@ -222,6 +224,44 @@ export function useYouTubeMusic() {
     setLyricsData(null);
   }, []);
 
+  const fetchRelatedTracks = useCallback(async (title: string, artist: string) => {
+    setIsLoadingRelated(true);
+    try {
+      // Search for related tracks based on artist name
+      const query = `${artist} songs`;
+      console.log("Fetching related tracks:", query);
+      
+      const { data, error } = await supabase.functions.invoke("youtube-music", {
+        body: { action: "search", query },
+      });
+
+      if (error) {
+        console.error("Related tracks error:", error);
+        return [];
+      }
+
+      if (data?.success && data?.data) {
+        const validResults = data.data
+          .filter((track: YouTubeTrack) => track.videoId && isValidVideoId(track.videoId))
+          .slice(0, 10);
+        console.log("Related tracks found:", validResults.length);
+        setRelatedTracks(validResults);
+        return validResults;
+      }
+
+      return [];
+    } catch (error) {
+      console.error("Related tracks error:", error);
+      return [];
+    } finally {
+      setIsLoadingRelated(false);
+    }
+  }, []);
+
+  const clearRelated = useCallback(() => {
+    setRelatedTracks([]);
+  }, []);
+
   // Backward compatibility getter
   const lyrics = lyricsData?.plainLyrics || null;
 
@@ -236,5 +276,9 @@ export function useYouTubeMusic() {
     fetchLyrics,
     fetchSyncedLyrics,
     clearLyrics,
+    relatedTracks,
+    isLoadingRelated,
+    fetchRelatedTracks,
+    clearRelated,
   };
 }

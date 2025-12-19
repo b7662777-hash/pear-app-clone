@@ -58,6 +58,9 @@ const Index = () => {
     isLoadingLyrics,
     fetchSyncedLyrics,
     clearLyrics,
+    relatedTracks,
+    isLoadingRelated,
+    fetchRelatedTracks,
   } = useYouTubeMusic();
 
   // Debounced search
@@ -217,9 +220,10 @@ const Index = () => {
   const handleExpandPlayer = useCallback(() => {
     if (currentTrack) {
       fetchSyncedLyrics(currentTrack.title, currentTrack.artist, lyricsProvider, currentTrack.videoId);
+      fetchRelatedTracks(currentTrack.title, currentTrack.artist);
     }
     setShowExpandedPlayer(true);
-  }, [currentTrack, fetchSyncedLyrics, lyricsProvider]);
+  }, [currentTrack, fetchSyncedLyrics, fetchRelatedTracks, lyricsProvider]);
 
   // Handle provider change
   const handleProviderChange = useCallback((provider: LyricsProvider) => {
@@ -365,6 +369,9 @@ const Index = () => {
         provider={lyricsProvider}
         onProviderChange={handleProviderChange}
         isLoadingLyrics={isLoadingLyrics}
+        relatedTracks={relatedTracks}
+        isLoadingRelated={isLoadingRelated}
+        onRelatedTrackClick={handleYouTubeTrackClick}
       />
 
       {/* Player Bar */}
