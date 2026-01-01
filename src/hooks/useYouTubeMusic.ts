@@ -40,6 +40,8 @@ export function useYouTubeMusic() {
   const [searchResults, setSearchResults] = useState<YouTubeTrack[]>([]);
   const [relatedTracks, setRelatedTracks] = useState<YouTubeTrack[]>([]);
   const [isLoadingRelated, setIsLoadingRelated] = useState(false);
+  const [recommendedTracks, setRecommendedTracks] = useState<YouTubeTrack[]>([]);
+  const [isLoadingRecommended, setIsLoadingRecommended] = useState(false);
   const [lyricsData, setLyricsData] = useState<LyricsData | null>(null);
   const [isLoadingLyrics, setIsLoadingLyrics] = useState(false);
   const { toast } = useToast();
@@ -262,6 +264,42 @@ export function useYouTubeMusic() {
     setRelatedTracks([]);
   }, []);
 
+  const fetchRecommendedTracks = useCallback(async () => {
+    setIsLoadingRecommended(true);
+    try {
+      // Search for trending/popular music
+      const queries = ["trending songs 2025", "popular music", "top hits"];
+      const randomQuery = queries[Math.floor(Math.random() * queries.length)];
+      
+      console.log("Fetching recommended tracks:", randomQuery);
+      
+      const { data, error } = await supabase.functions.invoke("youtube-music", {
+        body: { action: "search", query: randomQuery },
+      });
+
+      if (error) {
+        console.error("Recommended tracks error:", error);
+        return [];
+      }
+
+      if (data?.success && data?.data) {
+        const validResults = data.data
+          .filter((track: YouTubeTrack) => track.videoId && isValidVideoId(track.videoId))
+          .slice(0, 12);
+        console.log("Recommended tracks found:", validResults.length);
+        setRecommendedTracks(validResults);
+        return validResults;
+      }
+
+      return [];
+    } catch (error) {
+      console.error("Recommended tracks error:", error);
+      return [];
+    } finally {
+      setIsLoadingRecommended(false);
+    }
+  }, []);
+
   // Backward compatibility getter
   const lyrics = lyricsData?.plainLyrics || null;
 
@@ -280,5 +318,8 @@ export function useYouTubeMusic() {
     isLoadingRelated,
     fetchRelatedTracks,
     clearRelated,
+    recommendedTracks,
+    isLoadingRecommended,
+    fetchRecommendedTracks,
   };
 }

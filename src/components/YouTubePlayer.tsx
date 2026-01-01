@@ -119,7 +119,7 @@ export function YouTubePlayer({
 
   // Handle video changes
   useEffect(() => {
-    if (!playerRef.current || !videoId || videoId === currentVideoId) return;
+    if (!playerRef.current || !videoId) return;
     
     // Validate video ID before loading
     if (!isValidVideoId(videoId)) {
@@ -127,15 +127,18 @@ export function YouTubePlayer({
       return;
     }
 
-    console.log("Loading video:", videoId);
-    setCurrentVideoId(videoId);
-    
-    try {
-      playerRef.current.loadVideoById(videoId);
-    } catch (error) {
-      console.error("Error loading video:", error);
+    // Always load new video when videoId changes
+    if (videoId !== currentVideoId) {
+      console.log("Loading video:", videoId);
+      setCurrentVideoId(videoId);
+      
+      try {
+        playerRef.current.loadVideoById(videoId);
+      } catch (error) {
+        console.error("Error loading video:", error);
+      }
     }
-  }, [videoId, currentVideoId]);
+  }, [videoId]);
 
   // Handle play/pause
   useEffect(() => {
