@@ -9,6 +9,7 @@ import { YouTubePlayer } from "@/components/YouTubePlayer";
 import { LyricsPanel } from "@/components/LyricsPanel";
 import { SearchResults } from "@/components/SearchResults";
 import { ExpandedPlayer } from "@/components/ExpandedPlayer";
+import { RecommendedSongs } from "@/components/RecommendedSongs";
 import { useYouTubeMusic, YouTubeTrack, LyricsProvider } from "@/hooks/useYouTubeMusic";
 import { 
   quickPickTracks, 
@@ -61,7 +62,15 @@ const Index = () => {
     relatedTracks,
     isLoadingRelated,
     fetchRelatedTracks,
+    recommendedTracks,
+    isLoadingRecommended,
+    fetchRecommendedTracks,
   } = useYouTubeMusic();
+
+  // Fetch recommended tracks on mount
+  useEffect(() => {
+    fetchRecommendedTracks();
+  }, [fetchRecommendedTracks]);
 
   // Debounced search
   useEffect(() => {
@@ -131,13 +140,55 @@ const Index = () => {
     setIsPlaying(!isPlaying);
   };
 
-  const handleNext = () => {
+  const handleNext = useCallback(() => {
+    // If we have related tracks and current track
+    if (relatedTracks.length > 0 && currentTrack?.videoId) {
+      const currentIndex = relatedTracks.findIndex((t) => t.videoId === currentTrack.videoId);
+      const nextIndex = currentIndex === -1 ? 0 : (currentIndex + 1) % relatedTracks.length;
+      const nextTrack = relatedTracks[nextIndex];
+      
+      setCurrentTrack({
+        id: nextTrack.videoId,
+        title: nextTrack.title,
+        artist: nextTrack.artist,
+        album: nextTrack.album,
+        plays: "",
+        image: nextTrack.thumbnail,
+        duration: parseDuration(nextTrack.duration),
+        videoId: nextTrack.videoId,
+      });
+      setProgress(0);
+      setCurrentTime(0);
+      setIsBuffering(true);
+      setIsPlaying(true);
+      setIsLiked(false);
+      clearLyrics();
+      return;
+    }
+    
     // If we have search results and current track is from search
     if (searchResults.length > 0 && currentTrack?.videoId) {
       const currentIndex = searchResults.findIndex((t) => t.videoId === currentTrack.videoId);
       if (currentIndex !== -1) {
         const nextIndex = (currentIndex + 1) % searchResults.length;
-        handleYouTubeTrackClick(searchResults[nextIndex]);
+        const nextTrack = searchResults[nextIndex];
+        
+        setCurrentTrack({
+          id: nextTrack.videoId,
+          title: nextTrack.title,
+          artist: nextTrack.artist,
+          album: nextTrack.album,
+          plays: "",
+          image: nextTrack.thumbnail,
+          duration: parseDuration(nextTrack.duration),
+          videoId: nextTrack.videoId,
+        });
+        setProgress(0);
+        setCurrentTime(0);
+        setIsBuffering(true);
+        setIsPlaying(true);
+        setIsLiked(false);
+        clearLyrics();
         return;
       }
     }
@@ -148,15 +199,57 @@ const Index = () => {
     setCurrentTrack(quickPickTracks[nextIndex]);
     setProgress(0);
     setIsLiked(false);
-  };
+  }, [currentTrack, relatedTracks, searchResults, clearLyrics]);
 
-  const handlePrevious = () => {
+  const handlePrevious = useCallback(() => {
+    // If we have related tracks and current track
+    if (relatedTracks.length > 0 && currentTrack?.videoId) {
+      const currentIndex = relatedTracks.findIndex((t) => t.videoId === currentTrack.videoId);
+      const prevIndex = currentIndex <= 0 ? relatedTracks.length - 1 : currentIndex - 1;
+      const prevTrack = relatedTracks[prevIndex];
+      
+      setCurrentTrack({
+        id: prevTrack.videoId,
+        title: prevTrack.title,
+        artist: prevTrack.artist,
+        album: prevTrack.album,
+        plays: "",
+        image: prevTrack.thumbnail,
+        duration: parseDuration(prevTrack.duration),
+        videoId: prevTrack.videoId,
+      });
+      setProgress(0);
+      setCurrentTime(0);
+      setIsBuffering(true);
+      setIsPlaying(true);
+      setIsLiked(false);
+      clearLyrics();
+      return;
+    }
+    
     // If we have search results and current track is from search
     if (searchResults.length > 0 && currentTrack?.videoId) {
       const currentIndex = searchResults.findIndex((t) => t.videoId === currentTrack.videoId);
       if (currentIndex !== -1) {
         const prevIndex = currentIndex === 0 ? searchResults.length - 1 : currentIndex - 1;
-        handleYouTubeTrackClick(searchResults[prevIndex]);
+        const prevTrack = searchResults[prevIndex];
+        
+        setCurrentTrack({
+          id: prevTrack.videoId,
+          title: prevTrack.title,
+          artist: prevTrack.artist,
+          album: prevTrack.album,
+          plays: "",
+          image: prevTrack.thumbnail,
+          duration: parseDuration(prevTrack.duration),
+          videoId: prevTrack.videoId,
+        });
+        setProgress(0);
+        setCurrentTime(0);
+        setIsBuffering(true);
+        setIsPlaying(true);
+        setIsLiked(false);
+        clearLyrics();
         return;
       }
     }
@@ -166,7 +259,7 @@ const Index = () => {
     setCurrentTrack(quickPickTracks[prevIndex]);
     setProgress(0);
     setIsLiked(false);
-  };
+  }, [currentTrack, relatedTracks, searchResults, clearLyrics]);
 
   const handleAlbumClick = (album: { id: string; title: string }) => {
     // Search for the album
@@ -296,6 +389,18 @@ const Index = () => {
             </div>
           )}
 
+          {/* Recommended Songs from YouTube */}
+          {!searchQuery.trim() && (
+            <div className="mb-10">
+              <RecommendedSongs
+                tracks={recommendedTracks}
+                isLoading={isLoadingRecommended}
+                onTrackClick={handleYouTubeTrackClick}
+                currentVideoId={currentTrack?.videoId}
+              />
+            </div>
+          )}
+
           {/* Throwback Jams */}
           {!searchQuery.trim() && (
             <div className="mb-10">
@@ -308,12 +413,12 @@ const Index = () => {
             </div>
           )}
 
-          {/* Recommended for You */}
+          {/* Recommended for You (Albums) */}
           {!searchQuery.trim() && (
             <div className="mb-10">
               <AlbumSection
-                title="Recommended for you"
-                subtitle="Based on your listening"
+                title="Popular albums"
+                subtitle="Top picks this week"
                 albums={recommendedAlbums}
                 onAlbumClick={handleAlbumClick}
               />
