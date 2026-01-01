@@ -16,12 +16,14 @@ interface YouTubePlayerProps {
   onProgress?: (current: number, duration: number) => void;
   onEnded?: () => void;
   onBuffering?: (isBuffering: boolean) => void;
+  onSeekReady?: (seekFn: (seconds: number) => void) => void;
 }
 
 declare global {
   interface Window {
     YT: any;
     onYouTubeIframeAPIReady: () => void;
+    youtubePlayerSeekTo?: (seconds: number) => void;
   }
 }
 
@@ -34,6 +36,7 @@ export function YouTubePlayer({
   onProgress,
   onEnded,
   onBuffering,
+  onSeekReady,
 }: YouTubePlayerProps) {
   const playerRef = useRef<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -191,10 +194,11 @@ export function YouTubePlayer({
     }
   }, []);
 
-  // Expose seek function via ref
+  // Seek function
   const seekTo = useCallback((seconds: number) => {
     if (playerRef.current) {
       try {
+        console.log("Seeking to:", seconds);
         playerRef.current.seekTo(seconds, true);
       } catch (error) {
         console.error("Error seeking:", error);
@@ -202,12 +206,19 @@ export function YouTubePlayer({
     }
   }, []);
 
-  // Store seekTo on the container element for parent access
+  // Expose seek function globally and via callback
   useEffect(() => {
+    window.youtubePlayerSeekTo = seekTo;
+    onSeekReady?.(seekTo);
+    
     if (containerRef.current) {
       (containerRef.current as any).seekTo = seekTo;
     }
-  }, [seekTo]);
+    
+    return () => {
+      window.youtubePlayerSeekTo = undefined;
+    };
+  }, [seekTo, onSeekReady]);
 
   return (
     <div

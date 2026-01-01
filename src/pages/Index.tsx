@@ -18,6 +18,12 @@ import {
   newReleases 
 } from "@/data/mockData";
 
+declare global {
+  interface Window {
+    youtubePlayerSeekTo?: (seconds: number) => void;
+  }
+}
+
 interface Track {
   id: string;
   title: string;
@@ -294,9 +300,8 @@ const Index = () => {
     // Seek in YouTube player
     if (currentTrack?.videoId && duration > 0) {
       const seekTime = (newProgress / 100) * duration;
-      const playerElement = document.getElementById("youtube-player");
-      if (playerElement && (playerElement as any).seekTo) {
-        (playerElement as any).seekTo(seekTime);
+      if (window.youtubePlayerSeekTo) {
+        window.youtubePlayerSeekTo(seekTime);
       }
     }
   }, [currentTrack, duration]);
@@ -334,11 +339,11 @@ const Index = () => {
         const newProgress = (time / effectiveDuration) * 100;
         setProgress(newProgress);
         setCurrentTime(time);
-        
-        const playerElement = document.getElementById("youtube-player");
-        if (playerElement && (playerElement as any).seekTo) {
-          (playerElement as any).seekTo(time);
-        }
+      }
+      
+      // Use global seek function
+      if (window.youtubePlayerSeekTo) {
+        window.youtubePlayerSeekTo(time);
       }
     }
   }, [currentTrack, duration]);
