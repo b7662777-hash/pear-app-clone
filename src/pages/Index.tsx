@@ -328,14 +328,17 @@ const Index = () => {
 
   // Handle lyrics seek
   const handleLyricsSeek = useCallback((time: number) => {
-    if (currentTrack?.videoId && duration > 0) {
-      const newProgress = (time / duration) * 100;
-      setProgress(newProgress);
-      setCurrentTime(time);
-      
-      const playerElement = document.getElementById("youtube-player");
-      if (playerElement && (playerElement as any).seekTo) {
-        (playerElement as any).seekTo(time);
+    if (currentTrack?.videoId) {
+      const effectiveDuration = duration > 0 ? duration : currentTrack.duration;
+      if (effectiveDuration > 0) {
+        const newProgress = (time / effectiveDuration) * 100;
+        setProgress(newProgress);
+        setCurrentTime(time);
+        
+        const playerElement = document.getElementById("youtube-player");
+        if (playerElement && (playerElement as any).seekTo) {
+          (playerElement as any).seekTo(time);
+        }
       }
     }
   }, [currentTrack, duration]);
