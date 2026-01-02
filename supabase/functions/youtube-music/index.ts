@@ -635,17 +635,25 @@ serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error: any) {
-    console.error('Error in youtube-music function:', error);
+    // Log detailed error server-side only (not exposed to client)
+    const errorId = crypto.randomUUID().slice(0, 8);
+    console.error(`[${errorId}] Error in youtube-music function:`, {
+      message: error.message,
+      stack: error.stack,
+    });
     
-    const isValidationError = error.message?.includes('required') || 
-                              error.message?.includes('Invalid') ||
-                              error.message?.includes('must be');
+    // Determine if client error (4xx) or server error (5xx) without leaking details
+    const isClientError = error.message?.includes('required') || 
+                          error.message?.includes('Invalid') ||
+                          error.message?.includes('must be');
     
+    // Return generic error messages to client
     return new Response(JSON.stringify({ 
       success: false, 
-      error: isValidationError ? 'Invalid request' : 'Service temporarily unavailable'
+      error: isClientError ? 'Bad request' : 'An error occurred',
+      errorId, // Allow correlation with server logs if needed
     }), {
-      status: isValidationError ? 400 : 500,
+      status: isClientError ? 400 : 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
