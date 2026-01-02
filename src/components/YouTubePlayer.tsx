@@ -120,7 +120,7 @@ export function YouTubePlayer({
     });
   }, [isAPIReady, onReady, onStateChange, onEnded, volume]);
 
-  // Handle video changes
+  // Handle video changes - always reload when videoId prop changes
   useEffect(() => {
     if (!playerRef.current || !videoId) return;
     
@@ -130,16 +130,17 @@ export function YouTubePlayer({
       return;
     }
 
-    // Always load new video when videoId changes
-    if (videoId !== currentVideoId) {
-      console.log("Loading video:", videoId);
-      setCurrentVideoId(videoId);
-      
-      try {
-        playerRef.current.loadVideoById(videoId);
-      } catch (error) {
-        console.error("Error loading video:", error);
-      }
+    console.log("Loading video:", videoId);
+    setCurrentVideoId(videoId);
+    
+    try {
+      // Force load the video - this ensures playback starts
+      playerRef.current.loadVideoById({
+        videoId: videoId,
+        startSeconds: 0,
+      });
+    } catch (error) {
+      console.error("Error loading video:", error);
     }
   }, [videoId]);
 
