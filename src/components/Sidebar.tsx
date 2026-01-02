@@ -121,24 +121,9 @@ export function Sidebar({
         </div>
       </div>
 
-      {/* User Section */}
-      {loading ? <div className="p-4 m-3 rounded-lg bg-card border border-border/50">
-          <div className="animate-pulse h-10 bg-muted rounded" />
-        </div> : user ? <div className="p-4 m-3 rounded-lg bg-card border border-border/50 opacity-100">
-          <div className="flex items-center gap-3 mb-3">
-            <Avatar className="h-10 w-10">
-              <AvatarImage src={profile?.avatar_url || undefined} />
-              <AvatarFallback className="bg-primary/10 text-primary">
-                {getInitials()}
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex-1 min-w-0">
-              
-              
-            </div>
-          </div>
-          
-        </div> : <div className="p-4 m-3 rounded-lg bg-card border border-border/50">
+      {/* Sign in prompt for non-authenticated users */}
+      {!loading && !user && (
+        <div className="p-4 m-3 rounded-lg bg-card border border-border/50">
           <p className="text-sm text-muted-foreground mb-3">
             Sign in to create playlists and get personalized recommendations
           </p>
@@ -146,6 +131,7 @@ export function Sidebar({
             <User className="w-4 h-4" />
             Sign in
           </button>
-        </div>}
+        </div>
+      )}
     </aside>;
 }
