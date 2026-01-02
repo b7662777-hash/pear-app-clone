@@ -19,6 +19,77 @@ const MXM_USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWeb
 let mxmSecretCache: { secret: string; timestamp: number } | null = null;
 const MXM_CACHE_TTL = 3600000; // 1 hour
 
+// ==================== RATE LIMITING ====================
+// In-memory rate limiter to prevent API abuse
+const RATE_LIMIT_WINDOW_MS = 60000; // 1 minute window
+const RATE_LIMIT_MAX_REQUESTS = 30; // Max requests per window per IP
+const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
+
+// Clean up expired entries periodically
+function cleanupRateLimitStore(): void {
+  const now = Date.now();
+  for (const [key, value] of rateLimitStore.entries()) {
+    if (now > value.resetTime) {
+      rateLimitStore.delete(key);
+    }
+  }
+}
+
+// Check and update rate limit for an IP
+function checkRateLimit(clientIp: string): { allowed: boolean; remaining: number; resetIn: number } {
+  const now = Date.now();
+  const entry = rateLimitStore.get(clientIp);
+  
+  // Clean up periodically (every 100 requests)
+  if (rateLimitStore.size > 100) {
+    cleanupRateLimitStore();
+  }
+  
+  if (!entry || now > entry.resetTime) {
+    // New window
+    rateLimitStore.set(clientIp, { count: 1, resetTime: now + RATE_LIMIT_WINDOW_MS });
+    return { allowed: true, remaining: RATE_LIMIT_MAX_REQUESTS - 1, resetIn: RATE_LIMIT_WINDOW_MS };
+  }
+  
+  if (entry.count >= RATE_LIMIT_MAX_REQUESTS) {
+    return { allowed: false, remaining: 0, resetIn: entry.resetTime - now };
+  }
+  
+  entry.count++;
+  return { allowed: true, remaining: RATE_LIMIT_MAX_REQUESTS - entry.count, resetIn: entry.resetTime - now };
+}
+
+// Get client IP from request headers
+function getClientIp(req: Request): string {
+  // Check common headers for client IP (in order of preference)
+  const forwardedFor = req.headers.get('x-forwarded-for');
+  if (forwardedFor) {
+    // Take the first IP if there are multiple
+    return forwardedFor.split(',')[0].trim();
+  }
+  
+  const realIp = req.headers.get('x-real-ip');
+  if (realIp) {
+    return realIp.trim();
+  }
+  
+  // Fallback to a hash of user-agent + other headers for fingerprinting
+  const userAgent = req.headers.get('user-agent') || '';
+  const acceptLanguage = req.headers.get('accept-language') || '';
+  return `fingerprint-${hashString(userAgent + acceptLanguage)}`;
+}
+
+// Simple string hash for fingerprinting
+function hashString(str: string): string {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32bit integer
+  }
+  return Math.abs(hash).toString(36);
+}
+
 // Input validation
 const MAX_QUERY_LENGTH = 200;
 const VIDEO_ID_REGEX = /^[a-zA-Z0-9_-]{11}$/;
@@ -599,9 +670,36 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  // Apply rate limiting
+  const clientIp = getClientIp(req);
+  const rateLimit = checkRateLimit(clientIp);
+  
+  // Add rate limit headers to all responses
+  const rateLimitHeaders = {
+    'X-RateLimit-Limit': RATE_LIMIT_MAX_REQUESTS.toString(),
+    'X-RateLimit-Remaining': rateLimit.remaining.toString(),
+    'X-RateLimit-Reset': Math.ceil(rateLimit.resetIn / 1000).toString(),
+  };
+  
+  if (!rateLimit.allowed) {
+    console.warn(`Rate limit exceeded for IP: ${clientIp}`);
+    return new Response(JSON.stringify({ 
+      success: false, 
+      error: 'Too many requests. Please try again later.',
+    }), {
+      status: 429,
+      headers: { 
+        ...corsHeaders, 
+        ...rateLimitHeaders,
+        'Content-Type': 'application/json',
+        'Retry-After': Math.ceil(rateLimit.resetIn / 1000).toString(),
+      },
+    });
+  }
+
   try {
     const { action, query, videoId, title, artist, provider } = await req.json();
-    console.log(`Action: ${action}, Query: ${query}, VideoId: ${videoId}, Title: ${title}, Artist: ${artist}, Provider: ${provider}`);
+    console.log(`Action: ${action}, Query: ${query?.slice(0, 50)}, VideoId: ${videoId}, Provider: ${provider}`);
 
     let result;
 
@@ -632,7 +730,7 @@ serve(async (req) => {
     }
 
     return new Response(JSON.stringify({ success: true, data: result }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { ...corsHeaders, ...rateLimitHeaders, 'Content-Type': 'application/json' },
     });
   } catch (error: any) {
     // Log detailed error server-side only (not exposed to client)
@@ -654,7 +752,7 @@ serve(async (req) => {
       errorId, // Allow correlation with server logs if needed
     }), {
       status: isClientError ? 400 : 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { ...corsHeaders, ...rateLimitHeaders, 'Content-Type': 'application/json' },
     });
   }
 });
