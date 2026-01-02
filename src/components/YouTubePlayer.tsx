@@ -42,7 +42,8 @@ export function YouTubePlayer({
   const containerRef = useRef<HTMLDivElement>(null);
   const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const [isAPIReady, setIsAPIReady] = useState(false);
-  const [currentVideoId, setCurrentVideoId] = useState<string | null>(null);
+  const [isPlayerReady, setIsPlayerReady] = useState(false);
+  const pendingVideoRef = useRef<string | null>(null);
 
   // Load YouTube IFrame API
   useEffect(() => {
@@ -67,108 +68,6 @@ export function YouTubePlayer({
       }
     };
   }, []);
-
-  // Initialize player when API is ready
-  useEffect(() => {
-    if (!isAPIReady || !containerRef.current || playerRef.current) return;
-
-    console.log("Initializing YouTube player");
-    
-    playerRef.current = new window.YT.Player(containerRef.current, {
-      height: "0",
-      width: "0",
-      playerVars: {
-        autoplay: 1,
-        controls: 0,
-        disablekb: 1,
-        fs: 0,
-        iv_load_policy: 3,
-        modestbranding: 1,
-        rel: 0,
-        showinfo: 0,
-        playsinline: 1,
-      },
-      events: {
-        onReady: () => {
-          console.log("Player ready");
-          playerRef.current.setVolume(volume);
-          onReady?.();
-        },
-        onStateChange: (event: any) => {
-          console.log("Player state:", event.data);
-          onStateChange?.(event.data);
-          
-          // -1 = unstarted, 0 = ended, 1 = playing, 2 = paused, 3 = buffering
-          if (event.data === 0) {
-            onEnded?.();
-          }
-          
-          // Handle buffering state
-          onBuffering?.(event.data === 3 || event.data === -1);
-          
-          // Start/stop progress tracking
-          if (event.data === 1 || event.data === 3) {
-            startProgressTracking();
-          } else if (event.data === 0 || event.data === 2) {
-            stopProgressTracking();
-          }
-        },
-        onError: (event: any) => {
-          console.error("YouTube player error:", event.data);
-        },
-      },
-    });
-  }, [isAPIReady, onReady, onStateChange, onEnded, volume]);
-
-  // Handle video changes - always reload when videoId prop changes
-  useEffect(() => {
-    if (!playerRef.current || !videoId) return;
-    
-    // Validate video ID before loading
-    if (!isValidVideoId(videoId)) {
-      console.error("Invalid video ID format:", videoId);
-      return;
-    }
-
-    console.log("Loading video:", videoId);
-    setCurrentVideoId(videoId);
-    
-    try {
-      // Force load the video - this ensures playback starts
-      playerRef.current.loadVideoById({
-        videoId: videoId,
-        startSeconds: 0,
-      });
-    } catch (error) {
-      console.error("Error loading video:", error);
-    }
-  }, [videoId]);
-
-  // Handle play/pause
-  useEffect(() => {
-    if (!playerRef.current || !currentVideoId) return;
-
-    try {
-      if (isPlaying) {
-        playerRef.current.playVideo();
-      } else {
-        playerRef.current.pauseVideo();
-      }
-    } catch (error) {
-      console.error("Error controlling playback:", error);
-    }
-  }, [isPlaying, currentVideoId]);
-
-  // Handle volume changes
-  useEffect(() => {
-    if (!playerRef.current) return;
-
-    try {
-      playerRef.current.setVolume(volume);
-    } catch (error) {
-      console.error("Error setting volume:", error);
-    }
-  }, [volume]);
 
   const startProgressTracking = useCallback(() => {
     if (progressIntervalRef.current) {
@@ -195,9 +94,127 @@ export function YouTubePlayer({
     }
   }, []);
 
+  // Initialize player when API is ready
+  useEffect(() => {
+    if (!isAPIReady || !containerRef.current || playerRef.current) return;
+
+    console.log("Initializing YouTube player");
+    
+    playerRef.current = new window.YT.Player(containerRef.current, {
+      height: "0",
+      width: "0",
+      playerVars: {
+        autoplay: 1,
+        controls: 0,
+        disablekb: 1,
+        fs: 0,
+        iv_load_policy: 3,
+        modestbranding: 1,
+        rel: 0,
+        showinfo: 0,
+        playsinline: 1,
+      },
+      events: {
+        onReady: () => {
+          console.log("Player ready");
+          playerRef.current.setVolume(volume);
+          setIsPlayerReady(true);
+          onReady?.();
+          
+          // Load pending video if there was one
+          if (pendingVideoRef.current && isValidVideoId(pendingVideoRef.current)) {
+            console.log("Loading pending video:", pendingVideoRef.current);
+            playerRef.current.loadVideoById({
+              videoId: pendingVideoRef.current,
+              startSeconds: 0,
+            });
+            pendingVideoRef.current = null;
+          }
+        },
+        onStateChange: (event: any) => {
+          console.log("Player state:", event.data);
+          onStateChange?.(event.data);
+          
+          // -1 = unstarted, 0 = ended, 1 = playing, 2 = paused, 3 = buffering
+          if (event.data === 0) {
+            onEnded?.();
+          }
+          
+          // Handle buffering state
+          onBuffering?.(event.data === 3 || event.data === -1);
+          
+          // Start/stop progress tracking
+          if (event.data === 1 || event.data === 3) {
+            startProgressTracking();
+          } else if (event.data === 0 || event.data === 2) {
+            stopProgressTracking();
+          }
+        },
+        onError: (event: any) => {
+          console.error("YouTube player error:", event.data);
+        },
+      },
+    });
+  }, [isAPIReady, onReady, onStateChange, onEnded, onBuffering, volume, startProgressTracking, stopProgressTracking]);
+
+  // Handle video changes
+  useEffect(() => {
+    if (!videoId) return;
+    
+    // Validate video ID before loading
+    if (!isValidVideoId(videoId)) {
+      console.error("Invalid video ID format:", videoId);
+      return;
+    }
+
+    // If player is not ready yet, store the video ID to load when ready
+    if (!isPlayerReady || !playerRef.current) {
+      console.log("Player not ready, queueing video:", videoId);
+      pendingVideoRef.current = videoId;
+      return;
+    }
+
+    console.log("Loading video:", videoId);
+    
+    try {
+      playerRef.current.loadVideoById({
+        videoId: videoId,
+        startSeconds: 0,
+      });
+    } catch (error) {
+      console.error("Error loading video:", error);
+    }
+  }, [videoId, isPlayerReady]);
+
+  // Handle play/pause
+  useEffect(() => {
+    if (!playerRef.current || !isPlayerReady) return;
+
+    try {
+      if (isPlaying) {
+        playerRef.current.playVideo();
+      } else {
+        playerRef.current.pauseVideo();
+      }
+    } catch (error) {
+      console.error("Error controlling playback:", error);
+    }
+  }, [isPlaying, isPlayerReady]);
+
+  // Handle volume changes
+  useEffect(() => {
+    if (!playerRef.current) return;
+
+    try {
+      playerRef.current.setVolume(volume);
+    } catch (error) {
+      console.error("Error setting volume:", error);
+    }
+  }, [volume]);
+
   // Seek function
   const seekTo = useCallback((seconds: number) => {
-    if (playerRef.current) {
+    if (playerRef.current && isPlayerReady) {
       try {
         console.log("Seeking to:", seconds);
         playerRef.current.seekTo(seconds, true);
@@ -205,7 +222,7 @@ export function YouTubePlayer({
         console.error("Error seeking:", error);
       }
     }
-  }, []);
+  }, [isPlayerReady]);
 
   // Expose seek function globally and via callback
   useEffect(() => {
