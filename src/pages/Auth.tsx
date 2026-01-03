@@ -230,9 +230,12 @@ export default function Auth() {
                   onClick={async () => {
                     const { error } = await signInWithGoogle();
                     if (error) {
+                      const isProviderDisabled = error.message.includes('provider is not enabled') || error.message.includes('Unsupported provider');
                       toast({
                         title: 'Google sign in failed',
-                        description: error.message,
+                        description: isProviderDisabled 
+                          ? 'Google sign-in is not enabled. Please configure Google OAuth in the backend settings.'
+                          : error.message,
                         variant: 'destructive',
                       });
                     }
@@ -330,9 +333,12 @@ export default function Auth() {
                   onClick={async () => {
                     const { error } = await signInWithGoogle();
                     if (error) {
+                      const isProviderDisabled = error.message.includes('provider is not enabled') || error.message.includes('Unsupported provider');
                       toast({
                         title: 'Google sign up failed',
-                        description: error.message,
+                        description: isProviderDisabled 
+                          ? 'Google sign-in is not enabled. Please configure Google OAuth in the backend settings.'
+                          : error.message,
                         variant: 'destructive',
                       });
                     }
