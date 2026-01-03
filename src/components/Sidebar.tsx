@@ -121,8 +121,31 @@ export function Sidebar({
         </div>
       </div>
 
-      {/* Sign in prompt for non-authenticated users */}
-      {!loading && !user && (
+      {/* User Section */}
+      {loading ? (
+        <div className="p-4 m-3 rounded-lg bg-card border border-border/50">
+          <div className="animate-pulse h-10 bg-muted rounded" />
+        </div>
+      ) : user ? (
+        <div className="p-4 m-3 rounded-lg bg-card border border-border/50">
+          <div className="flex items-center gap-3">
+            <Avatar className="h-10 w-10">
+              <AvatarImage src={profile?.avatar_url || user?.user_metadata?.avatar_url || undefined} />
+              <AvatarFallback className="bg-primary/10 text-primary">
+                {getInitials()}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-foreground truncate">
+                {profile?.display_name || user?.user_metadata?.full_name || user?.email?.split('@')[0]}
+              </p>
+              <p className="text-xs text-muted-foreground truncate">
+                {user?.email}
+              </p>
+            </div>
+          </div>
+        </div>
+      ) : (
         <div className="p-4 m-3 rounded-lg bg-card border border-border/50">
           <p className="text-sm text-muted-foreground mb-3">
             Sign in to create playlists and get personalized recommendations

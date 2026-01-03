@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { z } from 'zod';
-import { Music, Mail, Lock, User, Eye, EyeOff } from 'lucide-react';
+import { Music, Mail, Lock, User, Eye, EyeOff, Chrome } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
+import { Separator } from '@/components/ui/separator';
 
 // Validation schemas
 const emailSchema = z.string().email('Please enter a valid email address');
@@ -18,7 +19,7 @@ const displayNameSchema = z.string().min(2, 'Display name must be at least 2 cha
 export default function Auth() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { user, loading, signIn, signUp } = useAuth();
+  const { user, loading, signIn, signUp, signInWithGoogle } = useAuth();
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -214,6 +215,33 @@ export default function Auth() {
                 <Button type="submit" className="w-full" disabled={isSubmitting}>
                   {isSubmitting ? 'Signing in...' : 'Sign In'}
                 </Button>
+                
+                <div className="relative my-4">
+                  <Separator />
+                  <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-2 text-xs text-muted-foreground">
+                    or
+                  </span>
+                </div>
+                
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full"
+                  onClick={async () => {
+                    const { error } = await signInWithGoogle();
+                    if (error) {
+                      toast({
+                        title: 'Google sign in failed',
+                        description: error.message,
+                        variant: 'destructive',
+                      });
+                    }
+                  }}
+                  disabled={isSubmitting}
+                >
+                  <Chrome className="mr-2 h-4 w-4" />
+                  Continue with Google
+                </Button>
               </form>
             </TabsContent>
             
@@ -286,6 +314,33 @@ export default function Auth() {
                 
                 <Button type="submit" className="w-full" disabled={isSubmitting}>
                   {isSubmitting ? 'Creating account...' : 'Create Account'}
+                </Button>
+                
+                <div className="relative my-4">
+                  <Separator />
+                  <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-2 text-xs text-muted-foreground">
+                    or
+                  </span>
+                </div>
+                
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full"
+                  onClick={async () => {
+                    const { error } = await signInWithGoogle();
+                    if (error) {
+                      toast({
+                        title: 'Google sign up failed',
+                        description: error.message,
+                        variant: 'destructive',
+                      });
+                    }
+                  }}
+                  disabled={isSubmitting}
+                >
+                  <Chrome className="mr-2 h-4 w-4" />
+                  Continue with Google
                 </Button>
               </form>
             </TabsContent>
