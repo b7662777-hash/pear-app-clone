@@ -94,12 +94,13 @@ export function useAuth() {
   };
 
   const signInWithGoogle = async () => {
-    const redirectUrl = `${window.location.origin}/`;
+    const redirectUrl = `${window.location.origin}/auth/callback`;
     
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
         redirectTo: redirectUrl,
+        scopes: 'email profile openid',
       },
     });
     

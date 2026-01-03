@@ -24,7 +24,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 interface UserProfileMenuProps {
-  user: { email?: string } | null;
+  user: { email?: string; user_metadata?: { avatar_url?: string; picture?: string } } | null;
   profile: Profile | null;
 }
 
@@ -104,7 +104,10 @@ export function UserProfileMenu({ user, profile }: UserProfileMenuProps) {
         <DropdownMenuTrigger asChild>
           <button className="relative rounded-full focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background">
             <Avatar className="h-9 w-9 cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all">
-              <AvatarImage src={profile?.avatar_url || undefined} alt={getDisplayName()} />
+              <AvatarImage 
+                src={profile?.avatar_url || user?.user_metadata?.avatar_url || user?.user_metadata?.picture || undefined} 
+                alt={getDisplayName()} 
+              />
               <AvatarFallback className="bg-primary/20 text-primary font-medium text-sm">
                 {getInitials()}
               </AvatarFallback>
@@ -114,7 +117,10 @@ export function UserProfileMenu({ user, profile }: UserProfileMenuProps) {
         <DropdownMenuContent align="end" className="w-56">
           <div className="flex items-center gap-3 p-3">
             <Avatar className="h-10 w-10">
-              <AvatarImage src={profile?.avatar_url || undefined} alt={getDisplayName()} />
+              <AvatarImage 
+                src={profile?.avatar_url || user?.user_metadata?.avatar_url || user?.user_metadata?.picture || undefined} 
+                alt={getDisplayName()} 
+              />
               <AvatarFallback className="bg-primary/20 text-primary font-medium">
                 {getInitials()}
               </AvatarFallback>
