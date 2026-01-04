@@ -130,7 +130,7 @@ export function Sidebar({
         <div className="p-4 m-3 rounded-lg bg-card border border-border/50">
           <div className="flex items-center gap-3">
             <Avatar className="h-10 w-10">
-              <AvatarImage src={profile?.avatar_url || user?.user_metadata?.avatar_url || undefined} />
+              <AvatarImage src={profile?.avatar_url || user?.user_metadata?.avatar_url || user?.user_metadata?.picture || undefined} />
               <AvatarFallback className="bg-primary/10 text-primary">
                 {getInitials()}
               </AvatarFallback>

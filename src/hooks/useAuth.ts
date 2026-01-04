@@ -17,8 +17,8 @@ export function useAuth() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Fetch user profile
-  const fetchProfile = useCallback(async (userId: string) => {
+  // Fetch user profile and sync Google avatar if needed
+  const fetchProfile = useCallback(async (userId: string, userMetadata?: Record<string, any>) => {
     const { data, error } = await supabase
       .from('profiles')
       .select('*')
@@ -28,6 +28,24 @@ export function useAuth() {
     if (error) {
       console.error('Error fetching profile:', error);
       return null;
+    }
+    
+    // Auto-sync Google avatar to profile if profile has no avatar
+    if (data && !data.avatar_url && userMetadata) {
+      const googleAvatar = userMetadata.avatar_url || userMetadata.picture;
+      if (googleAvatar) {
+        const { data: updatedProfile } = await supabase
+          .from('profiles')
+          .update({ avatar_url: googleAvatar })
+          .eq('user_id', userId)
+          .select()
+          .single();
+        
+        if (updatedProfile) {
+          setProfile(updatedProfile);
+          return updatedProfile;
+        }
+      }
     }
     
     setProfile(data);
@@ -45,7 +63,7 @@ export function useAuth() {
         // Defer profile fetch to avoid deadlock
         if (session?.user) {
           setTimeout(() => {
-            fetchProfile(session.user.id);
+            fetchProfile(session.user.id, session.user.user_metadata);
           }, 0);
         } else {
           setProfile(null);
@@ -60,7 +78,7 @@ export function useAuth() {
       setLoading(false);
       
       if (session?.user) {
-        fetchProfile(session.user.id);
+        fetchProfile(session.user.id, session.user.user_metadata);
       }
     });
 
