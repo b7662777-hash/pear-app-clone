@@ -30,11 +30,14 @@ interface UserProfileMenuProps {
 
 export function UserProfileMenu({ user, profile }: UserProfileMenuProps) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const { signOut } = useAuth();
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
+    setIsLoggingOut(true);
     const { error } = await signOut();
     if (error) {
       toast.error("Failed to sign out");
@@ -42,6 +45,8 @@ export function UserProfileMenu({ user, profile }: UserProfileMenuProps) {
       toast.success("Signed out successfully");
       navigate("/auth");
     }
+    setIsLoggingOut(false);
+    setShowLogoutDialog(false);
   };
 
   const handleDeleteAccount = async () => {
@@ -135,7 +140,7 @@ export function UserProfileMenu({ user, profile }: UserProfileMenuProps) {
             <Settings className="mr-2 h-4 w-4" />
             Account Settings
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer">
+          <DropdownMenuItem onClick={() => setShowLogoutDialog(true)} className="cursor-pointer">
             <LogOut className="mr-2 h-4 w-4" />
             Sign Out
           </DropdownMenuItem>
@@ -149,6 +154,26 @@ export function UserProfileMenu({ user, profile }: UserProfileMenuProps) {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+
+      <AlertDialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Sign out?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to sign out of your account?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isLoggingOut}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleSignOut}
+              disabled={isLoggingOut}
+            >
+              {isLoggingOut ? "Signing out..." : "Sign Out"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
