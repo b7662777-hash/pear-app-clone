@@ -8,29 +8,41 @@ export default function AuthCallback() {
 
   useEffect(() => {
     const handleCallback = async () => {
-      const url = new URL(window.location.href);
-      const code = url.searchParams.get('code');
-      const errorParam = url.searchParams.get('error');
-      const errorDescription = url.searchParams.get('error_description');
+      try {
+        const url = new URL(window.location.href);
+        const code = url.searchParams.get('code');
+        const errorParam = url.searchParams.get('error');
+        const errorDescription = url.searchParams.get('error_description');
 
-      if (errorParam) {
-        console.error('OAuth error:', errorParam, errorDescription);
-        navigate('/auth', { replace: true });
-        return;
-      }
-
-      if (code) {
-        // Exchange code for session (PKCE flow)
-        const { error } = await supabase.auth.exchangeCodeForSession(code);
-        if (error) {
-          console.error('Session exchange error:', error);
+        if (errorParam) {
+          console.error('OAuth error:', errorParam, errorDescription);
           navigate('/auth', { replace: true });
           return;
         }
-      }
 
-      // Redirect to home
-      navigate('/', { replace: true });
+        if (code) {
+          // Exchange code for session (PKCE flow)
+          const { error } = await supabase.auth.exchangeCodeForSession(code);
+          if (error) {
+            console.error('Session exchange error:', error);
+            navigate('/auth', { replace: true });
+            return;
+          }
+        }
+
+        // Check if we already have a session (hash fragment flow)
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          navigate('/', { replace: true });
+          return;
+        }
+
+        // No code and no session, redirect to auth
+        navigate('/auth', { replace: true });
+      } catch (error) {
+        console.error('Callback error:', error);
+        navigate('/auth', { replace: true });
+      }
     };
 
     handleCallback();
