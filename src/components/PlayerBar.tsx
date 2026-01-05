@@ -10,7 +10,8 @@ import {
   ListMusic,
   Heart,
   Mic2,
-  Loader2
+  Loader2,
+  Sparkles
 } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { cn } from "@/lib/utils";
@@ -40,6 +41,7 @@ interface PlayerBarProps {
   showLyrics?: boolean;
   isBuffering?: boolean;
   onExpandClick?: () => void;
+  onAmbientModeClick?: () => void;
 }
 
 function formatTime(seconds: number): string {
@@ -64,6 +66,7 @@ export function PlayerBar({
   showLyrics,
   isBuffering,
   onExpandClick,
+  onAmbientModeClick,
 }: PlayerBarProps) {
   if (!currentTrack) return null;
 
@@ -173,6 +176,15 @@ export function PlayerBar({
             className="flex-1"
           />
         </div>
+        {currentTrack.videoId && (
+          <button 
+            onClick={onAmbientModeClick}
+            className="player-control"
+            title="Ambient Mode"
+          >
+            <Sparkles className="w-5 h-5" />
+          </button>
+        )}
         <button className="player-control">
           <Maximize2 className="w-5 h-5" />
         </button>

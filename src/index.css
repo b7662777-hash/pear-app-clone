@@ -178,3 +178,39 @@
     animation-delay: 300ms;
   }
 }
+
+/* Ambient mode animations */
+@keyframes ambient-drift {
+  0%, 100% {
+    transform: scale(1.1) translate(0, 0);
+  }
+  25% {
+    transform: scale(1.15) translate(-2%, 1%);
+  }
+  50% {
+    transform: scale(1.1) translate(1%, -1%);
+  }
+  75% {
+    transform: scale(1.12) translate(-1%, -2%);
+  }
+}
+
+@keyframes ambient-drift-reverse {
+  0%, 100% {
+    transform: scale(1.25) translate(0, 0) rotate(0deg);
+  }
+  33% {
+    transform: scale(1.3) translate(2%, -1%) rotate(1deg);
+  }
+  66% {
+    transform: scale(1.25) translate(-1%, 2%) rotate(-1deg);
+  }
+}
+
+.animate-ambient-drift {
+  animation: ambient-drift 30s ease-in-out infinite;
+}
+
+.animate-ambient-drift-reverse {
+  animation: ambient-drift-reverse 45s ease-in-out infinite;
+}
