@@ -145,7 +145,7 @@ export function UserProfileMenu({ user, profile, onProfileUpdate }: UserProfileM
             </div>
           </div>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => navigate("/auth")} className="cursor-pointer">
+          <DropdownMenuItem onClick={() => navigate("/profile")} className="cursor-pointer">
             <Settings className="mr-2 h-4 w-4" />
             Account Settings
           </DropdownMenuItem>
