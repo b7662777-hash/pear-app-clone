@@ -9,6 +9,7 @@ import { YouTubePlayer } from "@/components/YouTubePlayer";
 import { LyricsPanel } from "@/components/LyricsPanel";
 import { SearchResults } from "@/components/SearchResults";
 import { ExpandedPlayer } from "@/components/ExpandedPlayer";
+import { AmbientMode } from "@/components/AmbientMode";
 import { RecommendedSongs } from "@/components/RecommendedSongs";
 import { useYouTubeMusic, YouTubeTrack, LyricsProvider } from "@/hooks/useYouTubeMusic";
 import { 
@@ -52,6 +53,7 @@ const Index = () => {
   const [lyricsProvider, setLyricsProvider] = useState<LyricsProvider>("lrclib");
   const [isBuffering, setIsBuffering] = useState(false);
   const [showExpandedPlayer, setShowExpandedPlayer] = useState(false);
+  const [showAmbientMode, setShowAmbientMode] = useState(false);
   
   const playerContainerRef = useRef<HTMLDivElement>(null);
 
@@ -487,6 +489,18 @@ const Index = () => {
         onRelatedTrackClick={handleYouTubeTrackClick}
       />
 
+      {/* Ambient Mode */}
+      <AmbientMode
+        isOpen={showAmbientMode}
+        onClose={() => setShowAmbientMode(false)}
+        currentTrack={currentTrack}
+        isPlaying={isPlaying}
+        isBuffering={isBuffering}
+        onPlayPause={handlePlayPause}
+        onNext={handleNext}
+        onPrevious={handlePrevious}
+      />
+
       {/* Player Bar */}
       <PlayerBar
         currentTrack={currentTrack}
@@ -504,6 +518,7 @@ const Index = () => {
         showLyrics={showLyrics}
         isBuffering={isBuffering}
         onExpandClick={handleExpandPlayer}
+        onAmbientModeClick={() => setShowAmbientMode(true)}
       />
     </div>
   );
