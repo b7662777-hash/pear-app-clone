@@ -24,14 +24,33 @@ export function useAuth() {
       .select('*')
       .eq('user_id', userId)
       .maybeSingle();
-    
+
     if (error) {
       console.error('Error fetching profile:', error);
       return null;
     }
-    
+
+    // Create an initial profile row if missing (keeps profile edits + avatar updates working)
+    if (!data) {
+      const initialDisplayName = (userMetadata?.display_name as string | undefined) ?? null;
+
+      const { data: created, error: createError } = await supabase
+        .from('profiles')
+        .insert({ user_id: userId, display_name: initialDisplayName })
+        .select('*')
+        .single();
+
+      if (createError) {
+        console.error('Error creating profile:', createError);
+        return null;
+      }
+
+      setProfile(created);
+      return created;
+    }
+
     // Auto-sync Google avatar to profile if profile has no avatar
-    if (data && !data.avatar_url && userMetadata) {
+    if (!data.avatar_url && userMetadata) {
       const googleAvatar = userMetadata.avatar_url || userMetadata.picture;
       if (googleAvatar) {
         const { data: updatedProfile } = await supabase
@@ -40,14 +59,14 @@ export function useAuth() {
           .eq('user_id', userId)
           .select()
           .single();
-        
+
         if (updatedProfile) {
           setProfile(updatedProfile);
           return updatedProfile;
         }
       }
     }
-    
+
     setProfile(data);
     return data;
   }, []);
@@ -132,19 +151,31 @@ export function useAuth() {
 
   const updateProfile = async (updates: Partial<Pick<Profile, 'display_name' | 'avatar_url'>>) => {
     if (!user) return { error: new Error('Not authenticated') };
-    
+
+    // Try update first
     const { data, error } = await supabase
       .from('profiles')
       .update(updates)
       .eq('user_id', user.id)
       .select()
-      .single();
-    
-    if (data) {
-      setProfile(data);
+      .maybeSingle();
+
+    if (error) return { data: null, error };
+
+    // If profile row doesn't exist yet, create it
+    if (!data) {
+      const { data: created, error: createError } = await supabase
+        .from('profiles')
+        .insert({ user_id: user.id, ...updates })
+        .select()
+        .single();
+
+      if (created) setProfile(created);
+      return { data: created ?? null, error: createError };
     }
-    
-    return { data, error };
+
+    setProfile(data);
+    return { data, error: null };
   };
 
   return {
