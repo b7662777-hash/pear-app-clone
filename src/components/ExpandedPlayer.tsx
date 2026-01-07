@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
-import { ChevronDown, SkipBack, SkipForward, Play, Pause, Shuffle, Repeat, Heart, Loader2 } from "lucide-react";
+import { ChevronDown, SkipBack, SkipForward, Play, Pause, Shuffle, Repeat, Heart, Loader2, Sparkles } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { cn } from "@/lib/utils";
 import { LyricsData, LyricsProvider, YouTubeTrack } from "@/hooks/useYouTubeMusic";
 import { ExpandedLyrics } from "@/components/ExpandedLyrics";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface Track {
   title: string;
@@ -38,6 +39,7 @@ interface ExpandedPlayerProps {
   relatedTracks: YouTubeTrack[];
   isLoadingRelated: boolean;
   onRelatedTrackClick: (track: YouTubeTrack) => void;
+  onAmbientModeClick?: () => void;
 }
 
 type TabType = "UP NEXT" | "LYRICS" | "RELATED";
@@ -77,6 +79,7 @@ export function ExpandedPlayer({
   relatedTracks,
   isLoadingRelated,
   onRelatedTrackClick,
+  onAmbientModeClick,
 }: ExpandedPlayerProps) {
   const [activeTab, setActiveTab] = useState<TabType>("LYRICS");
   
@@ -99,7 +102,21 @@ export function ExpandedPlayer({
           <p className="text-sm text-muted-foreground">Now Playing</p>
           <p className="font-medium">{currentTrack.title}</p>
         </div>
-        <div className="w-10" />
+        {currentTrack.videoId && onAmbientModeClick ? (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                onClick={onAmbientModeClick}
+                className="p-2 rounded-full hover:bg-muted transition-colors text-muted-foreground hover:text-primary"
+              >
+                <Sparkles className="w-5 h-5" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent>Ambient Mode</TooltipContent>
+          </Tooltip>
+        ) : (
+          <div className="w-10" />
+        )}
       </div>
 
       {/* Main Content */}
