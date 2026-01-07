@@ -152,13 +152,14 @@ export function AmbientMode({
   return (
     <div
       ref={containerRef}
-      className="fixed inset-0 z-[100] bg-black cursor-none overflow-hidden"
+      className="fixed inset-0 z-[100] bg-black overflow-hidden animate-ambient-fade-in"
+      style={{ cursor: isIdle ? 'none' : 'default' }}
       onMouseMove={resetIdleTimer}
       onTouchStart={resetIdleTimer}
     >
       {/* Animated Blurred Background */}
       <div 
-        className="absolute inset-0 scale-110 animate-ambient-drift"
+        className="absolute inset-[-50px] animate-ambient-drift will-change-transform"
         style={{
           backgroundImage: `url(${hdImage})`,
           backgroundSize: 'cover',
@@ -169,7 +170,7 @@ export function AmbientMode({
       
       {/* Secondary animated layer for depth */}
       <div 
-        className="absolute inset-0 scale-125 animate-ambient-drift-reverse opacity-50"
+        className="absolute inset-[-100px] animate-ambient-drift-reverse opacity-50 will-change-transform"
         style={{
           backgroundImage: `url(${hdImage})`,
           backgroundSize: 'cover',
@@ -225,20 +226,22 @@ export function AmbientMode({
         {/* Playback Controls - fade when idle */}
         <div 
           className={cn(
-            "flex items-center gap-8 transition-opacity duration-500",
-            isIdle ? "opacity-0" : "opacity-100"
+            "flex items-center gap-8 transition-all duration-700 ease-out",
+            isIdle ? "opacity-0 translate-y-4 pointer-events-none" : "opacity-100 translate-y-0"
           )}
         >
           <button
             onClick={onPrevious}
-            className="p-4 text-white/70 hover:text-white hover:scale-110 transition-all"
+            className="group p-4 text-white/70 hover:text-white transition-all duration-300"
+            aria-label="Previous track"
           >
-            <SkipBack className="w-8 h-8 fill-current" />
+            <SkipBack className="w-10 h-10 fill-current group-hover:scale-110 transition-transform duration-300" />
           </button>
           
           <button
             onClick={onPlayPause}
-            className="p-6 bg-white/10 backdrop-blur-lg rounded-full text-white hover:bg-white/20 hover:scale-105 transition-all ring-1 ring-white/20"
+            className="p-6 bg-white/10 backdrop-blur-lg rounded-full text-white hover:bg-white/20 hover:scale-105 transition-all duration-300 ring-1 ring-white/20"
+            aria-label={isPlaying ? "Pause" : "Play"}
           >
             {isBuffering ? (
               <Loader2 className="w-12 h-12 animate-spin" />
@@ -251,9 +254,10 @@ export function AmbientMode({
           
           <button
             onClick={onNext}
-            className="p-4 text-white/70 hover:text-white hover:scale-110 transition-all"
+            className="group p-4 text-white/70 hover:text-white transition-all duration-300"
+            aria-label="Next track"
           >
-            <SkipForward className="w-8 h-8 fill-current" />
+            <SkipForward className="w-10 h-10 fill-current group-hover:scale-110 transition-transform duration-300" />
           </button>
         </div>
       </div>
@@ -261,20 +265,22 @@ export function AmbientMode({
       {/* Top Controls - fade when idle */}
       <div 
         className={cn(
-          "absolute top-0 left-0 right-0 p-6 flex items-center justify-between transition-opacity duration-500",
-          isIdle ? "opacity-0" : "opacity-100"
+          "absolute top-0 left-0 right-0 p-6 flex items-center justify-between transition-all duration-700 ease-out",
+          isIdle ? "opacity-0 -translate-y-4 pointer-events-none" : "opacity-100 translate-y-0"
         )}
       >
         <button
           onClick={onClose}
-          className="p-3 bg-white/10 backdrop-blur-lg rounded-full text-white hover:bg-white/20 transition-all ring-1 ring-white/20"
+          className="p-3 bg-white/10 backdrop-blur-lg rounded-full text-white hover:bg-white/20 hover:scale-105 transition-all duration-300 ring-1 ring-white/20"
+          aria-label="Close ambient mode"
         >
           <X className="w-6 h-6" />
         </button>
         
         <button
           onClick={toggleFullscreen}
-          className="p-3 bg-white/10 backdrop-blur-lg rounded-full text-white hover:bg-white/20 transition-all ring-1 ring-white/20"
+          className="p-3 bg-white/10 backdrop-blur-lg rounded-full text-white hover:bg-white/20 hover:scale-105 transition-all duration-300 ring-1 ring-white/20"
+          aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
         >
           {isFullscreen ? (
             <Minimize className="w-6 h-6" />
@@ -287,11 +293,11 @@ export function AmbientMode({
       {/* Hint text when controls are visible */}
       <div 
         className={cn(
-          "absolute bottom-8 left-0 right-0 text-center text-white/30 text-sm transition-opacity duration-500",
-          isIdle ? "opacity-0" : "opacity-100"
+          "absolute bottom-8 left-0 right-0 text-center text-white/30 text-sm transition-all duration-700 ease-out",
+          isIdle ? "opacity-0 translate-y-4" : "opacity-100 translate-y-0"
         )}
       >
-        Press ESC to exit • Space to play/pause • Arrow keys to skip
+        Press ESC to exit • Space to play/pause • ← → to skip tracks
       </div>
     </div>
   );

@@ -487,6 +487,10 @@ const Index = () => {
         relatedTracks={relatedTracks}
         isLoadingRelated={isLoadingRelated}
         onRelatedTrackClick={handleYouTubeTrackClick}
+        onAmbientModeClick={() => {
+          setShowExpandedPlayer(false);
+          setShowAmbientMode(true);
+        }}
       />
 
       {/* Ambient Mode */}

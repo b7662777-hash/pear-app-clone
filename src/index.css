@@ -180,6 +180,15 @@
 }
 
 /* Ambient mode animations */
+@keyframes ambient-fade-in {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
 @keyframes ambient-drift {
   0%, 100% {
     transform: scale(1.1) translate(0, 0);
@@ -205,6 +214,10 @@
   66% {
     transform: scale(1.25) translate(-1%, 2%) rotate(-1deg);
   }
+}
+
+.animate-ambient-fade-in {
+  animation: ambient-fade-in 0.5s ease-out forwards;
 }
 
 .animate-ambient-drift {
