@@ -351,7 +351,28 @@ const Index = () => {
   }, [currentTrack, duration]);
 
   return (
-    <div className="flex h-screen bg-background overflow-hidden">
+    <div className="flex h-screen bg-background overflow-hidden relative">
+      {/* Global Ambient Background - shows when a track is playing */}
+      {currentTrack && (
+        <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+          <div 
+            className="absolute inset-[-200px] opacity-20 blur-[120px] scale-110 animate-ambient-drift transition-all duration-1000"
+            style={{
+              backgroundImage: `url(${currentTrack.image})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+            }}
+          />
+          <div 
+            className="absolute inset-[-300px] opacity-15 blur-[150px] scale-125 animate-ambient-drift-reverse transition-all duration-1000"
+            style={{
+              backgroundImage: `url(${currentTrack.image})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+            }}
+          />
+        </div>
+      )}
       {/* YouTube Player (hidden) */}
       {currentTrack?.videoId && (
         <YouTubePlayer
