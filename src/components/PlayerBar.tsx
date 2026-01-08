@@ -73,7 +73,16 @@ export function PlayerBar({
   const currentTime = (progress / 100) * currentTrack.duration;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 h-[72px] bg-background/80 backdrop-blur-xl border-t border-border/30 flex items-center px-4 z-50" style={{ boxShadow: 'var(--shadow-player)' }}>
+    <div className="fixed bottom-0 left-0 right-0 h-[72px] bg-background/80 backdrop-blur-xl border-t border-border/30 flex items-center px-4 z-50 overflow-hidden" style={{ boxShadow: 'var(--shadow-player)' }}>
+      {/* Ambient Background */}
+      <div 
+        className="absolute inset-0 opacity-30 blur-3xl scale-150 -z-10 transition-all duration-1000"
+        style={{
+          backgroundImage: `url(${currentTrack.image})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      />
       {/* Left: Current Track */}
       <div 
         className="flex items-center gap-3 w-[280px] cursor-pointer group"
