@@ -74,15 +74,25 @@ export function PlayerBar({
 
   return (
     <div className="fixed bottom-0 left-0 right-0 h-[72px] bg-background/80 backdrop-blur-xl border-t border-border/30 flex items-center px-4 z-50 overflow-hidden" style={{ boxShadow: 'var(--shadow-player)' }}>
-      {/* Ambient Background */}
-      <div 
-        className="absolute inset-0 opacity-30 blur-3xl scale-150 -z-10 transition-all duration-1000"
-        style={{
-          backgroundImage: `url(${currentTrack.image})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-        }}
-      />
+      {/* Ambient Background Layers */}
+      <div className="absolute inset-0 -z-10 overflow-hidden">
+        <div 
+          className="absolute inset-[-20px] opacity-40 blur-2xl scale-110 animate-ambient-drift"
+          style={{
+            backgroundImage: `url(${currentTrack.image})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
+        />
+        <div 
+          className="absolute inset-[-30px] opacity-25 blur-3xl scale-125 animate-ambient-drift-reverse"
+          style={{
+            backgroundImage: `url(${currentTrack.image})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
+        />
+      </div>
       {/* Left: Current Track */}
       <div 
         className="flex items-center gap-3 w-[280px] cursor-pointer group"
