@@ -157,39 +157,50 @@ export function AmbientMode({
       onMouseMove={resetIdleTimer}
       onTouchStart={resetIdleTimer}
     >
-      {/* Animated Blurred Background */}
+      {/* Animated Blurred Background - more vibrant */}
       <div 
-        className="absolute inset-[-50px] animate-ambient-drift will-change-transform"
+        className="absolute inset-[-80px] animate-ambient-drift will-change-transform"
         style={{
           backgroundImage: `url(${hdImage})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          filter: 'blur(80px) brightness(0.4) saturate(1.2)',
+          filter: 'blur(60px) brightness(0.6) saturate(1.5)',
         }}
       />
       
-      {/* Secondary animated layer for depth */}
+      {/* Secondary animated layer for depth - more colorful */}
       <div 
-        className="absolute inset-[-100px] animate-ambient-drift-reverse opacity-50 will-change-transform"
+        className="absolute inset-[-120px] animate-ambient-drift-reverse opacity-60 will-change-transform"
         style={{
           backgroundImage: `url(${hdImage})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          filter: 'blur(120px) brightness(0.3)',
+          filter: 'blur(100px) brightness(0.5) saturate(1.4)',
+        }}
+      />
+
+      {/* Tertiary layer for extra vibrancy */}
+      <div 
+        className="absolute inset-[-40px] opacity-40 will-change-transform"
+        style={{
+          backgroundImage: `url(${hdImage})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          filter: 'blur(40px) brightness(0.7) saturate(1.6)',
         }}
       />
       
-      {/* Gradient overlay for better text readability */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/40" />
+      {/* Gradient overlay for text readability */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-black/50" />
 
       {/* Main Content */}
       <div className="relative h-full flex flex-col items-center justify-center p-12">
         {/* Album Art */}
-        <div className="relative mb-12 animate-scale-in">
+        <div className="relative mb-10 animate-scale-in">
           <div 
-            className="w-80 h-80 md:w-96 md:h-96 lg:w-[28rem] lg:h-[28rem] rounded-2xl shadow-2xl overflow-hidden ring-1 ring-white/10"
+            className="w-72 h-72 md:w-80 md:h-80 lg:w-96 lg:h-96 rounded-2xl shadow-2xl overflow-hidden ring-1 ring-white/20"
             style={{
-              boxShadow: '0 25px 100px -20px rgba(0, 0, 0, 0.8), 0 0 100px 20px rgba(0, 0, 0, 0.3)',
+              boxShadow: '0 25px 100px -20px rgba(0, 0, 0, 0.8), 0 0 80px 10px rgba(255, 255, 255, 0.05)',
             }}
           >
             <img
@@ -202,9 +213,9 @@ export function AmbientMode({
             />
           </div>
           
-          {/* Subtle glow effect behind album art */}
+          {/* Glow effect behind album art */}
           <div 
-            className="absolute inset-0 -z-10 blur-3xl opacity-40 scale-110"
+            className="absolute inset-0 -z-10 blur-3xl opacity-50 scale-125"
             style={{
               backgroundImage: `url(${hdImage})`,
               backgroundSize: 'cover',
@@ -213,12 +224,18 @@ export function AmbientMode({
           />
         </div>
 
-        {/* Track Info */}
-        <div className="text-center mb-12 animate-fade-in">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4 tracking-tight">
+        {/* Track Info - more prominent */}
+        <div className="text-center mb-10 animate-fade-in max-w-4xl px-4">
+          <h1 
+            className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-white mb-3 tracking-tight drop-shadow-lg"
+            style={{ textShadow: '0 2px 20px rgba(0,0,0,0.5)' }}
+          >
             {currentTrack.title}
           </h1>
-          <p className="text-xl md:text-2xl lg:text-3xl text-white/70">
+          <p 
+            className="text-lg md:text-xl lg:text-2xl xl:text-3xl text-white/80 font-medium"
+            style={{ textShadow: '0 2px 15px rgba(0,0,0,0.4)' }}
+          >
             {currentTrack.artist}
           </p>
         </div>
