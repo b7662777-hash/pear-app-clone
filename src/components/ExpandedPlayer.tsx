@@ -89,7 +89,26 @@ export function ExpandedPlayer({
   const hdImage = getHDThumbnail(currentTrack.image, currentTrack.videoId);
 
   return (
-    <div className="fixed inset-0 z-[60] bg-background flex flex-col animate-fade-in">
+    <div className="fixed inset-0 z-[60] bg-background flex flex-col animate-fade-in overflow-hidden">
+      {/* Ambient Background Layers */}
+      <div className="absolute inset-0 -z-10 overflow-hidden">
+        <div 
+          className="absolute inset-[-100px] opacity-30 blur-3xl scale-110 animate-ambient-drift"
+          style={{
+            backgroundImage: `url(${hdImage})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
+        />
+        <div 
+          className="absolute inset-[-150px] opacity-20 blur-[80px] scale-125 animate-ambient-drift-reverse"
+          style={{
+            backgroundImage: `url(${hdImage})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
+        />
+      </div>
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-4">
         <button
