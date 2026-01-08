@@ -354,23 +354,36 @@ const Index = () => {
     <div className="flex h-screen bg-background overflow-hidden relative">
       {/* Global Ambient Background - shows when a track is playing */}
       {currentTrack && (
-        <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+        <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+          {/* Primary glow layer */}
           <div 
-            className="absolute inset-[-200px] opacity-20 blur-[120px] scale-110 animate-ambient-drift transition-all duration-1000"
+            className="absolute inset-[-150px] opacity-40 blur-[100px] scale-125 animate-ambient-drift transition-all duration-1000"
             style={{
               backgroundImage: `url(${currentTrack.image})`,
               backgroundSize: 'cover',
               backgroundPosition: 'center',
             }}
           />
+          {/* Secondary glow layer */}
           <div 
-            className="absolute inset-[-300px] opacity-15 blur-[150px] scale-125 animate-ambient-drift-reverse transition-all duration-1000"
+            className="absolute inset-[-250px] opacity-30 blur-[140px] scale-150 animate-ambient-drift-reverse transition-all duration-1000"
             style={{
               backgroundImage: `url(${currentTrack.image})`,
               backgroundSize: 'cover',
               backgroundPosition: 'center',
             }}
           />
+          {/* Tertiary subtle layer for depth */}
+          <div 
+            className="absolute inset-[-100px] opacity-25 blur-[80px] scale-110 transition-all duration-1000"
+            style={{
+              backgroundImage: `url(${currentTrack.image})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+            }}
+          />
+          {/* Dark overlay to maintain readability */}
+          <div className="absolute inset-0 bg-background/60" />
         </div>
       )}
       {/* YouTube Player (hidden) */}
