@@ -152,63 +152,31 @@ export function AmbientMode({
   return (
     <div
       ref={containerRef}
-      className="fixed inset-0 z-[100] bg-background text-foreground overflow-hidden animate-ambient-fade-in"
+      className="fixed inset-0 z-[100] bg-black text-foreground overflow-hidden"
       style={{ cursor: isIdle ? "none" : "default" }}
       onMouseMove={resetIdleTimer}
       onTouchStart={resetIdleTimer}
     >
-      {/* Animated Blurred Background (smooth + vibrant) */}
+      {/* Single optimized background layer - reduced blur for performance */}
       <div
-        className="absolute inset-[-80px] animate-ambient-drift will-change-transform"
+        className="absolute inset-0 scale-110"
         style={{
           backgroundImage: `url(${hdImage})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
-          filter: "blur(70px) brightness(0.75) saturate(1.7) contrast(1.05)",
-          transition: "filter 900ms ease, opacity 900ms ease",
-          animationDuration: "28s",
-          animationTimingFunction: "ease-in-out",
+          filter: "blur(50px) saturate(1.4) brightness(0.6)",
         }}
       />
 
-      {/* Secondary layer for depth */}
-      <div
-        className="absolute inset-[-120px] animate-ambient-drift-reverse opacity-70 will-change-transform"
-        style={{
-          backgroundImage: `url(${hdImage})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          filter: "blur(120px) brightness(0.6) saturate(1.5)",
-          transition: "filter 900ms ease, opacity 900ms ease",
-          animationDuration: "34s",
-          animationTimingFunction: "ease-in-out",
-        }}
-      />
-
-      {/* Tertiary layer for pop */}
-      <div
-        className="absolute inset-[-40px] opacity-45 will-change-transform"
-        style={{
-          backgroundImage: `url(${hdImage})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          filter: "blur(45px) brightness(0.85) saturate(1.85)",
-          transition: "filter 900ms ease, opacity 900ms ease",
-        }}
-      />
-
-      {/* Overlay for readability (less dull) */}
-      <div className="absolute inset-0 bg-gradient-to-t from-background/75 via-background/25 to-background/55" />
+      {/* Gradient overlay for depth and readability */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/50" />
+      
       {/* Main Content */}
       <div className="relative h-full flex flex-col items-center justify-center p-12">
         {/* Album Art */}
-        <div className="relative mb-10 animate-scale-in">
+        <div className="relative mb-10">
           <div
-            className="w-72 h-72 md:w-80 md:h-80 lg:w-96 lg:h-96 rounded-2xl shadow-2xl overflow-hidden ring-1 ring-foreground/15"
-            style={{
-              boxShadow:
-                "0 25px 100px -20px rgba(0, 0, 0, 0.8), 0 0 80px 10px hsl(var(--foreground) / 0.06)",
-            }}
+            className="w-72 h-72 md:w-80 md:h-80 lg:w-96 lg:h-96 rounded-2xl shadow-2xl overflow-hidden ring-1 ring-white/10"
           >
             <img
               src={hdImage}
@@ -219,30 +187,20 @@ export function AmbientMode({
               }}
             />
           </div>
-          
-          {/* Glow effect behind album art */}
-          <div 
-            className="absolute inset-0 -z-10 blur-3xl opacity-50 scale-125"
-            style={{
-              backgroundImage: `url(${hdImage})`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-            }}
-          />
         </div>
 
         {/* Track Info */}
-        <div className="text-center mb-10 animate-fade-in max-w-4xl px-4">
-          <div className="inline-block rounded-2xl bg-background/25 backdrop-blur-xl border border-foreground/10 px-8 py-6">
+        <div className="text-center mb-10 max-w-4xl px-4">
+          <div className="inline-block rounded-2xl bg-black/40 backdrop-blur-md border border-white/10 px-8 py-6">
             <h1
-              className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-foreground mb-3 tracking-tight break-words leading-tight"
-              style={{ textShadow: "0 2px 24px hsl(var(--background) / 0.9)" }}
+              className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-white mb-3 tracking-tight break-words leading-tight"
+              style={{ textShadow: "0 2px 20px rgba(0,0,0,0.8)" }}
             >
               {currentTrack.title}
             </h1>
             <p
-              className="text-lg md:text-xl lg:text-2xl xl:text-3xl text-foreground/80 font-medium break-words"
-              style={{ textShadow: "0 2px 18px hsl(var(--background) / 0.85)" }}
+              className="text-lg md:text-xl lg:text-2xl xl:text-3xl text-white/80 font-medium break-words"
+              style={{ textShadow: "0 2px 16px rgba(0,0,0,0.7)" }}
             >
               {currentTrack.artist}
             </p>
@@ -258,15 +216,15 @@ export function AmbientMode({
         >
           <button
             onClick={onPrevious}
-            className="group p-4 text-foreground/70 hover:text-foreground transition-all duration-300"
+            className="group p-4 text-white/70 hover:text-white transition-colors duration-200"
             aria-label="Previous track"
           >
-            <SkipBack className="w-10 h-10 fill-current group-hover:scale-110 transition-transform duration-300" />
+            <SkipBack className="w-10 h-10 fill-current" />
           </button>
 
           <button
             onClick={onPlayPause}
-            className="p-6 bg-background/25 backdrop-blur-xl rounded-full text-foreground hover:bg-background/35 hover:scale-105 transition-all duration-300 ring-1 ring-foreground/15"
+            className="p-6 bg-black/40 backdrop-blur-md rounded-full text-white hover:bg-black/50 transition-colors duration-200 ring-1 ring-white/15"
             aria-label={isPlaying ? "Pause" : "Play"}
           >
             {isBuffering ? (
@@ -280,10 +238,10 @@ export function AmbientMode({
 
           <button
             onClick={onNext}
-            className="group p-4 text-foreground/70 hover:text-foreground transition-all duration-300"
+            className="group p-4 text-white/70 hover:text-white transition-colors duration-200"
             aria-label="Next track"
           >
-            <SkipForward className="w-10 h-10 fill-current group-hover:scale-110 transition-transform duration-300" />
+            <SkipForward className="w-10 h-10 fill-current" />
           </button>
         </div>
       </div>
@@ -297,7 +255,7 @@ export function AmbientMode({
       >
         <button
           onClick={onClose}
-          className="p-3 bg-background/25 backdrop-blur-xl rounded-full text-foreground hover:bg-background/35 hover:scale-105 transition-all duration-300 ring-1 ring-foreground/15"
+          className="p-3 bg-black/40 backdrop-blur-md rounded-full text-white hover:bg-black/50 transition-colors duration-200 ring-1 ring-white/15"
           aria-label="Close ambient mode"
         >
           <X className="w-6 h-6" />
@@ -305,7 +263,7 @@ export function AmbientMode({
 
         <button
           onClick={toggleFullscreen}
-          className="p-3 bg-background/25 backdrop-blur-xl rounded-full text-foreground hover:bg-background/35 hover:scale-105 transition-all duration-300 ring-1 ring-foreground/15"
+          className="p-3 bg-black/40 backdrop-blur-md rounded-full text-white hover:bg-black/50 transition-colors duration-200 ring-1 ring-white/15"
           aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
         >
           {isFullscreen ? (
@@ -319,7 +277,7 @@ export function AmbientMode({
       {/* Hint text when controls are visible */}
       <div
         className={cn(
-          "absolute bottom-8 left-0 right-0 text-center text-foreground/40 text-sm transition-all duration-700 ease-out",
+          "absolute bottom-8 left-0 right-0 text-center text-white/40 text-sm transition-opacity duration-300",
           isIdle ? "opacity-0 translate-y-4" : "opacity-100 translate-y-0"
         )}
       >
