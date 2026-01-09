@@ -172,7 +172,7 @@ export function AmbientMode({
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/50" />
       
       {/* Main Content */}
-      <div className="relative h-full flex flex-col items-center justify-center p-12">
+      <div className="relative z-10 h-full flex flex-col items-center justify-center p-12">
         {/* Album Art */}
         <div className="relative mb-10">
           <div
@@ -191,16 +191,16 @@ export function AmbientMode({
 
         {/* Track Info */}
         <div className="text-center mb-10 max-w-4xl px-4">
-          <div className="inline-block rounded-2xl bg-black/40 backdrop-blur-md border border-white/10 px-8 py-6">
+          <div className="inline-block rounded-2xl bg-black/60 backdrop-blur-lg border border-white/15 px-8 py-6">
             <h1
-              className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-white mb-3 tracking-tight break-words leading-tight"
-              style={{ textShadow: "0 2px 20px rgba(0,0,0,0.8)" }}
+              className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-3 tracking-tight break-words leading-tight"
+              style={{ color: "#ffffff", textShadow: "0 4px 30px rgba(0,0,0,1), 0 2px 10px rgba(0,0,0,0.9)" }}
             >
               {currentTrack.title}
             </h1>
             <p
-              className="text-lg md:text-xl lg:text-2xl xl:text-3xl text-white/80 font-medium break-words"
-              style={{ textShadow: "0 2px 16px rgba(0,0,0,0.7)" }}
+              className="text-lg md:text-xl lg:text-2xl xl:text-3xl font-medium break-words"
+              style={{ color: "rgba(255,255,255,0.9)", textShadow: "0 3px 20px rgba(0,0,0,0.9)" }}
             >
               {currentTrack.artist}
             </p>
