@@ -21,8 +21,11 @@ export function useDownload() {
     setIsDownloading(true);
     setDownloadProgress(0);
 
+    const filename = `${title} - ${artist}.mp3`.replace(/[<>:"/\\|?*]/g, '');
+
     try {
-      toast.info('Starting download...', { duration: 2000 });
+      toast.info('Preparing download...', { duration: 3000 });
+      setDownloadProgress(10);
 
       const { data, error } = await supabase.functions.invoke('youtube-download', {
         body: { videoId, title, artist },
@@ -33,77 +36,93 @@ export function useDownload() {
         throw new Error('Download service unavailable');
       }
 
-      if (!data || !data.url) {
-        throw new Error('No download URL received');
-      }
+      setDownloadProgress(50);
 
-      console.log('Download response:', data);
-      
-      // Open download in new tab or trigger download
-      const filename = data.filename || `${title} - ${artist}.mp3`;
-      
-      if (data.status === 'redirect' || data.status === 'stream') {
-        // For redirect URLs, open in new tab
-        const link = document.createElement('a');
-        link.href = data.url;
-        link.target = '_blank';
-        link.rel = 'noopener noreferrer';
-        link.download = filename;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+      // Check if we received binary audio data (ArrayBuffer)
+      if (data instanceof ArrayBuffer) {
+        setDownloadProgress(90);
         
-        toast.success('Download started!', {
-          description: `${title} - ${artist}`,
-        });
-      } else {
-        // Try to fetch and download directly
-        setDownloadProgress(10);
-        
-        const response = await fetch(data.url);
-        
-        if (!response.ok) {
-          throw new Error('Failed to fetch audio file');
-        }
-
-        const contentLength = response.headers.get('content-length');
-        const total = contentLength ? parseInt(contentLength, 10) : 0;
-        
-        const reader = response.body?.getReader();
-        const chunks: ArrayBuffer[] = [];
-        let receivedLength = 0;
-
-        if (reader) {
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            
-            chunks.push(value.buffer as ArrayBuffer);
-            receivedLength += value.length;
-            
-            if (total > 0) {
-              setDownloadProgress(Math.round((receivedLength / total) * 100));
-            }
-          }
-        }
-
-        const blob = new Blob(chunks, { type: 'audio/mpeg' });
+        // Create blob from the audio data
+        const blob = new Blob([data], { type: 'audio/mpeg' });
         const url = URL.createObjectURL(blob);
         
+        // Trigger download
         const link = document.createElement('a');
         link.href = url;
         link.download = filename;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-
+        
+        // Cleanup
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+        
+        setDownloadProgress(100);
         toast.success('Download complete!', {
-          description: `${title} - ${artist}`,
+          description: filename,
         });
+        return;
       }
 
-      setDownloadProgress(100);
+      // Handle JSON response (fallback URL)
+      if (data && typeof data === 'object') {
+        if (data.status === 'fallback' && data.url) {
+          toast.info('Opening download page...', {
+            description: 'Please complete download on the external site',
+          });
+          
+          window.open(data.url, '_blank', 'noopener,noreferrer');
+          setDownloadProgress(100);
+          return;
+        }
+
+        if (data.url) {
+          // Try to fetch the URL directly
+          setDownloadProgress(60);
+          
+          try {
+            const response = await fetch(data.url, {
+              mode: 'cors',
+            });
+            
+            if (response.ok) {
+              const contentType = response.headers.get('content-type');
+              
+              if (contentType?.includes('audio') || contentType?.includes('octet-stream')) {
+                const blob = await response.blob();
+                const url = URL.createObjectURL(blob);
+                
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = filename;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                setTimeout(() => URL.revokeObjectURL(url), 1000);
+                
+                setDownloadProgress(100);
+                toast.success('Download complete!', {
+                  description: filename,
+                });
+                return;
+              }
+            }
+          } catch (fetchError) {
+            console.log('Direct fetch failed, opening URL in new tab');
+          }
+          
+          // Fallback: open in new tab
+          window.open(data.url, '_blank', 'noopener,noreferrer');
+          setDownloadProgress(100);
+          toast.info('Download opened in new tab', {
+            description: 'Please save the file from the opened page',
+          });
+          return;
+        }
+      }
+
+      throw new Error('No download URL received');
     } catch (error) {
       console.error('Download error:', error);
       toast.error('Download failed', {
