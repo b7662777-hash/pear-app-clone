@@ -11,7 +11,8 @@ import {
   Heart,
   Mic2,
   Loader2,
-  Sparkles
+  Sparkles,
+  Download
 } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { cn } from "@/lib/utils";
@@ -42,6 +43,8 @@ interface PlayerBarProps {
   isBuffering?: boolean;
   onExpandClick?: () => void;
   onAmbientModeClick?: () => void;
+  onDownloadClick?: () => void;
+  isDownloading?: boolean;
 }
 
 function formatTime(seconds: number): string {
@@ -67,6 +70,8 @@ export function PlayerBar({
   isBuffering,
   onExpandClick,
   onAmbientModeClick,
+  onDownloadClick,
+  isDownloading,
 }: PlayerBarProps) {
   if (!currentTrack) return null;
 
@@ -185,6 +190,20 @@ export function PlayerBar({
         <button className="player-control">
           <ListMusic className="w-5 h-5" />
         </button>
+        {currentTrack.videoId && (
+          <button 
+            onClick={onDownloadClick}
+            className="player-control"
+            disabled={isDownloading}
+            title="Download"
+          >
+            {isDownloading ? (
+              <Loader2 className="w-5 h-5 animate-spin" />
+            ) : (
+              <Download className="w-5 h-5" />
+            )}
+          </button>
+        )}
         <div className="flex items-center gap-2 w-32">
           <Volume2 className="w-5 h-5 text-muted-foreground" />
           <Slider
