@@ -12,6 +12,7 @@ import { ExpandedPlayer } from "@/components/ExpandedPlayer";
 import { AmbientMode } from "@/components/AmbientMode";
 import { RecommendedSongs } from "@/components/RecommendedSongs";
 import { useYouTubeMusic, YouTubeTrack, LyricsProvider } from "@/hooks/useYouTubeMusic";
+import { useDownload } from "@/hooks/useDownload";
 import { 
   quickPickTracks, 
   throwbackAlbums, 
@@ -74,6 +75,20 @@ const Index = () => {
     isLoadingRecommended,
     fetchRecommendedTracks,
   } = useYouTubeMusic();
+
+  // Download hook
+  const { downloadTrack, isDownloading } = useDownload();
+
+  // Handle download
+  const handleDownload = useCallback(() => {
+    if (currentTrack?.videoId) {
+      downloadTrack({
+        videoId: currentTrack.videoId,
+        title: currentTrack.title,
+        artist: currentTrack.artist,
+      });
+    }
+  }, [currentTrack, downloadTrack]);
 
   // Fetch recommended tracks on mount
   useEffect(() => {
@@ -557,6 +572,8 @@ const Index = () => {
         isBuffering={isBuffering}
         onExpandClick={handleExpandPlayer}
         onAmbientModeClick={() => setShowAmbientMode(true)}
+        onDownloadClick={handleDownload}
+        isDownloading={isDownloading}
       />
     </div>
   );
