@@ -5,10 +5,51 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Multiple fallback services for YouTube audio extraction
+// Fast and reliable services for YouTube audio extraction - ordered by speed
 const SERVICES = [
   {
+    name: 'loader-to',
+    priority: 1,
+    getUrl: async (videoId: string) => {
+      try {
+        // Loader.to API - fast and reliable
+        const response = await fetch(`https://loader.to/ajax/download.php?format=mp3&url=https://www.youtube.com/watch?v=${videoId}`);
+        
+        if (!response.ok) return null;
+        const data = await response.json();
+        console.log('Loader.to initial response:', JSON.stringify(data));
+        
+        if (data.download_url) {
+          return data.download_url;
+        }
+        
+        // Poll for completion with shorter intervals
+        if (data.id) {
+          for (let i = 0; i < 15; i++) {
+            await new Promise(resolve => setTimeout(resolve, 1500)); // 1.5s interval
+            const progressResponse = await fetch(`https://loader.to/ajax/progress.php?id=${data.id}`);
+            if (progressResponse.ok) {
+              const progressData = await progressResponse.json();
+              console.log('Loader.to progress:', progressData.progress, progressData.text);
+              if (progressData.download_url) {
+                return progressData.download_url;
+              }
+              if (progressData.success === 1) {
+                return progressData.download_url;
+              }
+            }
+          }
+        }
+        return null;
+      } catch (e) {
+        console.log('Loader.to error:', e);
+        return null;
+      }
+    }
+  },
+  {
     name: 'cobalt-v2',
+    priority: 2,
     getUrl: async (videoId: string) => {
       try {
         const response = await fetch("https://co.wuk.sh/api/json", {
@@ -37,6 +78,7 @@ const SERVICES = [
   },
   {
     name: 'cobalt-main',
+    priority: 3,
     getUrl: async (videoId: string) => {
       try {
         const response = await fetch("https://api.cobalt.tools/api/json", {
@@ -58,127 +100,6 @@ const SERVICES = [
         return data.url || data.audio || null;
       } catch (e) {
         console.log('Cobalt main error:', e);
-        return null;
-      }
-    }
-  },
-  {
-    name: 'ytmp3',
-    getUrl: async (videoId: string) => {
-      try {
-        // Use ytmp3.nu API
-        const response = await fetch(`https://cnvmp3.com/fetch.php`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-          body: `url=https://www.youtube.com/watch?v=${videoId}&quality=320`,
-        });
-        
-        if (!response.ok) return null;
-        const data = await response.json();
-        console.log('ytmp3 response:', JSON.stringify(data));
-        return data.url || data.link || null;
-      } catch (e) {
-        console.log('ytmp3 error:', e);
-        return null;
-      }
-    }
-  },
-  {
-    name: 'loader-to',
-    getUrl: async (videoId: string) => {
-      try {
-        // Loader.to API for YouTube to MP3
-        const response = await fetch(`https://loader.to/ajax/download.php?format=mp3&url=https://www.youtube.com/watch?v=${videoId}`);
-        
-        if (!response.ok) return null;
-        const data = await response.json();
-        console.log('Loader.to response:', JSON.stringify(data));
-        
-        if (data.download_url) {
-          return data.download_url;
-        }
-        
-        // Some APIs return a conversion ID that needs polling
-        if (data.id) {
-          // Wait and check for completion
-          for (let i = 0; i < 10; i++) {
-            await new Promise(resolve => setTimeout(resolve, 2000));
-            const progressResponse = await fetch(`https://loader.to/ajax/progress.php?id=${data.id}`);
-            if (progressResponse.ok) {
-              const progressData = await progressResponse.json();
-              console.log('Loader.to progress:', JSON.stringify(progressData));
-              if (progressData.download_url) {
-                return progressData.download_url;
-              }
-              if (progressData.progress === 1000 || progressData.success === 1) {
-                return progressData.download_url;
-              }
-            }
-          }
-        }
-        return null;
-      } catch (e) {
-        console.log('Loader.to error:', e);
-        return null;
-      }
-    }
-  },
-  {
-    name: 'mp3download',
-    getUrl: async (videoId: string) => {
-      try {
-        const response = await fetch(`https://api.mp3download.to/v1/video/convert`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            url: `https://www.youtube.com/watch?v=${videoId}`,
-            format: 'mp3',
-            quality: '320',
-          }),
-        });
-        
-        if (!response.ok) return null;
-        const data = await response.json();
-        console.log('mp3download response:', JSON.stringify(data));
-        return data.url || data.downloadUrl || null;
-      } catch (e) {
-        console.log('mp3download error:', e);
-        return null;
-      }
-    }
-  },
-  {
-    name: 'y2mate-alt',
-    getUrl: async (videoId: string) => {
-      try {
-        // Alternative Y2mate endpoint
-        const analyzeResponse = await fetch(`https://api.y2mate.one/youtube/analyze`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            url: `https://www.youtube.com/watch?v=${videoId}`,
-          }),
-        });
-        
-        if (!analyzeResponse.ok) return null;
-        const data = await analyzeResponse.json();
-        console.log('y2mate-alt response:', JSON.stringify(data));
-        
-        // Find MP3 link in response
-        if (data.links?.audio) {
-          const mp3Link = data.links.audio.find((l: any) => l.format === 'mp3');
-          if (mp3Link?.url) return mp3Link.url;
-        }
-        
-        return null;
-      } catch (e) {
-        console.log('y2mate-alt error:', e);
         return null;
       }
     }
@@ -257,17 +178,13 @@ serve(async (req) => {
     // If all direct services fail, return a redirect URL to a working download page
     console.log('All direct services failed, returning redirect options');
     
-    // Return multiple fallback options for the client to try
-    const fallbackUrls = [
-      `https://www.yt-download.org/api/button/mp3/${videoId}`,
-      `https://y2mate.is/youtube-to-mp3/${videoId}`,
-      `https://mp3-youtube.download/en/download/${videoId}`,
-    ];
-    
     return new Response(
       JSON.stringify({ 
         status: 'fallback',
-        urls: fallbackUrls,
+        urls: [
+          `https://www.yt-download.org/api/button/mp3/${videoId}`,
+          `https://y2mate.is/youtube-to-mp3/${videoId}`,
+        ],
         filename,
         message: 'Direct download unavailable. Please use the fallback link.'
       }),

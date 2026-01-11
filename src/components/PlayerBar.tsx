@@ -45,6 +45,7 @@ interface PlayerBarProps {
   onAmbientModeClick?: () => void;
   onDownloadClick?: () => void;
   isDownloading?: boolean;
+  downloadProgress?: number;
 }
 
 function formatTime(seconds: number): string {
@@ -72,6 +73,7 @@ export function PlayerBar({
   onAmbientModeClick,
   onDownloadClick,
   isDownloading,
+  downloadProgress = 0,
 }: PlayerBarProps) {
   if (!currentTrack) return null;
 
@@ -193,12 +195,38 @@ export function PlayerBar({
         {currentTrack.videoId && (
           <button 
             onClick={onDownloadClick}
-            className="player-control"
+            className="player-control relative"
             disabled={isDownloading}
-            title="Download"
+            title={isDownloading ? `Downloading ${downloadProgress}%` : "Download"}
           >
             {isDownloading ? (
-              <Loader2 className="w-5 h-5 animate-spin" />
+              <div className="relative">
+                <svg className="w-5 h-5 -rotate-90" viewBox="0 0 24 24">
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    className="opacity-20"
+                  />
+                  <circle
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeDasharray={`${downloadProgress * 0.628} 100`}
+                    strokeLinecap="round"
+                    className="text-primary transition-all duration-300"
+                  />
+                </svg>
+                <span className="absolute inset-0 flex items-center justify-center text-[8px] font-bold">
+                  {downloadProgress}
+                </span>
+              </div>
             ) : (
               <Download className="w-5 h-5" />
             )}

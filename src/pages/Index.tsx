@@ -77,7 +77,7 @@ const Index = () => {
   } = useYouTubeMusic();
 
   // Download hook
-  const { downloadTrack, isDownloading } = useDownload();
+  const { downloadTrack, isDownloading, downloadProgress } = useDownload();
 
   // Handle download
   const handleDownload = useCallback(() => {
@@ -574,6 +574,7 @@ const Index = () => {
         onAmbientModeClick={() => setShowAmbientMode(true)}
         onDownloadClick={handleDownload}
         isDownloading={isDownloading}
+        downloadProgress={downloadProgress}
       />
     </div>
   );
