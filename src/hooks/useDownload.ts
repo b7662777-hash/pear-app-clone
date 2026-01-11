@@ -64,16 +64,31 @@ export function useDownload() {
         return;
       }
 
-      // Handle JSON response (fallback URL)
+      // Handle JSON response (fallback URLs)
       if (data && typeof data === 'object') {
-        if (data.status === 'fallback' && data.url) {
-          toast.info('Opening download page...', {
-            description: 'Please complete download on the external site',
-          });
+        if (data.status === 'fallback') {
+          // Try the fallback URLs array first
+          if (data.urls && Array.isArray(data.urls)) {
+            toast.info('Opening download page...', {
+              description: 'Please complete download on the external site',
+            });
+            
+            // Open the first fallback URL
+            window.open(data.urls[0], '_blank', 'noopener,noreferrer');
+            setDownloadProgress(100);
+            return;
+          }
           
-          window.open(data.url, '_blank', 'noopener,noreferrer');
-          setDownloadProgress(100);
-          return;
+          // Legacy single URL fallback
+          if (data.url) {
+            toast.info('Opening download page...', {
+              description: 'Please complete download on the external site',
+            });
+            
+            window.open(data.url, '_blank', 'noopener,noreferrer');
+            setDownloadProgress(100);
+            return;
+          }
         }
 
         if (data.url) {
