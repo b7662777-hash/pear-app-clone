@@ -24,9 +24,134 @@ export function useDownload() {
     const filename = `${title} - ${artist}.mp3`.replace(/[<>:"/\\|?*]/g, '');
 
     try {
-      toast.info('Preparing download...', { duration: 3000 });
-      setDownloadProgress(10);
+      toast.info('Preparing download...', { duration: 2000 });
+      setDownloadProgress(5);
 
+      const safeFilename = filename || 'download.mp3';
+
+      const saveBlob = (blob: Blob) => {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = safeFilename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setTimeout(() => URL.revokeObjectURL(url), 1500);
+      };
+
+      const handleFallbackJson = (payload: any) => {
+        if (payload?.status === 'fallback') {
+          const urls: string[] = Array.isArray(payload.urls)
+            ? payload.urls
+            : payload.url
+              ? [payload.url]
+              : [];
+
+          if (urls.length) {
+            toast.info('Opening download page...', {
+              description: 'Direct MP3 not available — using fallback link',
+            });
+            window.open(urls[0], '_blank', 'noopener,noreferrer');
+            setDownloadProgress(100);
+            return true;
+          }
+        }
+
+        if (payload?.url && typeof payload.url === 'string') {
+          window.open(payload.url, '_blank', 'noopener,noreferrer');
+          setDownloadProgress(100);
+          toast.info('Download opened in new tab', {
+            description: 'Please save the file from the opened page',
+          });
+          return true;
+        }
+
+        return false;
+      };
+
+      // 1) Preferred path: direct fetch to stream progress in the UI
+      const supabaseUrl = (supabase as any)?.supabaseUrl as string | undefined;
+      const supabaseKey = (supabase as any)?.supabaseKey as string | undefined;
+
+      if (supabaseUrl && supabaseKey) {
+        setDownloadProgress(10);
+
+        const res = await fetch(`${supabaseUrl}/functions/v1/youtube-download`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            apikey: supabaseKey,
+            Authorization: `Bearer ${supabaseKey}`,
+          },
+          body: JSON.stringify({ videoId, title, artist }),
+        });
+
+        const contentType = res.headers.get('content-type') || '';
+
+        if (!res.ok) {
+          const text = await res.text().catch(() => '');
+          console.error('Download fetch error:', res.status, text);
+          throw new Error('Download service unavailable');
+        }
+
+        // JSON fallback from backend
+        if (contentType.includes('application/json')) {
+          const json = await res.json().catch(() => null);
+          if (handleFallbackJson(json)) return;
+          throw new Error('No download URL received');
+        }
+
+        // Audio/binary stream
+        const total = Number(res.headers.get('content-length') || 0);
+
+        // Some environments may not expose a stream
+        if (!res.body) {
+          setDownloadProgress(90);
+          const blob = await res.blob();
+          saveBlob(blob);
+          setDownloadProgress(100);
+          toast.success('Download complete!', { description: safeFilename });
+          return;
+        }
+
+        const reader = res.body.getReader();
+        const chunks: Uint8Array[] = [];
+        let received = 0;
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          if (!value) continue;
+
+          chunks.push(value);
+          received += value.length;
+
+          if (total > 0) {
+            const pct = Math.min(99, Math.max(10, Math.round((received / total) * 100)));
+            setDownloadProgress(pct);
+          } else {
+            // No content-length → keep it moving
+            setDownloadProgress((p) => (p < 95 ? p + 1 : p));
+          }
+        }
+
+        const blobParts: Uint8Array[] = [];
+        for (const c of chunks) {
+          const copy = new Uint8Array(c.byteLength);
+          copy.set(c);
+          blobParts.push(copy);
+        }
+        const blob = new Blob(blobParts as unknown as BlobPart[], { type: 'audio/mpeg' });
+        saveBlob(blob);
+
+        setDownloadProgress(100);
+        toast.success('Download complete!', { description: safeFilename });
+        return;
+      }
+
+      // 2) Fallback: invoke (may return Blob/ArrayBuffer/JSON)
+      setDownloadProgress(15);
       const { data, error } = await supabase.functions.invoke('youtube-download', {
         body: { videoId, title, artist },
       });
@@ -36,105 +161,26 @@ export function useDownload() {
         throw new Error('Download service unavailable');
       }
 
-      setDownloadProgress(50);
-
-      // Check if we received binary audio data (ArrayBuffer)
-      if (data instanceof ArrayBuffer) {
+      // Supabase client typically returns a Blob for non-JSON responses
+      if (data instanceof Blob) {
         setDownloadProgress(90);
-        
-        // Create blob from the audio data
-        const blob = new Blob([data], { type: 'audio/mpeg' });
-        const url = URL.createObjectURL(blob);
-        
-        // Trigger download
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = filename;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        
-        // Cleanup
-        setTimeout(() => URL.revokeObjectURL(url), 1000);
-        
+        saveBlob(data);
         setDownloadProgress(100);
-        toast.success('Download complete!', {
-          description: filename,
-        });
+        toast.success('Download complete!', { description: safeFilename });
         return;
       }
 
-      // Handle JSON response (fallback URLs)
-      if (data && typeof data === 'object') {
-        if (data.status === 'fallback') {
-          // Try the fallback URLs array first
-          if (data.urls && Array.isArray(data.urls)) {
-            toast.info('Opening download page...', {
-              description: 'Please complete download on the external site',
-            });
-            
-            // Open the first fallback URL
-            window.open(data.urls[0], '_blank', 'noopener,noreferrer');
-            setDownloadProgress(100);
-            return;
-          }
-          
-          // Legacy single URL fallback
-          if (data.url) {
-            toast.info('Opening download page...', {
-              description: 'Please complete download on the external site',
-            });
-            
-            window.open(data.url, '_blank', 'noopener,noreferrer');
-            setDownloadProgress(100);
-            return;
-          }
-        }
+      if (data instanceof ArrayBuffer) {
+        setDownloadProgress(90);
+        const blob = new Blob([data], { type: 'audio/mpeg' });
+        saveBlob(blob);
+        setDownloadProgress(100);
+        toast.success('Download complete!', { description: safeFilename });
+        return;
+      }
 
-        if (data.url) {
-          // Try to fetch the URL directly
-          setDownloadProgress(60);
-          
-          try {
-            const response = await fetch(data.url, {
-              mode: 'cors',
-            });
-            
-            if (response.ok) {
-              const contentType = response.headers.get('content-type');
-              
-              if (contentType?.includes('audio') || contentType?.includes('octet-stream')) {
-                const blob = await response.blob();
-                const url = URL.createObjectURL(blob);
-                
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = filename;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                
-                setTimeout(() => URL.revokeObjectURL(url), 1000);
-                
-                setDownloadProgress(100);
-                toast.success('Download complete!', {
-                  description: filename,
-                });
-                return;
-              }
-            }
-          } catch (fetchError) {
-            console.log('Direct fetch failed, opening URL in new tab');
-          }
-          
-          // Fallback: open in new tab
-          window.open(data.url, '_blank', 'noopener,noreferrer');
-          setDownloadProgress(100);
-          toast.info('Download opened in new tab', {
-            description: 'Please save the file from the opened page',
-          });
-          return;
-        }
+      if (data && typeof data === 'object') {
+        if (handleFallbackJson(data)) return;
       }
 
       throw new Error('No download URL received');

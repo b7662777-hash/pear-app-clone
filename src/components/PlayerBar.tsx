@@ -218,7 +218,7 @@ export function PlayerBar({
                     fill="none"
                     stroke="currentColor"
                     strokeWidth="2"
-                    strokeDasharray={`${downloadProgress * 0.628} 100`}
+                    strokeDasharray={`${(downloadProgress / 100) * 62.83} 62.83`}
                     strokeLinecap="round"
                     className="text-primary transition-all duration-300"
                   />
