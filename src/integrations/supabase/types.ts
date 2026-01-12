@@ -14,6 +14,119 @@ export type Database = {
   }
   public: {
     Tables: {
+      liked_songs: {
+        Row: {
+          album: string | null
+          artist: string
+          duration: string | null
+          id: string
+          liked_at: string
+          thumbnail: string | null
+          title: string
+          user_id: string
+          video_id: string
+        }
+        Insert: {
+          album?: string | null
+          artist: string
+          duration?: string | null
+          id?: string
+          liked_at?: string
+          thumbnail?: string | null
+          title: string
+          user_id: string
+          video_id: string
+        }
+        Update: {
+          album?: string | null
+          artist?: string
+          duration?: string | null
+          id?: string
+          liked_at?: string
+          thumbnail?: string | null
+          title?: string
+          user_id?: string
+          video_id?: string
+        }
+        Relationships: []
+      }
+      playlist_songs: {
+        Row: {
+          added_at: string
+          album: string | null
+          artist: string
+          duration: string | null
+          id: string
+          playlist_id: string
+          position: number
+          thumbnail: string | null
+          title: string
+          video_id: string
+        }
+        Insert: {
+          added_at?: string
+          album?: string | null
+          artist: string
+          duration?: string | null
+          id?: string
+          playlist_id: string
+          position?: number
+          thumbnail?: string | null
+          title: string
+          video_id: string
+        }
+        Update: {
+          added_at?: string
+          album?: string | null
+          artist?: string
+          duration?: string | null
+          id?: string
+          playlist_id?: string
+          position?: number
+          thumbnail?: string | null
+          title?: string
+          video_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "playlist_songs_playlist_id_fkey"
+            columns: ["playlist_id"]
+            isOneToOne: false
+            referencedRelation: "playlists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      playlists: {
+        Row: {
+          cover_url: string | null
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cover_url?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cover_url?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null

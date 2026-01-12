@@ -11,8 +11,10 @@ import { SearchResults } from "@/components/SearchResults";
 import { ExpandedPlayer } from "@/components/ExpandedPlayer";
 import { AmbientMode } from "@/components/AmbientMode";
 import { RecommendedSongs } from "@/components/RecommendedSongs";
+import { AddToPlaylistDialog } from "@/components/AddToPlaylistDialog";
 import { useYouTubeMusic, YouTubeTrack, LyricsProvider } from "@/hooks/useYouTubeMusic";
 import { useDownload } from "@/hooks/useDownload";
+import { usePlaylists } from "@/hooks/usePlaylists";
 import { 
   quickPickTracks, 
   throwbackAlbums, 
@@ -55,6 +57,7 @@ const Index = () => {
   const [isBuffering, setIsBuffering] = useState(false);
   const [showExpandedPlayer, setShowExpandedPlayer] = useState(false);
   const [showAmbientMode, setShowAmbientMode] = useState(false);
+  const [showAddToPlaylist, setShowAddToPlaylist] = useState(false);
   
   const playerContainerRef = useRef<HTMLDivElement>(null);
 
@@ -78,6 +81,9 @@ const Index = () => {
 
   // Download hook
   const { downloadTrack, isDownloading, downloadProgress } = useDownload();
+
+  // Playlists hook
+  const { isLiked: checkIsLiked, toggleLike } = usePlaylists();
 
   // Handle download
   const handleDownload = useCallback(() => {
@@ -565,8 +571,21 @@ const Index = () => {
         onPrevious={handlePrevious}
         onProgressChange={handleProgressChange}
         onVolumeChange={(value) => setVolume(value[0])}
-        isLiked={isLiked}
-        onLikeToggle={() => setIsLiked(!isLiked)}
+        isLiked={currentTrack?.videoId ? checkIsLiked(currentTrack.videoId) : isLiked}
+        onLikeToggle={() => {
+          if (currentTrack?.videoId) {
+            toggleLike({
+              videoId: currentTrack.videoId,
+              title: currentTrack.title,
+              artist: currentTrack.artist,
+              album: currentTrack.album,
+              thumbnail: currentTrack.image,
+              duration: currentTrack.duration?.toString(),
+            });
+          } else {
+            setIsLiked(!isLiked);
+          }
+        }}
         onLyricsToggle={handleLyricsToggle}
         showLyrics={showLyrics}
         isBuffering={isBuffering}
@@ -575,6 +594,21 @@ const Index = () => {
         onDownloadClick={handleDownload}
         isDownloading={isDownloading}
         downloadProgress={downloadProgress}
+        onAddToPlaylist={() => setShowAddToPlaylist(true)}
+      />
+
+      {/* Add to Playlist Dialog */}
+      <AddToPlaylistDialog
+        isOpen={showAddToPlaylist}
+        onClose={() => setShowAddToPlaylist(false)}
+        song={currentTrack?.videoId ? {
+          videoId: currentTrack.videoId,
+          title: currentTrack.title,
+          artist: currentTrack.artist,
+          album: currentTrack.album,
+          thumbnail: currentTrack.image,
+          duration: currentTrack.duration?.toString(),
+        } : null}
       />
     </div>
   );
