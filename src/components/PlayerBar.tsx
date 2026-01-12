@@ -12,7 +12,8 @@ import {
   Mic2,
   Loader2,
   Sparkles,
-  Download
+  Download,
+  Plus
 } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { cn } from "@/lib/utils";
@@ -46,6 +47,7 @@ interface PlayerBarProps {
   onDownloadClick?: () => void;
   isDownloading?: boolean;
   downloadProgress?: number;
+  onAddToPlaylist?: () => void;
 }
 
 function formatTime(seconds: number): string {
@@ -74,6 +76,7 @@ export function PlayerBar({
   onDownloadClick,
   isDownloading,
   downloadProgress = 0,
+  onAddToPlaylist,
 }: PlayerBarProps) {
   if (!currentTrack) return null;
 
@@ -189,6 +192,13 @@ export function PlayerBar({
             <Mic2 className="w-5 h-5" />
           </button>
         )}
+        <button 
+          onClick={onAddToPlaylist}
+          className="player-control hover:text-primary transition-colors"
+          title="Add to playlist"
+        >
+          <Plus className="w-5 h-5" />
+        </button>
         <button className="player-control">
           <ListMusic className="w-5 h-5" />
         </button>
