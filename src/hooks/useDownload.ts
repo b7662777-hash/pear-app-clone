@@ -24,15 +24,15 @@ export function useDownload() {
     const filename = `${title} - ${artist}.mp3`.replace(/[<>:"/\\|?*]/g, '');
 
     try {
-      toast.info('Preparing download...', { duration: 2000 });
+      toast.info('Finding download source...', { duration: 3000 });
       
-      // Animate progress
+      // Smooth progress animation
+      let progressValue = 0;
       const progressInterval = setInterval(() => {
-        setDownloadProgress(prev => {
-          if (prev >= 90) return prev;
-          return prev + Math.random() * 15;
-        });
-      }, 200);
+        progressValue += Math.random() * 8 + 2;
+        if (progressValue > 85) progressValue = 85;
+        setDownloadProgress(progressValue);
+      }, 150);
 
       // Call the edge function
       const { data, error } = await supabase.functions.invoke('youtube-download', {
@@ -48,57 +48,69 @@ export function useDownload() {
 
       console.log('Download response:', data);
 
-      // Handle successful URL response
+      // Handle successful URL response - download directly in browser
       if (data?.status === 'success' && data?.url) {
-        setDownloadProgress(95);
-        toast.success('Download ready!', { description: 'Starting download...' });
+        setDownloadProgress(90);
+        toast.success('Download starting!', { description: filename });
         
-        // Open the download URL in a new tab
-        const link = document.createElement('a');
-        link.href = data.url;
-        link.download = filename;
-        link.target = '_blank';
-        link.rel = 'noopener noreferrer';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        // Create hidden iframe for download
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        iframe.src = data.url;
+        document.body.appendChild(iframe);
+        
+        // Also try direct link click
+        setTimeout(() => {
+          const link = document.createElement('a');
+          link.href = data.url;
+          link.download = filename;
+          link.target = '_blank';
+          link.rel = 'noopener noreferrer';
+          link.click();
+        }, 500);
+        
+        // Cleanup iframe after delay
+        setTimeout(() => {
+          if (iframe.parentNode) {
+            iframe.parentNode.removeChild(iframe);
+          }
+        }, 5000);
         
         setDownloadProgress(100);
         return;
       }
 
-      // Handle fallback URLs
+      // Handle fallback URLs - open cobalt.tools or other download page
       if (data?.status === 'fallback' && data?.urls?.length > 0) {
         setDownloadProgress(100);
         toast.info('Opening download page...', {
-          description: 'Please complete the download on the opened page',
+          description: 'Complete the download on the opened page',
+          duration: 5000,
         });
+        
+        // Open cobalt.tools with pre-filled URL (best UX)
         window.open(data.urls[0], '_blank', 'noopener,noreferrer');
         return;
       }
 
-      // Handle direct URL
+      // Handle direct URL without status
       if (data?.url) {
-        setDownloadProgress(95);
-        const link = document.createElement('a');
-        link.href = data.url;
-        link.download = filename;
-        link.target = '_blank';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        
+        setDownloadProgress(90);
+        window.open(data.url, '_blank', 'noopener,noreferrer');
         setDownloadProgress(100);
-        toast.success('Download started!');
+        toast.success('Download opened!');
         return;
       }
 
       throw new Error('No download URL received');
     } catch (error) {
       console.error('Download error:', error);
-      toast.error('Download failed', {
-        description: 'Please try again later',
+      
+      // Fallback: open cobalt.tools directly
+      toast.info('Opening cobalt.tools...', {
+        description: 'Paste the song URL to download',
       });
+      window.open(`https://cobalt.tools/#${encodeURIComponent(`https://www.youtube.com/watch?v=${videoId}`)}`, '_blank');
     } finally {
       setIsDownloading(false);
       setTimeout(() => setDownloadProgress(0), 1500);
