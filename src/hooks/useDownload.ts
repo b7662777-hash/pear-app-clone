@@ -29,10 +29,10 @@ export function useDownload() {
       // Smooth progress animation
       let progressValue = 0;
       const progressInterval = setInterval(() => {
-        progressValue += Math.random() * 8 + 2;
+        progressValue += Math.random() * 10 + 3;
         if (progressValue > 85) progressValue = 85;
-        setDownloadProgress(progressValue);
-      }, 150);
+        setDownloadProgress(Math.round(progressValue));
+      }, 200);
 
       // Call the edge function
       const { data, error } = await supabase.functions.invoke('youtube-download', {
@@ -48,57 +48,64 @@ export function useDownload() {
 
       console.log('Download response:', data);
 
-      // Handle successful URL response - download directly in browser
+      // Handle successful URL response
       if (data?.status === 'success' && data?.url) {
         setDownloadProgress(90);
-        toast.success('Download starting!', { description: filename });
         
-        // Create hidden iframe for download
-        const iframe = document.createElement('iframe');
-        iframe.style.display = 'none';
-        iframe.src = data.url;
-        document.body.appendChild(iframe);
-        
-        // Also try direct link click
-        setTimeout(() => {
-          const link = document.createElement('a');
-          link.href = data.url;
-          link.download = filename;
-          link.target = '_blank';
-          link.rel = 'noopener noreferrer';
-          link.click();
-        }, 500);
-        
-        // Cleanup iframe after delay
-        setTimeout(() => {
-          if (iframe.parentNode) {
-            iframe.parentNode.removeChild(iframe);
+        // Try to download directly
+        try {
+          toast.loading('Downloading...', { id: 'download-progress' });
+          
+          const response = await fetch(data.url);
+          if (response.ok) {
+            const blob = await response.blob();
+            const url = URL.createObjectURL(blob);
+            
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = data.filename || filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            
+            setDownloadProgress(100);
+            toast.success('Download complete!', { id: 'download-progress' });
+            return;
           }
-        }, 5000);
+        } catch (fetchError) {
+          console.log('Direct fetch failed, trying redirect:', fetchError);
+        }
         
-        setDownloadProgress(100);
-        return;
-      }
-
-      // Handle fallback URLs - open cobalt.tools or other download page
-      if (data?.status === 'fallback' && data?.urls?.length > 0) {
-        setDownloadProgress(100);
-        toast.info('Opening download page...', {
-          description: 'Complete the download on the opened page',
-          duration: 5000,
-        });
-        
-        // Open cobalt.tools with pre-filled URL (best UX)
-        window.open(data.urls[0], '_blank', 'noopener,noreferrer');
-        return;
-      }
-
-      // Handle direct URL without status
-      if (data?.url) {
-        setDownloadProgress(90);
+        // Fallback: Open URL directly (will trigger browser download)
         window.open(data.url, '_blank', 'noopener,noreferrer');
         setDownloadProgress(100);
-        toast.success('Download opened!');
+        toast.success('Download started!', { id: 'download-progress', description: 'Check your downloads folder' });
+        return;
+      }
+
+      // Handle fallback URLs
+      if (data?.status === 'fallback' && data?.urls?.length > 0) {
+        setDownloadProgress(100);
+        
+        // Copy YouTube URL to clipboard for easy pasting
+        if (data.youtubeUrl) {
+          try {
+            await navigator.clipboard.writeText(data.youtubeUrl);
+            toast.info('Opening download page...', {
+              description: 'YouTube URL copied! Paste it on the download site.',
+              duration: 6000,
+            });
+          } catch {
+            toast.info('Opening download page...', {
+              description: 'Paste the YouTube URL to download',
+              duration: 5000,
+            });
+          }
+        }
+        
+        // Open cobalt.tools (best UX)
+        window.open(data.urls[0], '_blank', 'noopener,noreferrer');
         return;
       }
 
@@ -110,7 +117,13 @@ export function useDownload() {
       toast.info('Opening cobalt.tools...', {
         description: 'Paste the song URL to download',
       });
-      window.open(`https://cobalt.tools/#${encodeURIComponent(`https://www.youtube.com/watch?v=${videoId}`)}`, '_blank');
+      
+      const youtubeUrl = `https://www.youtube.com/watch?v=${videoId}`;
+      try {
+        await navigator.clipboard.writeText(youtubeUrl);
+      } catch {}
+      
+      window.open('https://cobalt.tools', '_blank');
     } finally {
       setIsDownloading(false);
       setTimeout(() => setDownloadProgress(0), 1500);
