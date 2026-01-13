@@ -5,131 +5,114 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Multiple reliable download services
-const getDownloadUrl = async (videoId: string): Promise<string | null> => {
+// List of public cobalt instances
+const COBALT_INSTANCES = [
+  'https://cobalt.api.kityune.moe',
+  'https://api.cobalt.tools',
+  'https://co.wuk.sh',
+];
+
+// Try multiple cobalt instances with the new API format
+const getDownloadUrl = async (videoId: string): Promise<{ url: string; filename?: string } | null> => {
   const youtubeUrl = `https://www.youtube.com/watch?v=${videoId}`;
   
-  // Service 1: Try co.wuk.sh (cobalt community instance)
-  try {
-    console.log('Trying co.wuk.sh...');
-    const response = await fetch("https://co.wuk.sh/api/json", {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        url: youtubeUrl,
-        aFormat: "mp3",
-        isAudioOnly: true,
-        audioBitrate: "128",
-      }),
-    });
-    
-    if (response.ok) {
+  for (const instance of COBALT_INSTANCES) {
+    try {
+      console.log(`Trying cobalt instance: ${instance}`);
+      
+      const response = await fetch(instance, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          url: youtubeUrl,
+          downloadMode: "audio",
+          audioFormat: "mp3",
+          audioBitrate: "128",
+          filenameStyle: "pretty",
+        }),
+      });
+      
+      if (!response.ok) {
+        console.log(`${instance} returned status ${response.status}`);
+        continue;
+      }
+      
       const data = await response.json();
-      console.log('co.wuk.sh response:', JSON.stringify(data));
-      if (data.url) return data.url;
-      if (data.audio) return data.audio;
+      console.log(`${instance} response:`, JSON.stringify(data).substring(0, 500));
+      
+      // Handle different response statuses from cobalt
+      // status: tunnel, redirect, picker, error
+      if (data.status === 'tunnel' || data.status === 'redirect') {
+        if (data.url) {
+          return { url: data.url, filename: data.filename };
+        }
+      }
+      
+      if (data.status === 'picker' && data.picker?.length > 0) {
+        // For picker, get the first audio option
+        const audioItem = data.picker.find((p: any) => p.type === 'audio') || data.picker[0];
+        if (audioItem?.url) {
+          return { url: audioItem.url, filename: data.filename };
+        }
+      }
+      
+      // Legacy format support
+      if (data.url) {
+        return { url: data.url, filename: data.filename };
+      }
+      if (data.audio) {
+        return { url: data.audio, filename: data.filename };
+      }
+      
+    } catch (e) {
+      console.log(`${instance} error:`, e);
     }
-  } catch (e) {
-    console.log('co.wuk.sh error:', e);
   }
 
-  // Service 2: Try api.cobalt.tools (may require solving captcha)
+  // Fallback: Try y2mate style services
   try {
-    console.log('Trying api.cobalt.tools...');
-    const response = await fetch("https://api.cobalt.tools/", {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        url: youtubeUrl,
-        downloadMode: "audio",
-        audioFormat: "mp3",
-        audioBitrate: "128",
-      }),
-    });
-    
-    if (response.ok) {
-      const data = await response.json();
-      console.log('api.cobalt.tools response:', JSON.stringify(data));
-      if (data.url) return data.url;
-      if (data.audio) return data.audio;
-    }
-  } catch (e) {
-    console.log('api.cobalt.tools error:', e);
-  }
-
-  // Service 3: Try cnvmp3.com API
-  try {
-    console.log('Trying cnvmp3.com...');
-    const response = await fetch(`https://cnvmp3.com/fetch_video.php?url=${encodeURIComponent(youtubeUrl)}`);
-    
-    if (response.ok) {
-      const data = await response.json();
-      console.log('cnvmp3.com response:', JSON.stringify(data));
-      if (data.download_url) return data.download_url;
-      if (data.url) return data.url;
-    }
-  } catch (e) {
-    console.log('cnvmp3.com error:', e);
-  }
-
-  // Service 4: Try tomp3.cc API
-  try {
-    console.log('Trying tomp3.cc...');
-    const response = await fetch("https://tomp3.cc/api/ajax/search", {
+    console.log('Trying y2mate fallback...');
+    const searchResp = await fetch("https://www.y2mate.com/mates/analyzeV2/ajax", {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
-      body: `query=${encodeURIComponent(youtubeUrl)}&vt=mp3`,
+      body: `k_query=${encodeURIComponent(youtubeUrl)}&k_page=home&hl=en&q_auto=0`,
     });
     
-    if (response.ok) {
-      const data = await response.json();
-      console.log('tomp3.cc search response:', JSON.stringify(data).substring(0, 300));
+    if (searchResp.ok) {
+      const searchData = await searchResp.json();
+      console.log('y2mate search response:', JSON.stringify(searchData).substring(0, 300));
       
-      if (data.links?.mp3) {
-        const mp3Link = Object.values(data.links.mp3)[0] as any;
-        if (mp3Link?.k) {
-          // Convert
-          const convertResponse = await fetch("https://tomp3.cc/api/ajax/convert", {
+      if (searchData.links?.mp3) {
+        const mp3Key = Object.keys(searchData.links.mp3)[0];
+        if (mp3Key) {
+          const mp3Info = searchData.links.mp3[mp3Key];
+          
+          const convertResp = await fetch("https://www.y2mate.com/mates/convertV2/index", {
             method: 'POST',
             headers: {
               'Content-Type': 'application/x-www-form-urlencoded',
             },
-            body: `vid=${data.vid}&k=${encodeURIComponent(mp3Link.k)}`,
+            body: `vid=${searchData.vid}&k=${encodeURIComponent(mp3Info.k)}`,
           });
           
-          if (convertResponse.ok) {
-            const convertData = await convertResponse.json();
-            console.log('tomp3.cc convert response:', JSON.stringify(convertData));
-            if (convertData.dlink) return convertData.dlink;
+          if (convertResp.ok) {
+            const convertData = await convertResp.json();
+            console.log('y2mate convert response:', JSON.stringify(convertData).substring(0, 300));
+            
+            if (convertData.dlink) {
+              return { url: convertData.dlink };
+            }
           }
         }
       }
     }
   } catch (e) {
-    console.log('tomp3.cc error:', e);
-  }
-
-  // Service 5: Try 320ytmp3.com
-  try {
-    console.log('Trying 320ytmp3.com...');
-    const response = await fetch(`https://api.320ytmp3.com/v1/fetch?url=${encodeURIComponent(youtubeUrl)}`);
-    
-    if (response.ok) {
-      const data = await response.json();
-      console.log('320ytmp3.com response:', JSON.stringify(data));
-      if (data.url) return data.url;
-      if (data.downloadUrl) return data.downloadUrl;
-    }
-  } catch (e) {
-    console.log('320ytmp3.com error:', e);
+    console.log('y2mate error:', e);
   }
 
   return null;
@@ -156,16 +139,16 @@ serve(async (req) => {
     const filename = `${title || 'audio'} - ${artist || 'unknown'}.mp3`.replace(/[<>:"/\\|?*]/g, '');
 
     // Try to get download URL
-    const downloadUrl = await getDownloadUrl(videoId);
+    const result = await getDownloadUrl(videoId);
     
-    if (downloadUrl) {
-      console.log(`Got download URL: ${downloadUrl.substring(0, 80)}...`);
+    if (result?.url) {
+      console.log(`Got download URL: ${result.url.substring(0, 100)}...`);
       
       return new Response(
         JSON.stringify({ 
           status: 'success',
-          url: downloadUrl,
-          filename,
+          url: result.url,
+          filename: result.filename || filename,
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
@@ -178,10 +161,11 @@ serve(async (req) => {
       JSON.stringify({ 
         status: 'fallback',
         urls: [
-          `https://cobalt.tools/#${encodeURIComponent(`https://www.youtube.com/watch?v=${videoId}`)}`,
+          `https://cobalt.tools`,
+          `https://y2mate.com/youtube-mp3/${videoId}`,
           `https://www.yt-download.org/api/button/mp3/${videoId}`,
-          `https://y2mate.is/en/youtube-mp3/${videoId}`,
         ],
+        youtubeUrl: `https://www.youtube.com/watch?v=${videoId}`,
         filename,
         message: 'Direct download unavailable. Opening download page.'
       }),
