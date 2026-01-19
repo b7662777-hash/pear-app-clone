@@ -11,14 +11,22 @@
 export function optimizeGoogleThumbnail(url: string, size: number = 160): string {
   if (!url) return url;
   
+  // Round up to nearest pixel for device pixel ratio (request slightly larger for retina)
+  const optimizedSize = Math.ceil(size * 1.5);
+  
   // For Google/YouTube images (lh3.googleusercontent.com)
   if (url.includes('googleusercontent.com')) {
-    // Replace any existing size parameters with optimized ones
-    // -l70 sets quality to 70 for better compression
-    // -rw requests WebP format for modern browsers
-    return url
-      .replace(/=w\d+-h\d+[^&]*/i, `=w${size}-h${size}-l70-rw`)
-      .replace(/\?w=\d+&h=\d+/, `?w=${size}&h=${size}`);
+    // Check if URL has existing parameters
+    const hasParams = url.includes('=');
+    if (hasParams) {
+      // Replace any existing size/quality parameters with optimized ones
+      // -l70 sets quality to 70 for better compression
+      // -rw requests WebP format for modern browsers
+      return url.replace(/=[^?&]+$/, `=w${optimizedSize}-h${optimizedSize}-l70-rw`);
+    } else {
+      // Add parameters if none exist
+      return `${url}=w${optimizedSize}-h${optimizedSize}-l70-rw`;
+    }
   }
   
   // For YouTube video thumbnails (i.ytimg.com)
@@ -41,19 +49,38 @@ export function optimizeGoogleThumbnail(url: string, size: number = 160): string
 export function optimizeUnsplashUrl(url: string, size: number = 160): string {
   if (!url || !url.includes('unsplash.com')) return url;
   
-  // Replace size parameters and add WebP format with quality optimization
-  let optimized = url
-    .replace(/w=\d+/g, `w=${size}`)
-    .replace(/h=\d+/g, `h=${size}`);
+  // Round up for retina displays
+  const optimizedSize = Math.ceil(size * 1.5);
   
-  // Add WebP format and quality if not present
-  if (!optimized.includes('fm=webp')) {
-    optimized += optimized.includes('?') ? '&fm=webp&q=75' : '?fm=webp&q=75';
-  } else if (!optimized.includes('q=')) {
-    optimized += '&q=75';
+  // Parse the URL to properly handle parameters
+  try {
+    const urlObj = new URL(url);
+    
+    // Set size parameters
+    urlObj.searchParams.set('w', String(optimizedSize));
+    urlObj.searchParams.set('h', String(optimizedSize));
+    
+    // Add WebP format and quality optimization
+    urlObj.searchParams.set('fm', 'webp');
+    urlObj.searchParams.set('q', '75');
+    urlObj.searchParams.set('fit', 'crop');
+    
+    return urlObj.toString();
+  } catch {
+    // Fallback for invalid URLs - use string replacement
+    let optimized = url
+      .replace(/w=\d+/g, `w=${optimizedSize}`)
+      .replace(/h=\d+/g, `h=${optimizedSize}`);
+    
+    // Add WebP format and quality if not present
+    if (!optimized.includes('fm=webp')) {
+      optimized += optimized.includes('?') ? '&fm=webp&q=75' : '?fm=webp&q=75';
+    } else if (!optimized.includes('q=')) {
+      optimized += '&q=75';
+    }
+    
+    return optimized;
   }
-  
-  return optimized;
 }
 
 /**
