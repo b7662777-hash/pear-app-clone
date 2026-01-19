@@ -6,7 +6,7 @@ export const quickPickTracks = [
     artist: "Nu Breed & Jesse Howard",
     album: "Welcome to My House",
     plays: "45M plays",
-    image: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=100&h=100&fit=crop",
+    image: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=100&h=100&fit=crop&fm=webp",
     duration: 213,
   },
   {
@@ -15,7 +15,7 @@ export const quickPickTracks = [
     artist: "Kevin Gates",
     album: "Satellites",
     plays: "337M plays",
-    image: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=100&h=100&fit=crop",
+    image: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=100&h=100&fit=crop&fm=webp",
     duration: 198,
   },
   {
@@ -24,7 +24,7 @@ export const quickPickTracks = [
     artist: "Bette Midler",
     album: "The Best Bette",
     plays: "123M plays",
-    image: "https://images.unsplash.com/photo-1518609878373-06d740f60d8b?w=100&h=100&fit=crop",
+    image: "https://images.unsplash.com/photo-1518609878373-06d740f60d8b?w=100&h=100&fit=crop&fm=webp",
     duration: 224,
   },
   {
@@ -33,7 +33,7 @@ export const quickPickTracks = [
     artist: "Jhené Aiko feat. Swae Lee",
     album: "Trip",
     plays: "574M plays",
-    image: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=100&h=100&fit=crop",
+    image: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=100&h=100&fit=crop&fm=webp",
     duration: 186,
   },
   {
@@ -42,7 +42,7 @@ export const quickPickTracks = [
     artist: "Triumph",
     album: "Greatest Hits Remixed",
     plays: "9.3M plays",
-    image: "https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=100&h=100&fit=crop",
+    image: "https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=100&h=100&fit=crop&fm=webp",
     duration: 267,
   },
   {
@@ -51,7 +51,7 @@ export const quickPickTracks = [
     artist: "BigXthaPlug & Bailey Zimmerman",
     album: "All The Way",
     plays: "156M plays",
-    image: "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=100&h=100&fit=crop",
+    image: "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=100&h=100&fit=crop&fm=webp",
     duration: 201,
   },
   {
@@ -60,7 +60,7 @@ export const quickPickTracks = [
     artist: "Blind Faith",
     album: "The Summer of '69",
     plays: "8.7M plays",
-    image: "https://images.unsplash.com/photo-1487180144351-b8472da7d491?w=100&h=100&fit=crop",
+    image: "https://images.unsplash.com/photo-1487180144351-b8472da7d491?w=100&h=100&fit=crop&fm=webp",
     duration: 193,
   },
   {
@@ -69,7 +69,7 @@ export const quickPickTracks = [
     artist: "Doja Cat",
     album: "Scarlet",
     plays: "834M plays",
-    image: "https://images.unsplash.com/photo-1571330735066-03aaa9429d89?w=100&h=100&fit=crop",
+    image: "https://images.unsplash.com/photo-1571330735066-03aaa9429d89?w=100&h=100&fit=crop&fm=webp",
     duration: 232,
   },
   {
@@ -78,7 +78,7 @@ export const quickPickTracks = [
     artist: "Eddie Money",
     album: "Can't Hold Back",
     plays: "127M plays",
-    image: "https://images.unsplash.com/photo-1483412033650-1015ddeb83d1?w=100&h=100&fit=crop",
+    image: "https://images.unsplash.com/photo-1483412033650-1015ddeb83d1?w=100&h=100&fit=crop&fm=webp",
     duration: 276,
   },
   {
@@ -87,7 +87,7 @@ export const quickPickTracks = [
     artist: "Ten Years After",
     album: "A Space in Time",
     plays: "45M plays",
-    image: "https://images.unsplash.com/photo-1446057032654-9d8885db76c6?w=100&h=100&fit=crop",
+    image: "https://images.unsplash.com/photo-1446057032654-9d8885db76c6?w=100&h=100&fit=crop&fm=webp",
     duration: 245,
   },
   {
@@ -96,7 +96,7 @@ export const quickPickTracks = [
     artist: "Panic! At The Disco",
     album: "Pray for the Wicked",
     plays: "1.4B plays",
-    image: "https://images.unsplash.com/photo-1504898770365-14faca6a7320?w=100&h=100&fit=crop",
+    image: "https://images.unsplash.com/photo-1504898770365-14faca6a7320?w=100&h=100&fit=crop&fm=webp",
     duration: 190,
   },
   {
@@ -105,7 +105,7 @@ export const quickPickTracks = [
     artist: "DeeBaby",
     album: "Numb & Listen",
     plays: "52M plays",
-    image: "https://images.unsplash.com/photo-1484755560615-a4c64e778a6c?w=100&h=100&fit=crop",
+    image: "https://images.unsplash.com/photo-1484755560615-a4c64e778a6c?w=100&h=100&fit=crop&fm=webp",
     duration: 217,
   },
 ];
@@ -115,37 +115,37 @@ export const throwbackAlbums = [
     id: "album1",
     title: "'90s Alternative",
     subtitle: "Nirvana, Red Hot Chili Peppers, Pearl Jam, Radiohead",
-    image: "https://images.unsplash.com/photo-1598387181032-a3103a2db5b3?w=300&h=300&fit=crop",
+    image: "https://images.unsplash.com/photo-1598387181032-a3103a2db5b3?w=200&h=200&fit=crop&fm=webp",
   },
   {
     id: "album2",
     title: "Classic Rock's Greatest Hits",
     subtitle: "Led Zeppelin, Creedence Clearwater Revival, Fleetwood Mac",
-    image: "https://images.unsplash.com/photo-1498038432885-c6f3f1b912ee?w=300&h=300&fit=crop",
+    image: "https://images.unsplash.com/photo-1498038432885-c6f3f1b912ee?w=200&h=200&fit=crop&fm=webp",
   },
   {
     id: "album3",
     title: "Classic Country",
     subtitle: "Merle Haggard, George Strait, Dolly Parton, Willie Nelson",
-    image: "https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=300&h=300&fit=crop",
+    image: "https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=200&h=200&fit=crop&fm=webp",
   },
   {
     id: "album4",
     title: "'00s R&B",
     subtitle: "Usher, Beyoncé, Keyshia Cole, Chris Brown",
-    image: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop",
+    image: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200&h=200&fit=crop&fm=webp",
   },
   {
     id: "album5",
     title: "The Hits: '90s",
     subtitle: "Mariah Carey, TLC, The Notorious B.I.G., Madonna",
-    image: "https://images.unsplash.com/photo-1571330735066-03aaa9429d89?w=300&h=300&fit=crop",
+    image: "https://images.unsplash.com/photo-1571330735066-03aaa9429d89?w=200&h=200&fit=crop&fm=webp",
   },
   {
     id: "album6",
     title: "'00s Hip Hop Party",
     subtitle: "Ludacris, Lil Wayne, Missy Elliott, 50 Cent",
-    image: "https://images.unsplash.com/photo-1504898770365-14faca6a7320?w=300&h=300&fit=crop",
+    image: "https://images.unsplash.com/photo-1504898770365-14faca6a7320?w=200&h=200&fit=crop&fm=webp",
   },
 ];
 
@@ -154,37 +154,37 @@ export const recommendedAlbums = [
     id: "rec1",
     title: "Your Daily Mix",
     subtitle: "Personalized just for you",
-    image: "https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?w=300&h=300&fit=crop",
+    image: "https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?w=200&h=200&fit=crop&fm=webp",
   },
   {
     id: "rec2",
     title: "Chill Hits",
     subtitle: "Kick back and relax with the chillest tracks",
-    image: "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=300&h=300&fit=crop",
+    image: "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?w=200&h=200&fit=crop&fm=webp",
   },
   {
     id: "rec3",
     title: "Today's Top Hits",
     subtitle: "The biggest songs right now",
-    image: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=300&h=300&fit=crop",
+    image: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=200&h=200&fit=crop&fm=webp",
   },
   {
     id: "rec4",
     title: "Mood Booster",
     subtitle: "Get happy with these feel-good tunes",
-    image: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=300&h=300&fit=crop",
+    image: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=200&h=200&fit=crop&fm=webp",
   },
   {
     id: "rec5",
     title: "Deep Focus",
     subtitle: "Keep calm and focus with ambient sounds",
-    image: "https://images.unsplash.com/photo-1518609878373-06d740f60d8b?w=300&h=300&fit=crop",
+    image: "https://images.unsplash.com/photo-1518609878373-06d740f60d8b?w=200&h=200&fit=crop&fm=webp",
   },
   {
     id: "rec6",
     title: "Workout Energy",
     subtitle: "Power through your workout",
-    image: "https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=300&h=300&fit=crop",
+    image: "https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=200&h=200&fit=crop&fm=webp",
   },
 ];
 
@@ -193,30 +193,30 @@ export const newReleases = [
     id: "new1",
     title: "Midnight Dreams",
     subtitle: "New Album • The Weeknd",
-    image: "https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?w=300&h=300&fit=crop",
+    image: "https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?w=200&h=200&fit=crop&fm=webp",
   },
   {
     id: "new2",
     title: "Summer Nights",
     subtitle: "New Album • Dua Lipa",
-    image: "https://images.unsplash.com/photo-1483412033650-1015ddeb83d1?w=300&h=300&fit=crop",
+    image: "https://images.unsplash.com/photo-1483412033650-1015ddeb83d1?w=200&h=200&fit=crop&fm=webp",
   },
   {
     id: "new3",
     title: "Eternal Sunshine",
     subtitle: "New Album • Ariana Grande",
-    image: "https://images.unsplash.com/photo-1484755560615-a4c64e778a6c?w=300&h=300&fit=crop",
+    image: "https://images.unsplash.com/photo-1484755560615-a4c64e778a6c?w=200&h=200&fit=crop&fm=webp",
   },
   {
     id: "new4",
     title: "Utopia",
     subtitle: "New Album • Travis Scott",
-    image: "https://images.unsplash.com/photo-1446057032654-9d8885db76c6?w=300&h=300&fit=crop",
+    image: "https://images.unsplash.com/photo-1446057032654-9d8885db76c6?w=200&h=200&fit=crop&fm=webp",
   },
   {
     id: "new5",
     title: "SOS",
     subtitle: "New Album • SZA",
-    image: "https://images.unsplash.com/photo-1487180144351-b8472da7d491?w=300&h=300&fit=crop",
+    image: "https://images.unsplash.com/photo-1487180144351-b8472da7d491?w=200&h=200&fit=crop&fm=webp",
   },
 ];

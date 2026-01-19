@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { cn } from "@/lib/utils";
+import { optimizeImageUrl } from "@/lib/imageUtils";
 
 interface Track {
   title: string;
@@ -110,7 +111,7 @@ export function PlayerBar({
       >
         <div className="w-14 h-14 rounded-md overflow-hidden flex-shrink-0 group-hover:shadow-lg transition-shadow">
           <img
-            src={currentTrack.image}
+            src={optimizeImageUrl(currentTrack.image, 120)}
             alt={currentTrack.title}
             className="w-full h-full object-cover"
           />

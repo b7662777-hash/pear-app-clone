@@ -1,5 +1,6 @@
 import { Play, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { optimizeImageUrl } from "@/lib/imageUtils";
 import { YouTubeTrack } from "@/hooks/useYouTubeMusic";
 
 interface RecommendedSongsProps {
@@ -52,9 +53,10 @@ export function RecommendedSongs({
             >
               <div className="relative aspect-square rounded-lg overflow-hidden mb-2">
                 <img
-                  src={track.thumbnail.replace("w120-h120", "w300-h300")}
+                  src={optimizeImageUrl(track.thumbnail, 200)}
                   alt={track.title}
                   className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  loading={index < 6 ? "eager" : "lazy"}
                   fetchPriority={index < 6 ? "high" : "auto"}
                 />
                 <div className={cn(
