@@ -26,13 +26,13 @@ export function SearchBar({ value, onChange }: SearchBarProps) {
 
       {/* Right Actions */}
       <div className="flex items-center gap-2">
-        <button className="player-control">
+        <button className="player-control" aria-label="Cast to device">
           <Cast className="w-5 h-5" />
         </button>
-        <button className="player-control">
+        <button className="player-control" aria-label="Listening history">
           <History className="w-5 h-5" />
         </button>
-        <button className="player-control">
+        <button className="player-control" aria-label="More options">
           <MoreVertical className="w-5 h-5" />
         </button>
         

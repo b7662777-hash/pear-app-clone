@@ -93,7 +93,7 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
           <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
             Your Library
           </span>
-          <button className="p-1 rounded-full hover:bg-accent transition-colors">
+          <button className="p-1 rounded-full hover:bg-accent transition-colors" aria-label="Create new playlist">
             <Plus className="w-4 h-4 text-muted-foreground" />
           </button>
         </div>
