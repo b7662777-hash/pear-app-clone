@@ -14,10 +14,11 @@ export function optimizeGoogleThumbnail(url: string, size: number = 160): string
   // For Google/YouTube images (lh3.googleusercontent.com)
   if (url.includes('googleusercontent.com')) {
     // Replace any existing size parameters with optimized ones
-    // Use quality 80 for better compression
+    // -l70 sets quality to 70 for better compression
+    // -rw requests WebP format for modern browsers
     return url
-      .replace(/=w\d+-h\d+(-[a-z0-9]+)?(-rj)?/i, `=w${size}-h${size}-l80-rj`)
-      .replace(/w\d+-h\d+/g, `w${size}-h${size}`);
+      .replace(/=w\d+-h\d+[^&]*/i, `=w${size}-h${size}-l70-rw`)
+      .replace(/\?w=\d+&h=\d+/, `?w=${size}&h=${size}`);
   }
   
   // For YouTube video thumbnails (i.ytimg.com)
