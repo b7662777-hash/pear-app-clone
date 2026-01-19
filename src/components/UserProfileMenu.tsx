@@ -106,7 +106,8 @@ export function UserProfileMenu({ user, profile, onProfileUpdate }: UserProfileM
     return (
       <button
         onClick={() => navigate("/auth")}
-        className="ml-2 px-4 py-2 rounded-full bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
+        className="ml-2 px-4 py-2 rounded-full bg-[hsl(0,70%,45%)] text-white text-sm font-medium hover:bg-[hsl(0,70%,40%)] transition-colors"
+        aria-label="Sign in to your account"
       >
         Sign in
       </button>
