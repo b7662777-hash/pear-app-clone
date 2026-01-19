@@ -87,12 +87,13 @@ export function PlayerBar({
     <div className="fixed bottom-0 left-0 right-0 h-[72px] bg-player-bg border-t border-border/20 flex items-center px-4 z-50">
       {/* Left: Transport controls */}
       <div className="flex items-center gap-1">
-        <button onClick={onPrevious} className="p-2.5 rounded-full hover:bg-accent transition-colors">
+        <button onClick={onPrevious} className="p-2.5 rounded-full hover:bg-accent transition-colors" aria-label="Previous track">
           <SkipBack className="w-5 h-5 text-foreground fill-current" />
         </button>
         <button
           onClick={onPlayPause}
           className="p-2.5 rounded-full hover:bg-accent transition-colors"
+          aria-label={isBuffering ? "Loading" : isPlaying ? "Pause" : "Play"}
         >
           {isBuffering ? (
             <Loader2 className="w-6 h-6 text-foreground animate-spin" />
@@ -102,7 +103,7 @@ export function PlayerBar({
             <Play className="w-6 h-6 text-foreground fill-current ml-0.5" />
           )}
         </button>
-        <button onClick={onNext} className="p-2.5 rounded-full hover:bg-accent transition-colors">
+        <button onClick={onNext} className="p-2.5 rounded-full hover:bg-accent transition-colors" aria-label="Next track">
           <SkipForward className="w-5 h-5 text-foreground fill-current" />
         </button>
         <span className="text-xs text-muted-foreground ml-2 min-w-[80px]">
@@ -139,6 +140,7 @@ export function PlayerBar({
             "p-2.5 rounded-full hover:bg-accent transition-colors",
             isLiked && "text-foreground"
           )}
+          aria-label={isLiked ? "Remove from liked songs" : "Add to liked songs"}
         >
           {isLiked ? (
             <Heart className="w-5 h-5 fill-current" />
@@ -149,7 +151,7 @@ export function PlayerBar({
         <button 
           onClick={onAddToPlaylist}
           className="p-2.5 rounded-full hover:bg-accent transition-colors"
-          title="Add to playlist"
+          aria-label="Add to playlist"
         >
           <Plus className="w-5 h-5 text-muted-foreground" />
         </button>
@@ -161,18 +163,20 @@ export function PlayerBar({
             max={100}
             step={1}
             className="w-24"
+            aria-label="Volume"
           />
         </div>
-        <button className="p-2.5 rounded-full hover:bg-accent transition-colors">
+        <button className="p-2.5 rounded-full hover:bg-accent transition-colors" aria-label="Shuffle">
           <Shuffle className="w-5 h-5 text-muted-foreground" />
         </button>
-        <button className="p-2.5 rounded-full hover:bg-accent transition-colors">
+        <button className="p-2.5 rounded-full hover:bg-accent transition-colors" aria-label="Repeat">
           <Repeat className="w-5 h-5 text-muted-foreground" />
         </button>
         {currentTrack.videoId && (
           <button 
             onClick={onExpandClick}
             className="p-2.5 rounded-full hover:bg-accent transition-colors"
+            aria-label="Expand player"
           >
             <Maximize2 className="w-5 h-5 text-muted-foreground" />
           </button>
