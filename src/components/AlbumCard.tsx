@@ -12,10 +12,10 @@ export function AlbumCard({ title, subtitle, image, onClick }: AlbumCardProps) {
   return (
     <div
       onClick={onClick}
-      className="music-card group p-4 animate-fade-in"
+      className="group cursor-pointer animate-fade-in"
     >
       {/* Album Art */}
-      <div className="relative aspect-square rounded-lg overflow-hidden mb-4">
+      <div className="relative aspect-square rounded-md overflow-hidden mb-3">
         <img
           src={optimizeImageUrl(image, 200)}
           alt={title}
@@ -24,19 +24,19 @@ export function AlbumCard({ title, subtitle, image, onClick }: AlbumCardProps) {
         />
         
         {/* Play Button Overlay */}
-        <div className="play-overlay rounded-lg">
+        <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
           <button 
-            className="w-14 h-14 rounded-full bg-primary flex items-center justify-center shadow-lg transform hover:scale-110 transition-transform"
+            className="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-lg transform hover:scale-105 transition-transform"
             aria-label={`Play ${title}`}
           >
-            <Play className="w-6 h-6 text-primary-foreground fill-primary-foreground ml-1" />
+            <Play className="w-5 h-5 text-black fill-black ml-0.5" />
           </button>
         </div>
       </div>
 
       {/* Album Info */}
-      <h3 className="font-medium text-foreground truncate mb-1">{title}</h3>
-      <p className="text-sm text-muted-foreground truncate">{subtitle}</p>
+      <h3 className="font-medium text-sm text-foreground truncate mb-0.5">{title}</h3>
+      <p className="text-xs text-muted-foreground truncate">{subtitle}</p>
     </div>
   );
 }

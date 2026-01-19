@@ -1,0 +1,93 @@
+import { Play } from "lucide-react";
+import { optimizeImageUrl } from "@/lib/imageUtils";
+
+interface Track {
+  id: string;
+  title: string;
+  artist: string;
+  image: string;
+  videoId?: string;
+}
+
+interface ListenAgainSectionProps {
+  tracks: Track[];
+  featuredTrack?: Track | null;
+  onTrackClick: (track: Track) => void;
+}
+
+export function ListenAgainSection({ tracks, featuredTrack, onTrackClick }: ListenAgainSectionProps) {
+  if (tracks.length === 0) return null;
+
+  const displayTracks = tracks.slice(0, 4);
+
+  return (
+    <section className="mb-10">
+      {/* Header with icon */}
+      <div className="flex items-center gap-3 mb-5">
+        {featuredTrack && (
+          <img 
+            src={optimizeImageUrl(featuredTrack.image, 48)} 
+            alt="" 
+            className="w-12 h-12 rounded-full object-cover"
+          />
+        )}
+        <div>
+          <span className="text-xs text-muted-foreground uppercase tracking-wider">BLUE SUN</span>
+          <h2 className="text-2xl font-bold text-foreground">Listen again</h2>
+        </div>
+      </div>
+
+      <div className="flex gap-6">
+        {/* Track grid */}
+        <div className="flex-1 grid grid-cols-2 md:grid-cols-4 gap-4">
+          {displayTracks.map((track) => (
+            <div
+              key={track.id}
+              onClick={() => onTrackClick(track)}
+              className="group relative cursor-pointer"
+            >
+              <div className="relative aspect-square rounded-md overflow-hidden mb-2">
+                <img
+                  src={optimizeImageUrl(track.image, 200)}
+                  alt={track.title}
+                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  loading="lazy"
+                />
+                {/* Play button overlay */}
+                <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button className="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center shadow-lg">
+                    <Play className="w-5 h-5 text-black fill-black ml-0.5" />
+                  </button>
+                </div>
+              </div>
+              <h3 className="text-sm font-medium text-foreground truncate">{track.title}</h3>
+              <p className="text-xs text-muted-foreground truncate">{track.artist}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Featured album on right */}
+        {featuredTrack && (
+          <div 
+            onClick={() => onTrackClick(featuredTrack)}
+            className="hidden lg:block w-[200px] flex-shrink-0 group cursor-pointer"
+          >
+            <div className="relative aspect-square rounded-md overflow-hidden shadow-lg">
+              <img
+                src={optimizeImageUrl(featuredTrack.image, 400)}
+                alt={featuredTrack.title}
+                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                loading="lazy"
+              />
+              <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
+                <button className="w-14 h-14 rounded-full bg-white/90 flex items-center justify-center shadow-lg">
+                  <Play className="w-6 h-6 text-black fill-black ml-0.5" />
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}

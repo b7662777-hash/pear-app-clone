@@ -2,15 +2,13 @@ import { useState, useEffect, useCallback } from "react";
 import { Sidebar } from "@/components/Sidebar";
 import { SearchBar } from "@/components/SearchBar";
 import { MoodChips } from "@/components/MoodChips";
-import { QuickPicks } from "@/components/QuickPicks";
 import { AlbumSection } from "@/components/AlbumSection";
 import { SearchResults } from "@/components/SearchResults";
-import { RecommendedSongs } from "@/components/RecommendedSongs";
+import { ListenAgainSection } from "@/components/ListenAgainSection";
 import { useYouTubeMusic, YouTubeTrack } from "@/hooks/useYouTubeMusic";
 import { usePlayer, Track } from "@/contexts/PlayerContext";
 import { useNavigate } from "react-router-dom";
 import { 
-  quickPickTracks, 
   throwbackAlbums, 
   recommendedAlbums, 
   newReleases 
@@ -88,11 +86,6 @@ const Index = () => {
     playTrack(newTrack, queue);
   }, [searchResults, recommendedTracks, playTrack]);
 
-  // Handle mock track click
-  const handleTrackClick = (track: Track) => {
-    playTrack(track, quickPickTracks);
-  };
-
   const handleAlbumClick = (album: { id: string; title: string }) => {
     searchTracks(album.title);
     setSearchQuery(album.title);
@@ -143,25 +136,35 @@ const Index = () => {
             isVisible={searchQuery.trim().length > 0}
           />
 
-          {/* Quick Picks */}
+          {/* Albums for you */}
           {!searchQuery.trim() && (
             <div className="mb-10 animate-fade-in-up">
-              <QuickPicks
-                tracks={quickPickTracks}
-                currentTrackId={currentTrack?.id || null}
-                onTrackClick={handleTrackClick}
-              />
+              <AlbumSection title="Albums for you" albums={recommendedAlbums} onAlbumClick={handleAlbumClick} />
             </div>
           )}
 
-          {/* Recommended Songs */}
-          {!searchQuery.trim() && (
-            <div className="mb-10 animate-fade-in-up animation-delay-100">
-              <RecommendedSongs
-                tracks={recommendedTracks}
-                isLoading={isLoadingRecommended}
-                onTrackClick={handleYouTubeTrackClick}
-                currentVideoId={currentTrack?.videoId}
+          {/* Listen again - using recommended tracks */}
+          {!searchQuery.trim() && recommendedTracks.length > 0 && (
+            <div className="animate-fade-in-up animation-delay-100">
+              <ListenAgainSection
+                tracks={recommendedTracks.slice(0, 4).map(t => ({
+                  id: t.videoId,
+                  title: t.title,
+                  artist: t.artist,
+                  image: t.thumbnail,
+                  videoId: t.videoId,
+                }))}
+                featuredTrack={recommendedTracks[4] ? {
+                  id: recommendedTracks[4].videoId,
+                  title: recommendedTracks[4].title,
+                  artist: recommendedTracks[4].artist,
+                  image: recommendedTracks[4].thumbnail,
+                  videoId: recommendedTracks[4].videoId,
+                } : null}
+                onTrackClick={(track) => {
+                  const ytTrack = recommendedTracks.find(t => t.videoId === track.videoId);
+                  if (ytTrack) handleYouTubeTrackClick(ytTrack);
+                }}
               />
             </div>
           )}

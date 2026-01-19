@@ -84,187 +84,99 @@ export function PlayerBar({
   const currentTime = (progress / 100) * currentTrack.duration;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 h-[72px] bg-background/80 backdrop-blur-xl border-t border-border/30 flex items-center px-4 z-50 overflow-hidden" style={{ boxShadow: 'var(--shadow-player)' }}>
-      {/* Ambient Background Layers */}
-      <div className="absolute inset-0 -z-10 overflow-hidden">
-        <div 
-          className="absolute inset-[-20px] opacity-40 blur-2xl scale-110 animate-ambient-drift"
-          style={{
-            backgroundImage: `url(${currentTrack.image})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-          }}
-        />
-        <div 
-          className="absolute inset-[-30px] opacity-25 blur-3xl scale-125 animate-ambient-drift-reverse"
-          style={{
-            backgroundImage: `url(${currentTrack.image})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-          }}
-        />
+    <div className="fixed bottom-0 left-0 right-0 h-[72px] bg-player-bg border-t border-border/20 flex items-center px-4 z-50">
+      {/* Left: Transport controls */}
+      <div className="flex items-center gap-1">
+        <button onClick={onPrevious} className="p-2.5 rounded-full hover:bg-accent transition-colors">
+          <SkipBack className="w-5 h-5 text-foreground fill-current" />
+        </button>
+        <button
+          onClick={onPlayPause}
+          className="p-2.5 rounded-full hover:bg-accent transition-colors"
+        >
+          {isBuffering ? (
+            <Loader2 className="w-6 h-6 text-foreground animate-spin" />
+          ) : isPlaying ? (
+            <Pause className="w-6 h-6 text-foreground fill-current" />
+          ) : (
+            <Play className="w-6 h-6 text-foreground fill-current ml-0.5" />
+          )}
+        </button>
+        <button onClick={onNext} className="p-2.5 rounded-full hover:bg-accent transition-colors">
+          <SkipForward className="w-5 h-5 text-foreground fill-current" />
+        </button>
+        <span className="text-xs text-muted-foreground ml-2 min-w-[80px]">
+          {formatTime(currentTime)} / {formatTime(currentTrack.duration)}
+        </span>
       </div>
-      {/* Left: Current Track */}
+      {/* Center: Track info with progress */}
       <div 
-        className="flex items-center gap-3 w-[280px] cursor-pointer group"
+        className="flex-1 flex items-center justify-center gap-4 cursor-pointer group"
         onClick={onExpandClick}
       >
-        <div className="w-14 h-14 rounded-md overflow-hidden flex-shrink-0 group-hover:shadow-lg transition-shadow">
+        <div className="w-12 h-12 rounded overflow-hidden flex-shrink-0">
           <img
             src={optimizeImageUrl(currentTrack.image, 120)}
             alt={currentTrack.title}
             className="w-full h-full object-cover"
           />
         </div>
-        <div className="min-w-0">
+        <div className="text-center min-w-0 max-w-md">
           <h3 className="text-sm font-medium text-foreground truncate">
             {currentTrack.title}
           </h3>
           <p className="text-xs text-muted-foreground truncate">
-            {currentTrack.artist}
+            {currentTrack.artist} • {currentTrack.album}
           </p>
         </div>
+      </div>
+
+      {/* Right: Actions */}
+      <div className="flex items-center gap-1">
         <button
-          onClick={onLikeToggle}
+          onClick={(e) => { e.stopPropagation(); onLikeToggle(); }}
           className={cn(
-            "player-control ml-2",
-            isLiked && "text-primary"
+            "p-2.5 rounded-full hover:bg-accent transition-colors",
+            isLiked && "text-foreground"
           )}
         >
-          <Heart className={cn("w-5 h-5", isLiked && "fill-current")} />
+          {isLiked ? (
+            <Heart className="w-5 h-5 fill-current" />
+          ) : (
+            <Heart className="w-5 h-5 text-muted-foreground" />
+          )}
         </button>
-      </div>
-
-      {/* Center: Controls */}
-      <div className="flex-1 flex flex-col items-center max-w-[600px] mx-auto">
-        {/* Control Buttons */}
-        <div className="flex items-center gap-4 mb-1">
-          <button className="player-control">
-            <Shuffle className="w-4 h-4" />
-          </button>
-          <button onClick={onPrevious} className="player-control">
-            <SkipBack className="w-5 h-5 fill-current" />
-          </button>
-          <button
-            onClick={onPlayPause}
-            className="player-control-main relative"
-          >
-            {isBuffering ? (
-              <Loader2 className="w-5 h-5 animate-spin" />
-            ) : isPlaying ? (
-              <Pause className="w-5 h-5 fill-current" />
-            ) : (
-              <Play className="w-5 h-5 fill-current ml-0.5" />
-            )}
-          </button>
-          <button onClick={onNext} className="player-control">
-            <SkipForward className="w-5 h-5 fill-current" />
-          </button>
-          <button className="player-control">
-            <Repeat className="w-4 h-4" />
-          </button>
-        </div>
-
-        {/* Progress Bar */}
-        <div className="w-full flex items-center gap-2">
-          <span className="text-xs text-muted-foreground w-10 text-right">
-            {formatTime(currentTime)}
-          </span>
-          <Slider
-            value={[progress]}
-            onValueChange={onProgressChange}
-            max={100}
-            step={0.1}
-            className="flex-1"
-          />
-          <span className="text-xs text-muted-foreground w-10">
-            {formatTime(currentTrack.duration)}
-          </span>
-        </div>
-      </div>
-
-      {/* Right: Volume & Actions */}
-      <div className="w-[280px] flex items-center justify-end gap-2">
-        {currentTrack.videoId && (
-          <button 
-            onClick={onLyricsToggle}
-            className={cn("player-control", showLyrics && "text-primary")}
-          >
-            <Mic2 className="w-5 h-5" />
-          </button>
-        )}
         <button 
           onClick={onAddToPlaylist}
-          className="player-control hover:text-primary transition-colors"
+          className="p-2.5 rounded-full hover:bg-accent transition-colors"
           title="Add to playlist"
         >
-          <Plus className="w-5 h-5" />
+          <Plus className="w-5 h-5 text-muted-foreground" />
         </button>
-        <button className="player-control">
-          <ListMusic className="w-5 h-5" />
-        </button>
-        {currentTrack.videoId && (
-          <button 
-            onClick={onDownloadClick}
-            className="player-control relative"
-            disabled={isDownloading}
-            title={isDownloading ? `Downloading ${downloadProgress}%` : "Download"}
-          >
-            {isDownloading ? (
-              <div className="relative">
-                <svg className="w-5 h-5 -rotate-90" viewBox="0 0 24 24">
-                  <circle
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    className="opacity-20"
-                  />
-                  <circle
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeDasharray={`${(downloadProgress / 100) * 62.83} 62.83`}
-                    strokeLinecap="round"
-                    className="text-primary transition-all duration-300"
-                  />
-                </svg>
-                <span className="absolute inset-0 flex items-center justify-center text-[8px] font-bold">
-                  {downloadProgress}
-                </span>
-              </div>
-            ) : (
-              <Download className="w-5 h-5" />
-            )}
-          </button>
-        )}
-        <div className="flex items-center gap-2 w-32">
+        <div className="flex items-center gap-1 mx-2">
           <Volume2 className="w-5 h-5 text-muted-foreground" />
           <Slider
             value={[volume]}
             onValueChange={onVolumeChange}
             max={100}
             step={1}
-            className="flex-1"
+            className="w-24"
           />
         </div>
+        <button className="p-2.5 rounded-full hover:bg-accent transition-colors">
+          <Shuffle className="w-5 h-5 text-muted-foreground" />
+        </button>
+        <button className="p-2.5 rounded-full hover:bg-accent transition-colors">
+          <Repeat className="w-5 h-5 text-muted-foreground" />
+        </button>
         {currentTrack.videoId && (
           <button 
-            onClick={onAmbientModeClick}
-            className="player-control"
-            title="Ambient Mode"
+            onClick={onExpandClick}
+            className="p-2.5 rounded-full hover:bg-accent transition-colors"
           >
-            <Sparkles className="w-5 h-5" />
+            <Maximize2 className="w-5 h-5 text-muted-foreground" />
           </button>
         )}
-        <button className="player-control">
-          <Maximize2 className="w-5 h-5" />
-        </button>
       </div>
     </div>
   );
