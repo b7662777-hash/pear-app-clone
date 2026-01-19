@@ -75,12 +75,12 @@ export function RecommendedSongs({
                 </div>
               </div>
               
-              <h4 className={cn(
+              <h3 className={cn(
                 "text-sm font-medium truncate",
                 isPlaying ? "text-primary" : "text-foreground"
               )}>
                 {track.title}
-              </h4>
+              </h3>
               <p className="text-xs text-muted-foreground truncate">
                 {track.artist}
               </p>
