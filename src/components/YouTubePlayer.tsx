@@ -100,7 +100,12 @@ export function YouTubePlayer({
 
     console.log("Initializing YouTube player");
     
-    playerRef.current = new window.YT.Player(containerRef.current, {
+    // Create a separate div for the YouTube player to avoid React DOM conflicts
+    const playerDiv = document.createElement('div');
+    playerDiv.id = 'youtube-player-iframe';
+    containerRef.current.appendChild(playerDiv);
+    
+    playerRef.current = new window.YT.Player(playerDiv, {
       height: "0",
       width: "0",
       playerVars: {
@@ -156,6 +161,21 @@ export function YouTubePlayer({
       },
     });
   }, [isAPIReady, onReady, onStateChange, onEnded, onBuffering, volume, startProgressTracking, stopProgressTracking]);
+
+  // Cleanup player on unmount
+  useEffect(() => {
+    return () => {
+      stopProgressTracking();
+      if (playerRef.current) {
+        try {
+          playerRef.current.destroy();
+        } catch (e) {
+          // Player might already be destroyed
+        }
+        playerRef.current = null;
+      }
+    };
+  }, [stopProgressTracking]);
 
   // Handle video changes
   useEffect(() => {
