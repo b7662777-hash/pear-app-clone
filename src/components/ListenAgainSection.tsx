@@ -55,7 +55,7 @@ export function ListenAgainSection({ tracks, featuredTrack, onTrackClick }: List
                 />
                 {/* Play button overlay */}
                 <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button className="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center shadow-lg">
+                  <button className="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center shadow-lg" aria-label={`Play ${track.title}`}>
                     <Play className="w-5 h-5 text-black fill-black ml-0.5" />
                   </button>
                 </div>
@@ -80,7 +80,7 @@ export function ListenAgainSection({ tracks, featuredTrack, onTrackClick }: List
                 loading="lazy"
               />
               <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button className="w-14 h-14 rounded-full bg-white/90 flex items-center justify-center shadow-lg">
+                <button className="w-14 h-14 rounded-full bg-white/90 flex items-center justify-center shadow-lg" aria-label={`Play ${featuredTrack.title}`}>
                   <Play className="w-6 h-6 text-black fill-black ml-0.5" />
                 </button>
               </div>
