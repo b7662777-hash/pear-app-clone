@@ -58,7 +58,25 @@ const ChartContainer = React.forwardRef<
 });
 ChartContainer.displayName = "Chart";
 
+// Sanitize chart ID to prevent CSS injection - only allow alphanumeric, hyphens, and underscores
+const sanitizeChartId = (id: string): string => {
+  return id.replace(/[^a-zA-Z0-9-_]/g, '');
+};
+
+// Validate CSS color values to prevent injection attacks
+const isValidCssColor = (color: string): boolean => {
+  // Match hex colors, rgb/rgba, hsl/hsla, and named colors
+  const colorRegex = /^(#[0-9a-fA-F]{3,8}|rgb\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*\)|rgba\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*[\d.]+\s*\)|hsl\(\s*[\d.]+\s*,\s*[\d.]+%?\s*,\s*[\d.]+%?\s*\)|hsla\(\s*[\d.]+\s*,\s*[\d.]+%?\s*,\s*[\d.]+%?\s*,\s*[\d.]+\s*\)|[a-zA-Z]+)$/;
+  return colorRegex.test(color.trim());
+};
+
+// Sanitize CSS property key - only allow alphanumeric, hyphens, and underscores
+const sanitizePropertyKey = (key: string): string => {
+  return key.replace(/[^a-zA-Z0-9-_]/g, '');
+};
+
 const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
+  const sanitizedId = sanitizeChartId(id);
   const colorConfig = Object.entries(config).filter(([_, config]) => config.theme || config.color);
 
   if (!colorConfig.length) {
@@ -71,12 +89,15 @@ const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
         __html: Object.entries(THEMES)
           .map(
             ([theme, prefix]) => `
-${prefix} [data-chart=${id}] {
+${prefix} [data-chart=${sanitizedId}] {
 ${colorConfig
   .map(([key, itemConfig]) => {
+    const sanitizedKey = sanitizePropertyKey(key);
     const color = itemConfig.theme?.[theme as keyof typeof itemConfig.theme] || itemConfig.color;
-    return color ? `  --color-${key}: ${color};` : null;
+    // Only include color if it passes validation
+    return color && isValidCssColor(color) ? `  --color-${sanitizedKey}: ${color};` : null;
   })
+  .filter(Boolean)
   .join("\n")}
 }
 `,
