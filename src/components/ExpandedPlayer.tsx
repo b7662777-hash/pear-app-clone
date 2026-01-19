@@ -115,6 +115,7 @@ export function ExpandedPlayer({
         <button
           onClick={onClose}
           className="p-2 rounded-full hover:bg-muted transition-colors"
+          aria-label="Close expanded player"
         >
           <ChevronDown className="w-6 h-6" />
         </button>
@@ -274,6 +275,7 @@ export function ExpandedPlayer({
           <button
             onClick={onLikeToggle}
             className={cn("p-2 rounded-full hover:bg-muted transition-colors", isLiked && "text-primary")}
+            aria-label={isLiked ? "Unlike song" : "Like song"}
           >
             <Heart className={cn("w-6 h-6", isLiked && "fill-current")} />
           </button>
@@ -296,15 +298,16 @@ export function ExpandedPlayer({
 
         {/* Control Buttons */}
         <div className="flex items-center justify-center gap-6">
-          <button className="p-2 text-muted-foreground hover:text-foreground transition-colors">
+          <button className="p-2 text-muted-foreground hover:text-foreground transition-colors" aria-label="Shuffle">
             <Shuffle className="w-5 h-5" />
           </button>
-          <button onClick={onPrevious} className="p-2 hover:bg-muted rounded-full transition-colors">
+          <button onClick={onPrevious} className="p-2 hover:bg-muted rounded-full transition-colors" aria-label="Previous track">
             <SkipBack className="w-6 h-6 fill-current" />
           </button>
           <button
             onClick={onPlayPause}
             className="p-4 bg-foreground text-background rounded-full hover:scale-105 transition-transform"
+            aria-label={isBuffering ? "Loading" : isPlaying ? "Pause" : "Play"}
           >
             {isBuffering ? (
               <Loader2 className="w-8 h-8 animate-spin" />
@@ -314,10 +317,10 @@ export function ExpandedPlayer({
               <Play className="w-8 h-8 fill-current ml-1" />
             )}
           </button>
-          <button onClick={onNext} className="p-2 hover:bg-muted rounded-full transition-colors">
+          <button onClick={onNext} className="p-2 hover:bg-muted rounded-full transition-colors" aria-label="Next track">
             <SkipForward className="w-6 h-6 fill-current" />
           </button>
-          <button className="p-2 text-muted-foreground hover:text-foreground transition-colors">
+          <button className="p-2 text-muted-foreground hover:text-foreground transition-colors" aria-label="Repeat">
             <Repeat className="w-5 h-5" />
           </button>
         </div>
