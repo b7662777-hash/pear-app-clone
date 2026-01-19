@@ -1,9 +1,35 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Authentication helper using getClaims for JWT validation
+async function authenticateRequest(req: Request): Promise<{ userId: string } | { error: string; status: number }> {
+  const authHeader = req.headers.get('Authorization');
+  
+  if (!authHeader?.startsWith('Bearer ')) {
+    return { error: 'Missing or invalid authorization header', status: 401 };
+  }
+
+  const supabaseClient = createClient(
+    Deno.env.get('SUPABASE_URL') ?? '',
+    Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+    { global: { headers: { Authorization: authHeader } } }
+  );
+
+  const token = authHeader.replace('Bearer ', '');
+  const { data, error } = await supabaseClient.auth.getClaims(token);
+  
+  if (error || !data?.claims) {
+    console.warn('Authentication failed:', error?.message || 'Invalid token');
+    return { error: 'Unauthorized', status: 401 };
+  }
+
+  return { userId: data.claims.sub as string };
+}
 
 // List of public cobalt instances
 const COBALT_INSTANCES = [
@@ -123,6 +149,20 @@ serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
+
+  // Authenticate request
+  const authResult = await authenticateRequest(req);
+  if ('error' in authResult) {
+    return new Response(JSON.stringify({ 
+      error: authResult.error,
+    }), {
+      status: authResult.status,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+  
+  const userId = authResult.userId;
+  console.log(`Authenticated download request from user: ${userId.slice(0, 8)}...`);
 
   try {
     const { videoId, title, artist } = await req.json();
