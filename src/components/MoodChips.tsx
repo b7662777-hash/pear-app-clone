@@ -21,14 +21,16 @@ interface MoodChipsProps {
 
 export function MoodChips({ selected, onSelect }: MoodChipsProps) {
   return (
-    <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
+    <div className="flex items-center gap-2.5 overflow-x-auto pb-2 scrollbar-hide">
       {moods.map((mood) => (
         <button
           key={mood}
           onClick={() => onSelect(selected === mood ? null : mood)}
           className={cn(
-            "mood-chip whitespace-nowrap",
-            selected === mood && "bg-foreground text-background"
+            "px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer whitespace-nowrap border",
+            selected === mood 
+              ? "bg-foreground text-background border-transparent" 
+              : "bg-transparent text-foreground border-border/60 hover:bg-accent hover:border-border"
           )}
         >
           {mood}
