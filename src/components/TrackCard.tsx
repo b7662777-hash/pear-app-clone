@@ -41,12 +41,12 @@ export function TrackCard({ title, artist, image, plays, isPlaying, onClick }: T
 
       {/* Track Info */}
       <div className="flex-1 min-w-0">
-        <h4 className={cn(
+        <h3 className={cn(
           "text-sm font-medium truncate",
           isPlaying ? "text-primary" : "text-foreground"
         )}>
           {title}
-        </h4>
+        </h3>
         <p className="text-xs text-muted-foreground truncate">
           {artist} {plays && `• ${plays}`}
         </p>

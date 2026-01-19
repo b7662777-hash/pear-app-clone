@@ -116,9 +116,9 @@ export function PlayerBar({
           />
         </div>
         <div className="min-w-0">
-          <h4 className="text-sm font-medium text-foreground truncate">
+          <h3 className="text-sm font-medium text-foreground truncate">
             {currentTrack.title}
-          </h4>
+          </h3>
           <p className="text-xs text-muted-foreground truncate">
             {currentTrack.artist}
           </p>
