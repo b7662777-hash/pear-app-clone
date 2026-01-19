@@ -1,5 +1,6 @@
 import { Play } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { optimizeImageUrl } from "@/lib/imageUtils";
 
 interface TrackCardProps {
   title: string;
@@ -19,9 +20,10 @@ export function TrackCard({ title, artist, image, plays, isPlaying, onClick }: T
       {/* Album Art */}
       <div className="relative w-12 h-12 rounded-md overflow-hidden flex-shrink-0">
         <img
-          src={image}
+          src={optimizeImageUrl(image, 100)}
           alt={title}
           className="w-full h-full object-cover"
+          loading="lazy"
         />
         <div className={cn(
           "absolute inset-0 bg-black/50 flex items-center justify-center transition-opacity",

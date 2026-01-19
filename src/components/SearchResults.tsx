@@ -1,6 +1,7 @@
 import { Play, Loader2 } from "lucide-react";
 import { YouTubeTrack } from "@/hooks/useYouTubeMusic";
 import { cn } from "@/lib/utils";
+import { optimizeImageUrl } from "@/lib/imageUtils";
 
 interface SearchResultsProps {
   results: YouTubeTrack[];
@@ -49,9 +50,10 @@ export function SearchResults({
           >
             <div className="relative w-12 h-12 rounded overflow-hidden flex-shrink-0">
               <img
-                src={track.thumbnail}
+                src={optimizeImageUrl(track.thumbnail, 100)}
                 alt={track.title}
                 className="w-full h-full object-cover"
+                loading="lazy"
               />
               <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                 <Play className="w-5 h-5 fill-white text-white" />

@@ -1,4 +1,5 @@
 import { Play } from "lucide-react";
+import { optimizeImageUrl } from "@/lib/imageUtils";
 
 interface AlbumCardProps {
   title: string;
@@ -16,9 +17,10 @@ export function AlbumCard({ title, subtitle, image, onClick }: AlbumCardProps) {
       {/* Album Art */}
       <div className="relative aspect-square rounded-lg overflow-hidden mb-4">
         <img
-          src={image}
+          src={optimizeImageUrl(image, 200)}
           alt={title}
           className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+          loading="lazy"
         />
         
         {/* Play Button Overlay */}
