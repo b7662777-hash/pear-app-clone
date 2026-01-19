@@ -41,7 +41,7 @@ export function RecommendedSongs({
       </div>
       
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
-        {tracks.map((track) => {
+        {tracks.map((track, index) => {
           const isPlaying = track.videoId === currentVideoId;
           
           return (
@@ -55,6 +55,7 @@ export function RecommendedSongs({
                   src={track.thumbnail.replace("w120-h120", "w300-h300")}
                   alt={track.title}
                   className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  fetchPriority={index < 6 ? "high" : "auto"}
                 />
                 <div className={cn(
                   "absolute inset-0 bg-black/50 flex items-center justify-center transition-opacity",
