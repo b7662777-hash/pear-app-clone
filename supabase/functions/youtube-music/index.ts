@@ -1,9 +1,35 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Authentication helper using getClaims for JWT validation
+async function authenticateRequest(req: Request): Promise<{ userId: string } | { error: string; status: number }> {
+  const authHeader = req.headers.get('Authorization');
+  
+  if (!authHeader?.startsWith('Bearer ')) {
+    return { error: 'Missing or invalid authorization header', status: 401 };
+  }
+
+  const supabaseClient = createClient(
+    Deno.env.get('SUPABASE_URL') ?? '',
+    Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+    { global: { headers: { Authorization: authHeader } } }
+  );
+
+  const token = authHeader.replace('Bearer ', '');
+  const { data, error } = await supabaseClient.auth.getClaims(token);
+  
+  if (error || !data?.claims) {
+    console.warn('Authentication failed:', error?.message || 'Invalid token');
+    return { error: 'Unauthorized', status: 401 };
+  }
+
+  return { userId: data.claims.sub as string };
+}
 
 // Get API key from environment
 const YTM_API_KEY = Deno.env.get('YOUTUBE_API_KEY');
@@ -670,9 +696,23 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  // Apply rate limiting
-  const clientIp = getClientIp(req);
-  const rateLimit = checkRateLimit(clientIp);
+  // Authenticate request
+  const authResult = await authenticateRequest(req);
+  if ('error' in authResult) {
+    return new Response(JSON.stringify({ 
+      success: false, 
+      error: authResult.error,
+    }), {
+      status: authResult.status,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
+  }
+  
+  const userId = authResult.userId;
+  console.log(`Authenticated request from user: ${userId.slice(0, 8)}...`);
+
+  // Apply rate limiting (now per-user instead of per-IP for better security)
+  const rateLimit = checkRateLimit(userId);
   
   // Add rate limit headers to all responses
   const rateLimitHeaders = {
@@ -682,7 +722,7 @@ serve(async (req) => {
   };
   
   if (!rateLimit.allowed) {
-    console.warn(`Rate limit exceeded for IP: ${clientIp}`);
+    console.warn(`Rate limit exceeded for user: ${userId.slice(0, 8)}...`);
     return new Response(JSON.stringify({ 
       success: false, 
       error: 'Too many requests. Please try again later.',
