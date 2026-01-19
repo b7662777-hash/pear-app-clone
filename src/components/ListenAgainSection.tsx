@@ -48,7 +48,7 @@ export function ListenAgainSection({ tracks, featuredTrack, onTrackClick }: List
             >
               <div className="relative aspect-square rounded-md overflow-hidden mb-2">
                 <img
-                  src={optimizeImageUrl(track.image, 200)}
+                  src={optimizeImageUrl(track.image, 160)}
                   alt={track.title}
                   className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                   loading="lazy"
@@ -74,7 +74,7 @@ export function ListenAgainSection({ tracks, featuredTrack, onTrackClick }: List
           >
             <div className="relative aspect-square rounded-md overflow-hidden shadow-lg">
               <img
-                src={optimizeImageUrl(featuredTrack.image, 400)}
+                src={optimizeImageUrl(featuredTrack.image, 200)}
                 alt={featuredTrack.title}
                 className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                 loading="lazy"

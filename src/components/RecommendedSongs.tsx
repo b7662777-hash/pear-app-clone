@@ -53,7 +53,7 @@ export function RecommendedSongs({
             >
               <div className="relative aspect-square rounded-lg overflow-hidden mb-2">
                 <img
-                  src={optimizeImageUrl(track.thumbnail, 200)}
+                  src={optimizeImageUrl(track.thumbnail, 160)}
                   alt={track.title}
                   className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                   loading={index < 6 ? "eager" : "lazy"}

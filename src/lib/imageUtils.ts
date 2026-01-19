@@ -8,14 +8,15 @@
  * @param size - Desired size (width and height will be the same)
  * @returns Optimized URL
  */
-export function optimizeGoogleThumbnail(url: string, size: number = 200): string {
+export function optimizeGoogleThumbnail(url: string, size: number = 160): string {
   if (!url) return url;
   
   // For Google/YouTube images (lh3.googleusercontent.com)
   if (url.includes('googleusercontent.com')) {
     // Replace any existing size parameters with optimized ones
+    // Use quality 80 for better compression
     return url
-      .replace(/=w\d+-h\d+(-[a-z0-9]+)?(-rj)?/i, `=w${size}-h${size}-l90-rj`)
+      .replace(/=w\d+-h\d+(-[a-z0-9]+)?(-rj)?/i, `=w${size}-h${size}-l80-rj`)
       .replace(/w\d+-h\d+/g, `w${size}-h${size}`);
   }
   
@@ -36,17 +37,19 @@ export function optimizeGoogleThumbnail(url: string, size: number = 200): string
  * @param size - Desired size
  * @returns Optimized URL with WebP format
  */
-export function optimizeUnsplashUrl(url: string, size: number = 200): string {
+export function optimizeUnsplashUrl(url: string, size: number = 160): string {
   if (!url || !url.includes('unsplash.com')) return url;
   
-  // Replace size parameters and add WebP format
+  // Replace size parameters and add WebP format with quality optimization
   let optimized = url
     .replace(/w=\d+/g, `w=${size}`)
     .replace(/h=\d+/g, `h=${size}`);
   
-  // Add WebP format if not present
+  // Add WebP format and quality if not present
   if (!optimized.includes('fm=webp')) {
-    optimized += optimized.includes('?') ? '&fm=webp' : '?fm=webp';
+    optimized += optimized.includes('?') ? '&fm=webp&q=75' : '?fm=webp&q=75';
+  } else if (!optimized.includes('q=')) {
+    optimized += '&q=75';
   }
   
   return optimized;
@@ -58,7 +61,7 @@ export function optimizeUnsplashUrl(url: string, size: number = 200): string {
  * @param displaySize - The size the image will be displayed at
  * @returns Optimized URL
  */
-export function optimizeImageUrl(url: string, displaySize: number = 200): string {
+export function optimizeImageUrl(url: string, displaySize: number = 160): string {
   if (!url) return url;
   
   if (url.includes('googleusercontent.com') || url.includes('i.ytimg.com')) {

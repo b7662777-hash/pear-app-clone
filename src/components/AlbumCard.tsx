@@ -17,7 +17,7 @@ export function AlbumCard({ title, subtitle, image, onClick }: AlbumCardProps) {
       {/* Album Art */}
       <div className="relative aspect-square rounded-md overflow-hidden mb-3">
         <img
-          src={optimizeImageUrl(image, 200)}
+          src={optimizeImageUrl(image, 160)}
           alt={title}
           className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
           loading="lazy"
