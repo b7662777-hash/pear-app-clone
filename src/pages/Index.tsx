@@ -5,6 +5,7 @@ import { MoodChips } from "@/components/MoodChips";
 import { AlbumSection } from "@/components/AlbumSection";
 import { SearchResults } from "@/components/SearchResults";
 import { ListenAgainSection } from "@/components/ListenAgainSection";
+import { AmbientBackground } from "@/components/AmbientBackground";
 import { useYouTubeMusic, YouTubeTrack } from "@/hooks/useYouTubeMusic";
 import { usePlayer, Track } from "@/contexts/PlayerContext";
 import { useNavigate } from "react-router-dom";
@@ -101,19 +102,7 @@ const Index = () => {
   return (
     <div className="flex h-screen bg-background overflow-hidden relative">
       {/* Global Ambient Background */}
-      {currentTrack && (
-        <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
-          <div 
-            className="absolute inset-[-150px] opacity-40 blur-[100px] scale-125 animate-ambient-drift transition-all duration-1000"
-            style={{ backgroundImage: `url(${currentTrack.image})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
-          />
-          <div 
-            className="absolute inset-[-250px] opacity-30 blur-[140px] scale-150 animate-ambient-drift-reverse transition-all duration-1000"
-            style={{ backgroundImage: `url(${currentTrack.image})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
-          />
-          <div className="absolute inset-0 bg-background/60" />
-        </div>
-      )}
+      <AmbientBackground />
 
       {/* Sidebar */}
       <Sidebar activeTab={activeTab} onTabChange={handleTabChange} />
