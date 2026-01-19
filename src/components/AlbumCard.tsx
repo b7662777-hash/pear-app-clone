@@ -23,7 +23,10 @@ export function AlbumCard({ title, subtitle, image, onClick }: AlbumCardProps) {
         
         {/* Play Button Overlay */}
         <div className="play-overlay rounded-lg">
-          <button className="w-14 h-14 rounded-full bg-primary flex items-center justify-center shadow-lg transform hover:scale-110 transition-transform">
+          <button 
+            className="w-14 h-14 rounded-full bg-primary flex items-center justify-center shadow-lg transform hover:scale-110 transition-transform"
+            aria-label={`Play ${title}`}
+          >
             <Play className="w-6 h-6 text-primary-foreground fill-primary-foreground ml-1" />
           </button>
         </div>

@@ -45,12 +45,14 @@ export function AlbumSection({ title, subtitle, albums, onAlbumClick }: AlbumSec
           <button
             onClick={() => scroll('left')}
             className="p-2 rounded-full bg-card hover:bg-accent transition-colors"
+            aria-label="Scroll left"
           >
             <ChevronLeft className="w-5 h-5 text-foreground" />
           </button>
           <button
             onClick={() => scroll('right')}
             className="p-2 rounded-full bg-card hover:bg-accent transition-colors"
+            aria-label="Scroll right"
           >
             <ChevronRight className="w-5 h-5 text-foreground" />
           </button>
