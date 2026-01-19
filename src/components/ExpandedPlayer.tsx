@@ -129,6 +129,7 @@ export function ExpandedPlayer({
               <button
                 onClick={onAmbientModeClick}
                 className="p-2 rounded-full hover:bg-muted transition-colors text-muted-foreground hover:text-primary"
+                aria-label="Toggle ambient mode"
               >
                 <Sparkles className="w-5 h-5" />
               </button>

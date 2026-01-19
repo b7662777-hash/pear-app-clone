@@ -64,15 +64,19 @@ export function RecommendedSongs({
                   isPlaying ? "opacity-100" : "opacity-0 group-hover:opacity-100"
                 )}>
                   {isPlaying ? (
-                    <div className="flex items-end gap-0.5 h-6">
+                    <div className="flex items-end gap-0.5 h-6" aria-label="Currently playing">
                       <div className="w-1 bg-primary animate-equalizer" />
                       <div className="w-1 bg-primary animate-equalizer animation-delay-100" />
                       <div className="w-1 bg-primary animate-equalizer animation-delay-200" />
                     </div>
                   ) : (
-                    <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center shadow-lg">
+                    <button 
+                      className="w-12 h-12 bg-primary rounded-full flex items-center justify-center shadow-lg"
+                      aria-label={`Play ${track.title}`}
+                      onClick={(e) => { e.stopPropagation(); onTrackClick(track); }}
+                    >
                       <Play className="w-6 h-6 text-primary-foreground fill-primary-foreground ml-0.5" />
-                    </div>
+                    </button>
                   )}
                 </div>
               </div>
