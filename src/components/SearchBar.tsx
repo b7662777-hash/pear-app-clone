@@ -11,16 +11,16 @@ export function SearchBar({ value, onChange }: SearchBarProps) {
   const { user, profile } = useAuth();
 
   return (
-    <header className="sticky top-0 z-40 flex items-center justify-between gap-4 px-6 py-3 bg-black/60 backdrop-blur-xl">
+    <header className="sticky top-0 z-40 flex items-center justify-between gap-4 px-6 py-3 bg-black/40 backdrop-blur-xl">
       {/* Search Input */}
       <div className="relative flex-1 max-w-lg">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/60" />
         <input
           type="text"
           placeholder="Search songs, albums, artists, podcasts"
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="w-full bg-secondary/80 border-none rounded-lg px-4 py-2.5 pl-12 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-foreground/20 transition-all duration-200"
+          className="w-full bg-white/10 backdrop-blur-md border border-white/10 rounded-full px-4 py-2.5 pl-12 text-white placeholder:text-white/50 focus:outline-none focus:ring-1 focus:ring-white/30 focus:bg-white/15 transition-all duration-200"
         />
       </div>
 
