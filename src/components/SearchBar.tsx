@@ -11,7 +11,7 @@ export function SearchBar({ value, onChange }: SearchBarProps) {
   const { user, profile } = useAuth();
 
   return (
-    <header className="sticky top-0 z-40 flex items-center justify-between gap-4 px-6 py-3">
+    <header className="sticky top-0 z-40 flex items-center justify-between gap-4 px-6 py-3 bg-black/60 backdrop-blur-xl">
       {/* Search Input */}
       <div className="relative flex-1 max-w-lg">
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />

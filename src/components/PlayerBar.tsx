@@ -84,7 +84,7 @@ export function PlayerBar({
   const currentTime = (progress / 100) * currentTrack.duration;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 h-[72px] bg-[#1a1a1a] border-t border-white/5 flex items-center px-4 z-50">
+    <div className="fixed bottom-0 left-0 right-0 h-[72px] bg-black/60 backdrop-blur-xl border-t border-white/5 flex items-center px-4 z-50">
       {/* Left: Transport controls */}
       <div className="flex items-center gap-1">
         <button onClick={onPrevious} className="p-2.5 rounded-full hover:bg-accent transition-colors" aria-label="Previous track">
