@@ -6,29 +6,54 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Authentication helper using getClaims for JWT validation
-async function authenticateRequest(req: Request): Promise<{ userId: string } | { error: string; status: number }> {
+// Get client IP from request headers
+function getClientIp(req: Request): string {
+  const forwardedFor = req.headers.get('x-forwarded-for');
+  if (forwardedFor) {
+    return forwardedFor.split(',')[0].trim();
+  }
+  const realIp = req.headers.get('x-real-ip');
+  if (realIp) {
+    return realIp.trim();
+  }
+  const userAgent = req.headers.get('user-agent') || '';
+  const acceptLanguage = req.headers.get('accept-language') || '';
+  let hash = 0;
+  const str = userAgent + acceptLanguage;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash;
+  }
+  return `fingerprint-${Math.abs(hash).toString(36)}`;
+}
+
+// Optional authentication helper - allows unauthenticated access with IP-based rate limiting
+async function tryAuthenticate(req: Request): Promise<{ userId: string | null; identifier: string }> {
   const authHeader = req.headers.get('Authorization');
   
   if (!authHeader?.startsWith('Bearer ')) {
-    return { error: 'Missing or invalid authorization header', status: 401 };
+    return { userId: null, identifier: getClientIp(req) };
   }
 
-  const supabaseClient = createClient(
-    Deno.env.get('SUPABASE_URL') ?? '',
-    Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-    { global: { headers: { Authorization: authHeader } } }
-  );
+  try {
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      { global: { headers: { Authorization: authHeader } } }
+    );
 
-  const token = authHeader.replace('Bearer ', '');
-  const { data, error } = await supabaseClient.auth.getClaims(token);
-  
-  if (error || !data?.claims) {
-    console.warn('Authentication failed:', error?.message || 'Invalid token');
-    return { error: 'Unauthorized', status: 401 };
+    const token = authHeader.replace('Bearer ', '');
+    const { data, error } = await supabaseClient.auth.getClaims(token);
+    
+    if (error || !data?.claims) {
+      return { userId: null, identifier: getClientIp(req) };
+    }
+
+    return { userId: data.claims.sub as string, identifier: data.claims.sub as string };
+  } catch (e) {
+    return { userId: null, identifier: getClientIp(req) };
   }
-
-  return { userId: data.claims.sub as string };
 }
 
 // List of public cobalt instances
@@ -150,19 +175,13 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  // Authenticate request
-  const authResult = await authenticateRequest(req);
-  if ('error' in authResult) {
-    return new Response(JSON.stringify({ 
-      error: authResult.error,
-    }), {
-      status: authResult.status,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+  // Try to authenticate (optional - allows anonymous access)
+  const { userId, identifier } = await tryAuthenticate(req);
+  if (userId) {
+    console.log(`Authenticated download request from user: ${userId.slice(0, 8)}...`);
+  } else {
+    console.log(`Anonymous download request from: ${identifier.slice(0, 12)}...`);
   }
-  
-  const userId = authResult.userId;
-  console.log(`Authenticated download request from user: ${userId.slice(0, 8)}...`);
 
   try {
     const { videoId, title, artist } = await req.json();

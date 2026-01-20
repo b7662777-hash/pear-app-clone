@@ -6,29 +6,36 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Authentication helper using getClaims for JWT validation
-async function authenticateRequest(req: Request): Promise<{ userId: string } | { error: string; status: number }> {
+// Optional authentication helper - allows unauthenticated access with IP-based rate limiting
+async function tryAuthenticate(req: Request): Promise<{ userId: string | null; identifier: string }> {
   const authHeader = req.headers.get('Authorization');
   
+  // If no auth header, use IP-based identification
   if (!authHeader?.startsWith('Bearer ')) {
-    return { error: 'Missing or invalid authorization header', status: 401 };
+    return { userId: null, identifier: getClientIp(req) };
   }
 
-  const supabaseClient = createClient(
-    Deno.env.get('SUPABASE_URL') ?? '',
-    Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-    { global: { headers: { Authorization: authHeader } } }
-  );
+  try {
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      { global: { headers: { Authorization: authHeader } } }
+    );
 
-  const token = authHeader.replace('Bearer ', '');
-  const { data, error } = await supabaseClient.auth.getClaims(token);
-  
-  if (error || !data?.claims) {
-    console.warn('Authentication failed:', error?.message || 'Invalid token');
-    return { error: 'Unauthorized', status: 401 };
+    const token = authHeader.replace('Bearer ', '');
+    const { data, error } = await supabaseClient.auth.getClaims(token);
+    
+    if (error || !data?.claims) {
+      // Auth failed, fall back to IP-based rate limiting
+      console.log('Auth token invalid, using IP-based rate limiting');
+      return { userId: null, identifier: getClientIp(req) };
+    }
+
+    return { userId: data.claims.sub as string, identifier: data.claims.sub as string };
+  } catch (e) {
+    // On any error, fall back to IP-based identification
+    return { userId: null, identifier: getClientIp(req) };
   }
-
-  return { userId: data.claims.sub as string };
 }
 
 // Get API key from environment
@@ -696,23 +703,16 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  // Authenticate request
-  const authResult = await authenticateRequest(req);
-  if ('error' in authResult) {
-    return new Response(JSON.stringify({ 
-      success: false, 
-      error: authResult.error,
-    }), {
-      status: authResult.status,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+  // Try to authenticate (optional - allows anonymous access)
+  const { userId, identifier } = await tryAuthenticate(req);
+  if (userId) {
+    console.log(`Authenticated request from user: ${userId.slice(0, 8)}...`);
+  } else {
+    console.log(`Anonymous request from: ${identifier.slice(0, 12)}...`);
   }
-  
-  const userId = authResult.userId;
-  console.log(`Authenticated request from user: ${userId.slice(0, 8)}...`);
 
-  // Apply rate limiting (now per-user instead of per-IP for better security)
-  const rateLimit = checkRateLimit(userId);
+  // Apply rate limiting (per-user for authenticated, per-IP for anonymous)
+  const rateLimit = checkRateLimit(identifier);
   
   // Add rate limit headers to all responses
   const rateLimitHeaders = {
@@ -722,7 +722,7 @@ serve(async (req) => {
   };
   
   if (!rateLimit.allowed) {
-    console.warn(`Rate limit exceeded for user: ${userId.slice(0, 8)}...`);
+    console.warn(`Rate limit exceeded for: ${identifier.slice(0, 12)}...`);
     return new Response(JSON.stringify({ 
       success: false, 
       error: 'Too many requests. Please try again later.',
