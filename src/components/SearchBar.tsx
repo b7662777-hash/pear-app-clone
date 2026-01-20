@@ -1,4 +1,6 @@
 import { Search, ChevronLeft, ChevronRight } from "lucide-react";
+import { UserProfileMenu } from "./UserProfileMenu";
+import { useAuth } from "@/hooks/useAuth";
 
 interface SearchBarProps {
   value: string;
@@ -6,6 +8,8 @@ interface SearchBarProps {
 }
 
 export function SearchBar({ value, onChange }: SearchBarProps) {
+  const { user, profile } = useAuth();
+
   return (
     <header className="sticky top-0 z-40 flex items-center justify-between gap-4 px-6 py-3 bg-black/10 backdrop-blur-xl">
       {/* Search Input */}
@@ -20,7 +24,7 @@ export function SearchBar({ value, onChange }: SearchBarProps) {
         />
       </div>
 
-      {/* Right Actions - Navigation only */}
+      {/* Right Actions */}
       <div className="flex items-center gap-1">
         <button className="p-2.5 rounded-full hover:bg-white/10 transition-colors" aria-label="Previous">
           <ChevronLeft className="w-5 h-5 text-white/60" />
@@ -28,6 +32,11 @@ export function SearchBar({ value, onChange }: SearchBarProps) {
         <button className="p-2.5 rounded-full hover:bg-white/10 transition-colors" aria-label="Next">
           <ChevronRight className="w-5 h-5 text-white/60" />
         </button>
+        
+        {/* User Profile */}
+        <div className="ml-2">
+          <UserProfileMenu user={user} profile={profile} />
+        </div>
       </div>
     </header>
   );
