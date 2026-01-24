@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.youtube-download]
 verify_jwt = false
+
+[functions.lastfm-scrobble]
+verify_jwt = false

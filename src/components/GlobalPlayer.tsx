@@ -7,6 +7,9 @@ import { AmbientMode } from '@/components/AmbientMode';
 import { AddToPlaylistDialog } from '@/components/AddToPlaylistDialog';
 import { usePlayer } from '@/contexts/PlayerContext';
 import { useYouTubeMusic, LyricsProvider } from '@/hooks/useYouTubeMusic';
+import { useMediaSession } from '@/hooks/useMediaSession';
+import { useLastFmScrobble } from '@/hooks/useLastFmScrobble';
+import { useDiscordPresence } from '@/hooks/useDiscordPresence';
 
 declare global {
   interface Window {
@@ -55,6 +58,36 @@ export function GlobalPlayer() {
     isLoadingRelated,
     fetchRelatedTracks,
   } = useYouTubeMusic();
+
+  // Media Session API for global media keys
+  const mediaSessionEnabled = localStorage.getItem('media_session_enabled') !== 'false';
+  useMediaSession({
+    currentTrack: mediaSessionEnabled ? currentTrack : null,
+    isPlaying,
+    currentTime,
+    duration,
+    onPlay: () => setIsPlaying(true),
+    onPause: () => setIsPlaying(false),
+    onNext: next,
+    onPrevious: previous,
+    onSeek: seekTo,
+  });
+
+  // Last.fm scrobbling integration
+  useLastFmScrobble({
+    currentTrack,
+    isPlaying,
+    currentTime,
+    duration,
+  });
+
+  // Discord presence integration
+  useDiscordPresence({
+    currentTrack,
+    isPlaying,
+    currentTime,
+    duration,
+  });
 
   // Handle YouTube player progress
   const handleProgress = useCallback((current: number, totalDuration: number) => {
