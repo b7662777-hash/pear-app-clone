@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -11,10 +12,24 @@ interface DownloadOptions {
 export function useDownload() {
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadProgress, setDownloadProgress] = useState(0);
+  const navigate = useNavigate();
 
   const downloadTrack = useCallback(async ({ videoId, title, artist }: DownloadOptions) => {
     if (!videoId) {
       toast.error('Cannot download this track');
+      return;
+    }
+
+    // Check if user is authenticated
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      toast.error('Sign in required', {
+        description: 'Please sign in to download tracks',
+        action: {
+          label: 'Sign In',
+          onClick: () => navigate('/auth'),
+        },
+      });
       return;
     }
 
@@ -43,7 +58,30 @@ export function useDownload() {
 
       if (error) {
         console.error('Download function error:', error);
+        // Check if it's an auth error
+        if (error.message?.includes('401') || error.message?.includes('auth')) {
+          toast.error('Session expired', {
+            description: 'Please sign in again to download',
+            action: {
+              label: 'Sign In',
+              onClick: () => navigate('/auth'),
+            },
+          });
+          return;
+        }
         throw new Error('Download service unavailable');
+      }
+
+      // Check for auth requirement in response
+      if (data?.requiresAuth) {
+        toast.error('Sign in required', {
+          description: data.error || 'Please sign in to download tracks',
+          action: {
+            label: 'Sign In',
+            onClick: () => navigate('/auth'),
+          },
+        });
+        return;
       }
 
       console.log('Download response:', data);
