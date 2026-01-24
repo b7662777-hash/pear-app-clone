@@ -52,20 +52,24 @@ export function AvatarUpload({ userId, currentAvatarUrl, displayName, onAvatarUp
 
       if (uploadError) throw uploadError;
 
-      // Get public URL
-      const { data: { publicUrl } } = supabase.storage
+      // Get signed URL for private bucket (1 year expiry)
+      const { data: signedUrlData, error: signedUrlError } = await supabase.storage
         .from("avatars")
-        .getPublicUrl(fileName);
+        .createSignedUrl(fileName, 60 * 60 * 24 * 365); // 1 year
+
+      if (signedUrlError) throw signedUrlError;
+
+      const avatarUrl = signedUrlData.signedUrl;
 
       // Update profile with new avatar URL
       const { error: updateError } = await supabase
         .from("profiles")
-        .update({ avatar_url: publicUrl })
+        .update({ avatar_url: avatarUrl })
         .eq("user_id", userId);
 
       if (updateError) throw updateError;
 
-      onAvatarUpdated(publicUrl);
+      onAvatarUpdated(avatarUrl);
       toast.success("Avatar updated successfully!");
     } catch (error) {
       console.error("Error uploading avatar:", error);
