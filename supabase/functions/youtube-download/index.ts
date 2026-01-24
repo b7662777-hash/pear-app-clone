@@ -28,12 +28,12 @@ function getClientIp(req: Request): string {
   return `fingerprint-${Math.abs(hash).toString(36)}`;
 }
 
-// Optional authentication helper - allows unauthenticated access with IP-based rate limiting
-async function tryAuthenticate(req: Request): Promise<{ userId: string | null; identifier: string }> {
+// Authentication helper - REQUIRES authentication for downloads
+async function authenticate(req: Request): Promise<{ userId: string | null; error?: string }> {
   const authHeader = req.headers.get('Authorization');
   
   if (!authHeader?.startsWith('Bearer ')) {
-    return { userId: null, identifier: getClientIp(req) };
+    return { userId: null, error: 'Authentication required. Please sign in to download tracks.' };
   }
 
   try {
@@ -47,12 +47,13 @@ async function tryAuthenticate(req: Request): Promise<{ userId: string | null; i
     const { data, error } = await supabaseClient.auth.getClaims(token);
     
     if (error || !data?.claims) {
-      return { userId: null, identifier: getClientIp(req) };
+      return { userId: null, error: 'Invalid or expired session. Please sign in again.' };
     }
 
-    return { userId: data.claims.sub as string, identifier: data.claims.sub as string };
+    return { userId: data.claims.sub as string };
   } catch (e) {
-    return { userId: null, identifier: getClientIp(req) };
+    console.error('Auth error:', e);
+    return { userId: null, error: 'Authentication failed' };
   }
 }
 
@@ -175,13 +176,16 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  // Try to authenticate (optional - allows anonymous access)
-  const { userId, identifier } = await tryAuthenticate(req);
-  if (userId) {
-    console.log(`Authenticated download request from user: ${userId.slice(0, 8)}...`);
-  } else {
-    console.log(`Anonymous download request from: ${identifier.slice(0, 12)}...`);
+  // REQUIRE authentication for downloads
+  const { userId, error: authError } = await authenticate(req);
+  if (!userId) {
+    console.log('Unauthenticated download attempt rejected');
+    return new Response(
+      JSON.stringify({ error: authError, requiresAuth: true }),
+      { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
   }
+  console.log(`Authenticated download request from user: ${userId.slice(0, 8)}...`);
 
   try {
     const { videoId, title, artist } = await req.json();

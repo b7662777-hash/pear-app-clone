@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { z } from 'zod';
-import { Music, Mail, Lock, User, Eye, EyeOff, Chrome } from 'lucide-react';
+import { Music, Mail, Lock, User, Eye, EyeOff, Chrome, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { Separator } from '@/components/ui/separator';
+import { isPasswordBreached, formatBreachCount } from '@/lib/passwordSecurity';
 
 // Validation schemas
 const emailSchema = z.string().email('Please enter a valid email address');
@@ -34,6 +35,7 @@ export default function Auth() {
   // Error state
   const [loginErrors, setLoginErrors] = useState<{ email?: string; password?: string }>({});
   const [signupErrors, setSignupErrors] = useState<{ email?: string; password?: string; displayName?: string }>({});
+  const [passwordBreachWarning, setPasswordBreachWarning] = useState<string | null>(null);
 
   // Redirect if already logged in
   useEffect(() => {
@@ -89,6 +91,7 @@ export default function Auth() {
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setSignupErrors({});
+    setPasswordBreachWarning(null);
     
     // Validate
     const emailResult = emailSchema.safeParse(signupEmail);
@@ -105,6 +108,16 @@ export default function Auth() {
     }
     
     setIsSubmitting(true);
+    
+    // Check if password has been breached
+    const breachResult = await isPasswordBreached(signupPassword);
+    if (breachResult.breached) {
+      setPasswordBreachWarning(
+        `This password has been found in ${formatBreachCount(breachResult.count)} data breaches. Please choose a different password for your security.`
+      );
+      setIsSubmitting(false);
+      return;
+    }
     
     const { error } = await signUp(signupEmail, signupPassword, signupDisplayName || undefined);
     
@@ -312,6 +325,12 @@ export default function Auth() {
                   </div>
                   {signupErrors.password && (
                     <p className="text-sm text-destructive">{signupErrors.password}</p>
+                  )}
+                  {passwordBreachWarning && (
+                    <div className="flex items-start gap-2 p-3 rounded-md bg-destructive/10 border border-destructive/20">
+                      <AlertTriangle className="h-4 w-4 text-destructive mt-0.5 flex-shrink-0" />
+                      <p className="text-sm text-destructive">{passwordBreachWarning}</p>
+                    </div>
                   )}
                 </div>
                 
