@@ -13,7 +13,8 @@ import {
   Loader2,
   Sparkles,
   Download,
-  Plus
+  Plus,
+  Minimize2
 } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { cn } from "@/lib/utils";
@@ -49,6 +50,7 @@ interface PlayerBarProps {
   isDownloading?: boolean;
   downloadProgress?: number;
   onAddToPlaylist?: () => void;
+  onMiniPlayerClick?: () => void;
 }
 
 function formatTime(seconds: number): string {
@@ -78,6 +80,7 @@ export function PlayerBar({
   isDownloading,
   downloadProgress = 0,
   onAddToPlaylist,
+  onMiniPlayerClick,
 }: PlayerBarProps) {
   if (!currentTrack) return null;
 
@@ -173,13 +176,24 @@ export function PlayerBar({
           <Repeat className="w-5 h-5 text-muted-foreground" />
         </button>
         {currentTrack.videoId && (
-          <button 
-            onClick={onExpandClick}
-            className="p-2.5 rounded-full hover:bg-accent transition-colors"
-            aria-label="Expand player"
-          >
-            <Maximize2 className="w-5 h-5 text-muted-foreground" />
-          </button>
+          <>
+            <button 
+              onClick={onMiniPlayerClick}
+              className="p-2.5 rounded-full hover:bg-accent transition-colors"
+              aria-label="Mini player"
+              title="Mini player"
+            >
+              <Minimize2 className="w-5 h-5 text-muted-foreground" />
+            </button>
+            <button 
+              onClick={onExpandClick}
+              className="p-2.5 rounded-full hover:bg-accent transition-colors"
+              aria-label="Expand player"
+              title="Expand player"
+            >
+              <Maximize2 className="w-5 h-5 text-muted-foreground" />
+            </button>
+          </>
         )}
       </div>
     </div>

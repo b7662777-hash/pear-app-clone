@@ -5,6 +5,7 @@ import { LyricsPanel } from '@/components/LyricsPanel';
 import { ExpandedPlayer } from '@/components/ExpandedPlayer';
 import { AmbientMode } from '@/components/AmbientMode';
 import { AddToPlaylistDialog } from '@/components/AddToPlaylistDialog';
+import { MiniPlayer } from '@/components/MiniPlayer';
 import { usePlayer } from '@/contexts/PlayerContext';
 import { useYouTubeMusic, LyricsProvider } from '@/hooks/useYouTubeMusic';
 import { useMediaSession } from '@/hooks/useMediaSession';
@@ -47,6 +48,7 @@ export function GlobalPlayer() {
   const [showExpandedPlayer, setShowExpandedPlayer] = useState(false);
   const [showAmbientMode, setShowAmbientMode] = useState(false);
   const [showAddToPlaylist, setShowAddToPlaylist] = useState(false);
+  const [showMiniPlayer, setShowMiniPlayer] = useState(false);
   const [lyricsProvider, setLyricsProvider] = useState<LyricsProvider>("lrclib");
 
   const {
@@ -230,29 +232,43 @@ export function GlobalPlayer() {
         onPrevious={previous}
       />
 
-      {/* Player Bar */}
-      <PlayerBar
-        currentTrack={currentTrack}
-        isPlaying={isPlaying}
-        progress={progress}
-        volume={volume}
-        onPlayPause={playPause}
-        onNext={next}
-        onPrevious={previous}
-        onProgressChange={handleProgressChange}
-        onVolumeChange={(value) => setVolume(value[0])}
-        isLiked={currentTrack?.videoId ? isLiked(currentTrack.videoId) : false}
-        onLikeToggle={() => currentTrack && toggleLike(currentTrack)}
-        onLyricsToggle={handleLyricsToggle}
-        showLyrics={showLyrics}
-        isBuffering={isBuffering}
-        onExpandClick={handleExpandPlayer}
-        onAmbientModeClick={() => setShowAmbientMode(true)}
-        onDownloadClick={downloadTrack}
-        isDownloading={isDownloading}
-        downloadProgress={downloadProgress}
-        onAddToPlaylist={() => setShowAddToPlaylist(true)}
-      />
+      {/* Mini Player */}
+      {showMiniPlayer && (
+        <MiniPlayer
+          onClose={() => setShowMiniPlayer(false)}
+          onExpand={() => {
+            setShowMiniPlayer(false);
+            setShowExpandedPlayer(true);
+          }}
+        />
+      )}
+
+      {/* Player Bar - hidden when mini player is active */}
+      {!showMiniPlayer && (
+        <PlayerBar
+          currentTrack={currentTrack}
+          isPlaying={isPlaying}
+          progress={progress}
+          volume={volume}
+          onPlayPause={playPause}
+          onNext={next}
+          onPrevious={previous}
+          onProgressChange={handleProgressChange}
+          onVolumeChange={(value) => setVolume(value[0])}
+          isLiked={currentTrack?.videoId ? isLiked(currentTrack.videoId) : false}
+          onLikeToggle={() => currentTrack && toggleLike(currentTrack)}
+          onLyricsToggle={handleLyricsToggle}
+          showLyrics={showLyrics}
+          isBuffering={isBuffering}
+          onExpandClick={handleExpandPlayer}
+          onAmbientModeClick={() => setShowAmbientMode(true)}
+          onDownloadClick={downloadTrack}
+          isDownloading={isDownloading}
+          downloadProgress={downloadProgress}
+          onAddToPlaylist={() => setShowAddToPlaylist(true)}
+          onMiniPlayerClick={() => setShowMiniPlayer(true)}
+        />
+      )}
 
       {/* Add to Playlist Dialog */}
       <AddToPlaylistDialog
