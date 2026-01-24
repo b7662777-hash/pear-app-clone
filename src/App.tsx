@@ -28,10 +28,10 @@ const PageLoader = () => (
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <PlayerProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
+      <Toaster />
+      <Sonner />
+      <BrowserRouter>
+        <PlayerProvider>
           <Suspense fallback={<PageLoader />}>
             <Routes>
               <Route path="/" element={<Index />} />
@@ -46,8 +46,8 @@ const App = () => (
             </Routes>
             <GlobalPlayer />
           </Suspense>
-        </BrowserRouter>
-      </PlayerProvider>
+        </PlayerProvider>
+      </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
 );
