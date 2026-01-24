@@ -77,7 +77,7 @@ export function ListenAgainSection({ tracks, featuredTrack, onTrackClick }: List
                 src={optimizeImageUrl(featuredTrack.image, 200)}
                 alt={featuredTrack.title}
                 className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                loading="lazy"
+                fetchPriority="high"
               />
               <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
                 <button className="w-14 h-14 rounded-full bg-white/90 flex items-center justify-center shadow-lg" aria-label={`Play ${featuredTrack.title}`}>
