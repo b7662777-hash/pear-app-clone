@@ -11,8 +11,8 @@
 export function optimizeGoogleThumbnail(url: string, size: number = 160): string {
   if (!url) return url;
   
-  // Round up to nearest pixel for device pixel ratio (request slightly larger for retina)
-  const optimizedSize = Math.ceil(size * 1.5);
+  // Use 1.25x multiplier for retina (less aggressive to reduce payload)
+  const optimizedSize = Math.ceil(size * 1.25);
   
   // For Google/YouTube images (lh3.googleusercontent.com)
   if (url.includes('googleusercontent.com')) {
@@ -20,12 +20,12 @@ export function optimizeGoogleThumbnail(url: string, size: number = 160): string
     const hasParams = url.includes('=');
     if (hasParams) {
       // Replace any existing size/quality parameters with optimized ones
-      // -l70 sets quality to 70 for better compression
+      // -l50 sets quality to 50 for better compression
       // -rw requests WebP format for modern browsers
-      return url.replace(/=[^?&]+$/, `=w${optimizedSize}-h${optimizedSize}-l70-rw`);
+      return url.replace(/=[^?&]+$/, `=w${optimizedSize}-h${optimizedSize}-l50-rw`);
     } else {
       // Add parameters if none exist
-      return `${url}=w${optimizedSize}-h${optimizedSize}-l70-rw`;
+      return `${url}=w${optimizedSize}-h${optimizedSize}-l50-rw`;
     }
   }
   
@@ -49,8 +49,8 @@ export function optimizeGoogleThumbnail(url: string, size: number = 160): string
 export function optimizeUnsplashUrl(url: string, size: number = 160): string {
   if (!url || !url.includes('unsplash.com')) return url;
   
-  // Round up for retina displays
-  const optimizedSize = Math.ceil(size * 1.5);
+  // Use 1.25x multiplier for retina (less aggressive to reduce payload)
+  const optimizedSize = Math.ceil(size * 1.25);
   
   // Parse the URL to properly handle parameters
   try {
@@ -60,9 +60,9 @@ export function optimizeUnsplashUrl(url: string, size: number = 160): string {
     urlObj.searchParams.set('w', String(optimizedSize));
     urlObj.searchParams.set('h', String(optimizedSize));
     
-    // Add WebP format and quality optimization
+    // Add WebP format and lower quality for better compression
     urlObj.searchParams.set('fm', 'webp');
-    urlObj.searchParams.set('q', '75');
+    urlObj.searchParams.set('q', '60');
     urlObj.searchParams.set('fit', 'crop');
     
     return urlObj.toString();
@@ -74,9 +74,9 @@ export function optimizeUnsplashUrl(url: string, size: number = 160): string {
     
     // Add WebP format and quality if not present
     if (!optimized.includes('fm=webp')) {
-      optimized += optimized.includes('?') ? '&fm=webp&q=75' : '?fm=webp&q=75';
+      optimized += optimized.includes('?') ? '&fm=webp&q=60' : '?fm=webp&q=60';
     } else if (!optimized.includes('q=')) {
-      optimized += '&q=75';
+      optimized += '&q=60';
     }
     
     return optimized;
