@@ -1,4 +1,4 @@
-import { Home, Compass, Library, Youtube, Plus, Heart, Clock, ListMusic, User, Sparkles } from "lucide-react";
+import { Home, Compass, Library, Youtube, Plus, Heart, Clock, ListMusic, User, Sparkles, Settings } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
@@ -14,7 +14,7 @@ const mainNavItems = [
   { id: "home", label: "Home", icon: Home, path: "/" },
   { id: "explore", label: "Explore", icon: Compass, path: "/explore" },
   { id: "library", label: "Library", icon: Library, path: "/library" },
-  { id: "upgrade", label: "Upgrade", icon: Sparkles, path: null },
+  { id: "settings", label: "Settings", icon: Settings, path: "/settings" },
 ];
 
 export function Sidebar({ activeTab, onTabChange }: SidebarProps) {

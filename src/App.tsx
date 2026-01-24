@@ -13,6 +13,7 @@ const AuthCallback = lazy(() => import("./pages/AuthCallback"));
 const Explore = lazy(() => import("./pages/Explore"));
 const Library = lazy(() => import("./pages/Library"));
 const Profile = lazy(() => import("./pages/Profile"));
+const Settings = lazy(() => import("./pages/Settings"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const GlobalPlayer = lazy(() => import("@/components/GlobalPlayer").then(m => ({ default: m.GlobalPlayer })));
 
@@ -41,6 +42,7 @@ const App = () => (
               <Route path="/library" element={<Library />} />
               <Route path="/library/liked" element={<Library />} />
               <Route path="/profile" element={<Profile />} />
+              <Route path="/settings" element={<Settings />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
