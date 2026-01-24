@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ArrowLeft, Settings as SettingsIcon, Radio, Music2, Webhook, ExternalLink, Check, X, Loader2, Info } from 'lucide-react';
+import { ArrowLeft, Settings as SettingsIcon, Radio, Music2, Webhook, ExternalLink, Check, X, Loader2, Info, Palette, Sparkles, Moon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Input } from '@/components/ui/input';
@@ -10,6 +10,70 @@ import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
 import { AmbientBackground } from '@/components/AmbientBackground';
 import { Sidebar } from '@/components/Sidebar';
+
+// Theme and Visual settings
+function ThemeSettings() {
+  const [colorExtractionEnabled, setColorExtractionEnabled] = useState(() => {
+    const stored = localStorage.getItem('colorExtractionEnabled');
+    return stored === null ? true : stored === 'true';
+  });
+
+  const handleColorExtractionToggle = (checked: boolean) => {
+    setColorExtractionEnabled(checked);
+    localStorage.setItem('colorExtractionEnabled', String(checked));
+    toast.success(checked ? 'Color extraction enabled' : 'Color extraction disabled');
+  };
+
+  return (
+    <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+      <CardHeader>
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+            <Palette className="w-5 h-5 text-white" />
+          </div>
+          <div className="flex-1">
+            <CardTitle className="text-lg">Visual Effects</CardTitle>
+            <CardDescription>Customize the ambient mode experience</CardDescription>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="space-y-0.5">
+            <Label htmlFor="color-extraction">Dynamic Color Extraction</Label>
+            <p className="text-xs text-muted-foreground">
+              Extract colors from album art for vibrant gradients
+            </p>
+          </div>
+          <Switch
+            id="color-extraction"
+            checked={colorExtractionEnabled}
+            onCheckedChange={handleColorExtractionToggle}
+          />
+        </div>
+        <div className="flex items-center justify-between">
+          <div className="space-y-0.5">
+            <Label>Theme</Label>
+            <p className="text-xs text-muted-foreground">
+              AMOLED Black - Pure black for OLED displays
+            </p>
+          </div>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Moon className="w-4 h-4" />
+            <span>AMOLED</span>
+          </div>
+        </div>
+        <div className="flex items-start gap-2 p-3 rounded-lg bg-muted/30 text-sm">
+          <Sparkles className="w-4 h-4 mt-0.5 text-muted-foreground flex-shrink-0" />
+          <p className="text-muted-foreground">
+            ColorThief extracts dominant colors from album artwork to create animated, 
+            multi-layered radial gradients that sync with your music.
+          </p>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
 
 // Discord webhook integration
 function DiscordIntegration() {
@@ -320,6 +384,16 @@ export default function Settings() {
               <h1 className="text-2xl font-bold">Settings</h1>
             </div>
           </div>
+
+          {/* Theme & Visuals */}
+          <section>
+            <h2 className="text-lg font-semibold mb-4">Theme & Visuals</h2>
+            <div className="space-y-4">
+              <ThemeSettings />
+            </div>
+          </section>
+
+          <Separator className="bg-border/50" />
 
           {/* Integrations */}
           <section>
