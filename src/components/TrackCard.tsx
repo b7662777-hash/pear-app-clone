@@ -9,16 +9,20 @@ interface TrackCardProps {
   plays?: string;
   isPlaying?: boolean;
   onClick: () => void;
+  accentColor?: string;
 }
 
-export function TrackCard({ title, artist, image, plays, isPlaying, onClick }: TrackCardProps) {
+export function TrackCard({ title, artist, image, plays, isPlaying, onClick, accentColor }: TrackCardProps) {
   return (
     <div
       onClick={onClick}
-      className="group flex items-center gap-3 p-2.5 rounded-xl glass-card cursor-pointer"
+      className="group flex items-center gap-3 p-2.5 rounded-[20px] glass-card-premium cursor-pointer"
+      style={{
+        ['--card-accent' as string]: accentColor || 'rgba(255, 255, 255, 0.2)',
+      }}
     >
       {/* Album Art */}
-      <div className="relative w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
+      <div className="relative w-12 h-12 rounded-[12px] overflow-hidden flex-shrink-0">
         <img
           src={optimizeImageUrl(image, 100)}
           alt={title}

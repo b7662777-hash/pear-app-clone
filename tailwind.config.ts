@@ -84,8 +84,9 @@ export default {
         'inner-glow': 'inset 0 1px 1px rgba(255, 255, 255, 0.1)',
       },
       backdropBlur: {
-        'glass': '25px',
-        'heavy': '40px',
+        'glass': '40px',
+        'heavy': '60px',
+        'premium': '40px',
       },
       keyframes: {
         "accordion-down": {
@@ -124,6 +125,18 @@ export default {
           "0%": { backgroundPosition: "-200% 0" },
           "100%": { backgroundPosition: "200% 0" },
         },
+        "album-breathe": {
+          "0%, 100%": { transform: "scale(1)" },
+          "50%": { transform: "scale(1.03)" },
+        },
+        "album-rotate": {
+          from: { transform: "rotate(0deg)" },
+          to: { transform: "rotate(360deg)" },
+        },
+        "waveform-pulse": {
+          "0%, 100%": { opacity: "0.8", transform: "scaleY(1)" },
+          "50%": { opacity: "1", transform: "scaleY(1.1)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -135,6 +148,9 @@ export default {
         "equalizer": "equalizer 0.8s ease-in-out infinite",
         "float": "float 3s ease-in-out infinite",
         "shimmer": "shimmer 2s linear infinite",
+        "album-breathe": "album-breathe 4s ease-in-out infinite",
+        "album-rotate": "album-rotate 30s linear infinite",
+        "waveform-pulse": "waveform-pulse 0.6s ease-in-out infinite",
       },
       transitionTimingFunction: {
         'smooth': 'cubic-bezier(0.4, 0, 0.2, 1)',

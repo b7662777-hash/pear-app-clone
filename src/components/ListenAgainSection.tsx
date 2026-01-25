@@ -50,7 +50,7 @@ export function ListenAgainSection({ tracks, featuredTrack, onTrackClick }: List
           <img 
             src={optimizeImageUrl(featuredTrack.image, 48)} 
             alt="" 
-            className="w-12 h-12 rounded-full object-cover ring-2 ring-white/10"
+            className="w-12 h-12 rounded-full object-cover ring-2 ring-white/[0.1]"
           />
         )}
         <div>
@@ -66,9 +66,9 @@ export function ListenAgainSection({ tracks, featuredTrack, onTrackClick }: List
             <div
               key={track.id}
               onClick={() => onTrackClick(track)}
-              className="group relative cursor-pointer glass-card rounded-2xl p-3"
+              className="group relative cursor-pointer glass-card-premium rounded-[20px] p-3"
             >
-              <div className="relative aspect-square rounded-xl overflow-hidden mb-3">
+              <div className="relative aspect-square rounded-[16px] overflow-hidden mb-3">
                 <img
                   src={optimizeImageUrl(track.image, 160)}
                   alt={track.title}
@@ -97,7 +97,7 @@ export function ListenAgainSection({ tracks, featuredTrack, onTrackClick }: List
             onClick={() => onTrackClick(featuredTrack)}
             className="hidden lg:block w-[200px] flex-shrink-0 group cursor-pointer"
           >
-            <div className="relative aspect-square rounded-2xl overflow-hidden shadow-elevated ring-1 ring-white/10 group-hover:ring-white/20 transition-all">
+            <div className="relative aspect-square rounded-[20px] overflow-hidden shadow-elevated ring-1 ring-white/[0.1] group-hover:ring-white/[0.2] transition-all">
               <img
                 src={optimizeImageUrl(featuredTrack.image, 200)}
                 alt={featuredTrack.title}

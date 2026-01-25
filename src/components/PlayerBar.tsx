@@ -15,6 +15,9 @@ import {
 import { Slider } from "@/components/ui/slider";
 import { cn } from "@/lib/utils";
 import { optimizeImageUrl } from "@/lib/imageUtils";
+import { WaveformSeekbar } from "@/components/WaveformSeekbar";
+import { usePlayer } from "@/contexts/PlayerContext";
+import { useMemo } from "react";
 
 interface Track {
   title: string;
@@ -76,123 +79,146 @@ export function PlayerBar({
 
   const currentTime = (progress / 100) * currentTrack.duration;
 
+  // Get accent color from player context for waveform
+  const accentColor = useMemo(() => {
+    // Default to primary if no dynamic color available
+    return 'hsl(var(--primary))';
+  }, []);
+
   return (
-    <div className="fixed bottom-0 left-0 right-0 h-[80px] glass-dark border-t border-white/[0.06] flex items-center px-4 z-50 shadow-elevated">
-      {/* Left: Transport controls */}
-      <div className="flex items-center gap-1">
-        <button 
-          onClick={onPrevious} 
-          className="p-2.5 rounded-full hover:bg-white/10 transition-all duration-200 active:scale-95" 
-          aria-label="Previous track"
-        >
-          <SkipBack className="w-5 h-5 text-foreground fill-current" />
-        </button>
-        <button
-          onClick={onPlayPause}
-          className="p-3 rounded-full bg-white text-black hover:scale-105 active:scale-95 transition-all duration-200 play-glow"
-          aria-label={isBuffering ? "Loading" : isPlaying ? "Pause" : "Play"}
-        >
-          {isBuffering ? (
-            <Loader2 className="w-5 h-5 animate-spin" />
-          ) : isPlaying ? (
-            <Pause className="w-5 h-5 fill-current" />
-          ) : (
-            <Play className="w-5 h-5 fill-current ml-0.5" />
-          )}
-        </button>
-        <button 
-          onClick={onNext} 
-          className="p-2.5 rounded-full hover:bg-white/10 transition-all duration-200 active:scale-95" 
-          aria-label="Next track"
-        >
-          <SkipForward className="w-5 h-5 text-foreground fill-current" />
-        </button>
-        <span className="text-xs text-white/50 ml-3 min-w-[80px] font-medium">
-          {formatTime(currentTime)} / {formatTime(currentTrack.duration)}
-        </span>
+    <div className="fixed bottom-0 left-0 right-0 h-[90px] glass-premium border-t border-white/[0.1] flex flex-col z-50">
+      {/* Waveform Seekbar at top */}
+      <div className="px-4 pt-2">
+        <WaveformSeekbar
+          progress={progress}
+          duration={currentTrack.duration}
+          onSeek={(value) => onProgressChange([value])}
+          accentColor={accentColor}
+          className="h-8"
+        />
       </div>
-
-      {/* Center: Track info */}
-      <div 
-        className="flex-1 flex items-center justify-center gap-4 cursor-pointer group px-8"
-        onClick={onExpandClick}
-      >
-        <div className="w-14 h-14 rounded-lg overflow-hidden flex-shrink-0 shadow-lg ring-1 ring-white/10 group-hover:ring-white/20 transition-all">
-          <img
-            src={optimizeImageUrl(currentTrack.image, 120)}
-            alt={currentTrack.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-          />
+      
+      {/* Main controls */}
+      <div className="flex-1 flex items-center px-4">
+        {/* Left: Transport controls */}
+        <div className="flex items-center gap-1">
+          <button 
+            onClick={onPrevious} 
+            className="p-2.5 rounded-full hover:bg-white/[0.1] transition-all duration-200 active:scale-95" 
+            aria-label="Previous track"
+          >
+            <SkipBack className="w-5 h-5 text-foreground fill-current" />
+          </button>
+          <button
+            onClick={onPlayPause}
+            className="p-3 rounded-full bg-white text-black hover:scale-105 active:scale-95 transition-all duration-200 play-glow"
+            aria-label={isBuffering ? "Loading" : isPlaying ? "Pause" : "Play"}
+          >
+            {isBuffering ? (
+              <Loader2 className="w-5 h-5 animate-spin" />
+            ) : isPlaying ? (
+              <Pause className="w-5 h-5 fill-current" />
+            ) : (
+              <Play className="w-5 h-5 fill-current ml-0.5" />
+            )}
+          </button>
+          <button 
+            onClick={onNext} 
+            className="p-2.5 rounded-full hover:bg-white/[0.1] transition-all duration-200 active:scale-95" 
+            aria-label="Next track"
+          >
+            <SkipForward className="w-5 h-5 text-foreground fill-current" />
+          </button>
+          <span className="text-xs text-white/50 ml-3 min-w-[80px] font-medium">
+            {formatTime(currentTime)} / {formatTime(currentTrack.duration)}
+          </span>
         </div>
-        <div className="text-center min-w-0 max-w-md">
-          <h3 className="text-sm font-semibold text-foreground truncate group-hover:text-white transition-colors">
-            {currentTrack.title}
-          </h3>
-          <p className="text-xs text-white/50 truncate">
-            {currentTrack.artist} • {currentTrack.album}
-          </p>
-        </div>
-      </div>
 
-      {/* Right: Actions */}
-      <div className="flex items-center gap-1">
-        <button
-          onClick={(e) => { e.stopPropagation(); onLikeToggle(); }}
-          className={cn(
-            "p-2.5 rounded-full hover:bg-white/10 transition-all duration-200 active:scale-95",
-            isLiked && "text-primary"
+        {/* Center: Track info with breathing album art */}
+        <div 
+          className="flex-1 flex items-center justify-center gap-4 cursor-pointer group px-8"
+          onClick={onExpandClick}
+        >
+          <div className={cn(
+            "w-12 h-12 rounded-xl overflow-hidden flex-shrink-0 shadow-lg ring-1 ring-white/[0.1] group-hover:ring-white/[0.2] transition-all",
+            isPlaying && "animate-album-breathe"
+          )}>
+            <img
+              src={optimizeImageUrl(currentTrack.image, 120)}
+              alt={currentTrack.title}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            />
+          </div>
+          <div className="text-center min-w-0 max-w-md">
+            <h3 className="text-sm font-semibold text-foreground truncate group-hover:text-white transition-colors">
+              {currentTrack.title}
+            </h3>
+            <p className="text-xs text-white/50 truncate">
+              {currentTrack.artist} • {currentTrack.album}
+            </p>
+          </div>
+        </div>
+
+        {/* Right: Actions */}
+        <div className="flex items-center gap-1">
+          <button
+            onClick={(e) => { e.stopPropagation(); onLikeToggle(); }}
+            className={cn(
+              "p-2.5 rounded-full hover:bg-white/[0.1] transition-all duration-200 active:scale-95",
+              isLiked && "text-primary"
+            )}
+            aria-label={isLiked ? "Remove from liked songs" : "Add to liked songs"}
+          >
+            <Heart className={cn("w-5 h-5", isLiked && "fill-current")} />
+          </button>
+          <button 
+            onClick={onAddToPlaylist}
+            className="p-2.5 rounded-full hover:bg-white/[0.1] transition-all duration-200 active:scale-95"
+            aria-label="Add to playlist"
+          >
+            <Plus className="w-5 h-5 text-white/60 hover:text-white" />
+          </button>
+          
+          <div className="flex items-center gap-2 mx-3 px-3 py-1.5 rounded-full bg-white/[0.06]">
+            <Volume2 className="w-4 h-4 text-white/50" />
+            <Slider
+              value={[volume]}
+              onValueChange={onVolumeChange}
+              max={100}
+              step={1}
+              className="w-24"
+              aria-label="Volume"
+            />
+          </div>
+          
+          <button className="p-2.5 rounded-full hover:bg-white/[0.1] transition-all duration-200 active:scale-95" aria-label="Shuffle">
+            <Shuffle className="w-5 h-5 text-white/60 hover:text-white" />
+          </button>
+          <button className="p-2.5 rounded-full hover:bg-white/[0.1] transition-all duration-200 active:scale-95" aria-label="Repeat">
+            <Repeat className="w-5 h-5 text-white/60 hover:text-white" />
+          </button>
+          
+          {currentTrack.videoId && (
+            <>
+              <button 
+                onClick={onMiniPlayerClick}
+                className="p-2.5 rounded-full hover:bg-white/[0.1] transition-all duration-200 active:scale-95"
+                aria-label="Mini player"
+                title="Mini player"
+              >
+                <Minimize2 className="w-5 h-5 text-white/60 hover:text-white" />
+              </button>
+              <button 
+                onClick={onExpandClick}
+                className="p-2.5 rounded-full hover:bg-white/[0.1] transition-all duration-200 active:scale-95"
+                aria-label="Expand player"
+                title="Expand player"
+              >
+                <Maximize2 className="w-5 h-5 text-white/60 hover:text-white" />
+              </button>
+            </>
           )}
-          aria-label={isLiked ? "Remove from liked songs" : "Add to liked songs"}
-        >
-          <Heart className={cn("w-5 h-5", isLiked && "fill-current")} />
-        </button>
-        <button 
-          onClick={onAddToPlaylist}
-          className="p-2.5 rounded-full hover:bg-white/10 transition-all duration-200 active:scale-95"
-          aria-label="Add to playlist"
-        >
-          <Plus className="w-5 h-5 text-white/60 hover:text-white" />
-        </button>
-        
-        <div className="flex items-center gap-2 mx-3 px-3 py-1.5 rounded-full bg-white/5">
-          <Volume2 className="w-4 h-4 text-white/50" />
-          <Slider
-            value={[volume]}
-            onValueChange={onVolumeChange}
-            max={100}
-            step={1}
-            className="w-24"
-            aria-label="Volume"
-          />
         </div>
-        
-        <button className="p-2.5 rounded-full hover:bg-white/10 transition-all duration-200 active:scale-95" aria-label="Shuffle">
-          <Shuffle className="w-5 h-5 text-white/60 hover:text-white" />
-        </button>
-        <button className="p-2.5 rounded-full hover:bg-white/10 transition-all duration-200 active:scale-95" aria-label="Repeat">
-          <Repeat className="w-5 h-5 text-white/60 hover:text-white" />
-        </button>
-        
-        {currentTrack.videoId && (
-          <>
-            <button 
-              onClick={onMiniPlayerClick}
-              className="p-2.5 rounded-full hover:bg-white/10 transition-all duration-200 active:scale-95"
-              aria-label="Mini player"
-              title="Mini player"
-            >
-              <Minimize2 className="w-5 h-5 text-white/60 hover:text-white" />
-            </button>
-            <button 
-              onClick={onExpandClick}
-              className="p-2.5 rounded-full hover:bg-white/10 transition-all duration-200 active:scale-95"
-              aria-label="Expand player"
-              title="Expand player"
-            >
-              <Maximize2 className="w-5 h-5 text-white/60 hover:text-white" />
-            </button>
-          </>
-        )}
       </div>
     </div>
   );
