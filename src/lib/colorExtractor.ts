@@ -150,34 +150,40 @@ function getProxiedImageUrl(url: string): string {
 }
 
 /**
+ * Deep Sea default theme (Indigo + Purple gradient)
+ * Used when no track is playing or on first app launch
+ */
+export const DEEP_SEA_THEME: DynamicTheme = {
+  dominant: 'hsl(250, 60%, 30%)',
+  palette: [
+    'hsl(250, 60%, 30%)',
+    'hsl(270, 50%, 25%)',
+    'hsl(260, 55%, 35%)',
+    'hsl(280, 45%, 40%)',
+    'hsl(240, 50%, 20%)',
+  ],
+  rgbPalette: [
+    [64, 51, 122],   // Indigo
+    [82, 51, 96],    // Purple
+    [89, 64, 138],   // Light indigo
+    [122, 82, 147],  // Light purple
+    [41, 41, 82],    // Dark indigo
+  ],
+  vibrant: 'hsl(260, 65%, 55%)',
+  muted: 'hsl(270, 35%, 35%)',
+  darkVibrant: 'hsl(250, 55%, 22%)',
+  lightVibrant: 'hsl(280, 55%, 65%)',
+  luminance: 0.12,
+  textColor: 'white',
+  textSecondary: 'rgba(255, 255, 255, 0.6)',
+  accentGlow: 'rgba(120, 80, 200, 0.4)',
+};
+
+/**
  * Get fallback theme when extraction fails
  */
 function getFallbackTheme(): DynamicTheme {
-  return {
-    dominant: 'hsl(270, 30%, 25%)',
-    palette: [
-      'hsl(270, 30%, 25%)',
-      'hsl(260, 25%, 20%)',
-      'hsl(280, 35%, 30%)',
-      'hsl(250, 20%, 15%)',
-      'hsl(290, 40%, 35%)',
-    ],
-    rgbPalette: [
-      [64, 45, 82],
-      [51, 38, 64],
-      [77, 50, 99],
-      [38, 31, 46],
-      [99, 53, 125],
-    ],
-    vibrant: 'hsl(280, 50%, 50%)',
-    muted: 'hsl(270, 20%, 30%)',
-    darkVibrant: 'hsl(260, 40%, 20%)',
-    lightVibrant: 'hsl(290, 60%, 70%)',
-    luminance: 0.15,
-    textColor: 'white',
-    textSecondary: 'rgba(255, 255, 255, 0.6)',
-    accentGlow: 'rgba(180, 100, 200, 0.4)',
-  };
+  return DEEP_SEA_THEME;
 }
 
 /**

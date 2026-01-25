@@ -6,16 +6,20 @@ interface AlbumCardProps {
   subtitle: string;
   image: string;
   onClick: () => void;
+  accentColor?: string;
 }
 
-export function AlbumCard({ title, subtitle, image, onClick }: AlbumCardProps) {
+export function AlbumCard({ title, subtitle, image, onClick, accentColor }: AlbumCardProps) {
   return (
     <div
       onClick={onClick}
-      className="group cursor-pointer glass-card rounded-2xl p-3 animate-fade-in"
+      className="group cursor-pointer glass-card-premium rounded-[20px] p-3 animate-fade-in"
+      style={{
+        ['--card-accent' as string]: accentColor || 'rgba(255, 255, 255, 0.2)',
+      }}
     >
       {/* Album Art */}
-      <div className="relative aspect-square rounded-xl overflow-hidden mb-3">
+      <div className="relative aspect-square rounded-[16px] overflow-hidden mb-3">
         <img
           src={optimizeImageUrl(image, 160)}
           alt={title}

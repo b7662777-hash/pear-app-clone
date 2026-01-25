@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { usePlayer } from "@/contexts/PlayerContext";
 import { extractColors, generateGradientStyles, DynamicTheme } from "@/lib/colorExtractor";
 import { useContrastColor } from "@/hooks/useContrastColor";
+import { usePersistedAmbient, DEEP_SEA_THEME } from "@/hooks/usePersistedAmbient";
 
 function getHDThumbnail(thumbnail: string, videoId?: string): string {
   if (videoId) {
@@ -12,13 +13,16 @@ function getHDThumbnail(thumbnail: string, videoId?: string): string {
 
 export function AmbientBackground() {
   const { currentTrack } = usePlayer();
+  const { theme: persistedTheme, setTheme: setPersistedTheme, isDefault } = usePersistedAmbient();
   const [theme, setTheme] = useState<DynamicTheme | null>(null);
-  const [prevTheme, setPrevTheme] = useState<DynamicTheme | null>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [colorExtractionEnabled, setColorExtractionEnabled] = useState(true);
 
+  // Use current theme or persisted theme
+  const activeTheme = theme || persistedTheme;
+
   // Use contrast color hook for accessibility
-  useContrastColor(theme);
+  useContrastColor(activeTheme);
 
   // Check localStorage for color extraction preference
   useEffect(() => {
@@ -31,137 +35,131 @@ export function AmbientBackground() {
   // Extract colors when track changes with smooth transition
   useEffect(() => {
     if (!currentTrack || !colorExtractionEnabled) {
-      setTheme(null);
       return;
     }
 
     const hdImage = getHDThumbnail(currentTrack.image, currentTrack.videoId);
     
     extractColors(hdImage).then((extractedTheme) => {
-      // Save previous theme for transition
-      if (theme) {
-        setPrevTheme(theme);
-        setIsTransitioning(true);
-      }
-      
+      setIsTransitioning(true);
       setTheme(extractedTheme);
+      
+      // Persist the theme for future sessions
+      setPersistedTheme(extractedTheme, currentTrack.videoId);
       
       // End transition after animation completes
       setTimeout(() => {
         setIsTransitioning(false);
-        setPrevTheme(null);
       }, 2000);
     });
-  }, [currentTrack, colorExtractionEnabled]);
+  }, [currentTrack, colorExtractionEnabled, setPersistedTheme]);
 
-  // Generate gradient styles
+  // Generate gradient styles from active theme
   const gradients = useMemo(() => {
-    if (!theme) return null;
-    return generateGradientStyles(theme);
-  }, [theme]);
-
-  if (!currentTrack) return null;
-
-  const hdImage = getHDThumbnail(currentTrack.image, currentTrack.videoId);
+    return generateGradientStyles(activeTheme);
+  }, [activeTheme]);
 
   // Build multi-stop radial gradient from theme colors
-  const multiStopGradient = theme ? `
-    radial-gradient(ellipse 80% 60% at 15% 15%, ${theme.vibrant.replace(')', ', 0.45)')} 0%, transparent 55%),
-    radial-gradient(ellipse 70% 70% at 85% 85%, ${theme.darkVibrant.replace(')', ', 0.4)')} 0%, transparent 50%),
-    radial-gradient(ellipse 60% 50% at 50% 50%, ${theme.muted.replace(')', ', 0.3)')} 0%, transparent 45%),
-    radial-gradient(ellipse 50% 40% at 75% 25%, ${theme.lightVibrant.replace(')', ', 0.2)')} 0%, transparent 40%)
-  ` : '';
+  const multiStopGradient = useMemo(() => {
+    const t = activeTheme;
+    return `
+      radial-gradient(ellipse 90% 70% at 10% 10%, ${t.vibrant.replace(')', ', 0.5)')} 0%, transparent 60%),
+      radial-gradient(ellipse 80% 80% at 90% 90%, ${t.darkVibrant.replace(')', ', 0.45)')} 0%, transparent 55%),
+      radial-gradient(ellipse 70% 60% at 50% 50%, ${t.muted.replace(')', ', 0.35)')} 0%, transparent 50%),
+      radial-gradient(ellipse 60% 50% at 80% 20%, ${t.lightVibrant.replace(')', ', 0.25)')} 0%, transparent 45%),
+      radial-gradient(ellipse 50% 40% at 20% 80%, ${t.vibrant.replace(')', ', 0.2)')} 0%, transparent 40%)
+    `;
+  }, [activeTheme]);
+
+  // Get HD image for blur layers only if track is playing
+  const hdImage = currentTrack 
+    ? getHDThumbnail(currentTrack.image, currentTrack.videoId)
+    : null;
 
   return (
     <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
-      {/* Primary ambient layer - large blurred background */}
+      {/* Base color layer - always visible from persisted/default theme */}
       <div 
-        className="absolute inset-[-100px] transition-all duration-[2000ms] ease-[cubic-bezier(0.4,0,0.2,1)]"
+        className="absolute inset-[-150px] transition-all duration-[2000ms] ease-[cubic-bezier(0.4,0,0.2,1)]"
         style={{ 
-          backgroundImage: `url(${hdImage})`, 
-          backgroundSize: 'cover', 
-          backgroundPosition: 'center',
-          filter: 'blur(100px) saturate(1.8) brightness(0.6)',
-          transform: 'scale(1.3)',
+          background: `linear-gradient(135deg, ${activeTheme.darkVibrant} 0%, ${activeTheme.muted} 50%, ${activeTheme.vibrant} 100%)`,
+          filter: 'blur(120px) saturate(1.8) brightness(0.5)',
+          transform: 'scale(1.4)',
         }}
       />
       
-      {/* Secondary ambient layer - creates depth with animation */}
-      <div 
-        className="absolute inset-[-150px] animate-ambient-breathe transition-all duration-[2000ms] ease-[cubic-bezier(0.4,0,0.2,1)]"
-        style={{ 
-          backgroundImage: `url(${hdImage})`, 
-          backgroundSize: 'cover', 
-          backgroundPosition: 'center',
-          filter: 'blur(140px) saturate(2) brightness(0.4)',
-          transform: 'scale(1.5)',
-          opacity: 0.6,
-        }}
-      />
-      
-      {/* Multi-stop radial gradient canvas from extracted colors */}
-      {theme && (
+      {/* Primary image blur layer - only when track is playing */}
+      {hdImage && (
         <div 
-          className="absolute inset-0 transition-all duration-[2000ms] ease-[cubic-bezier(0.4,0,0.2,1)] animate-gradient-shift"
-          style={{ 
-            background: multiStopGradient,
-          }}
-        />
-      )}
-      
-      {/* Primary color gradient layer with pulse */}
-      {gradients && (
-        <>
-          <div 
-            className="absolute inset-0 transition-all duration-[2000ms] ease-[cubic-bezier(0.4,0,0.2,1)] animate-ambient-pulse"
-            style={{ 
-              background: gradients.primaryGradient,
-            }}
-          />
-          
-          {/* Secondary color gradient layer */}
-          <div 
-            className="absolute inset-0 transition-all duration-[2000ms] ease-[cubic-bezier(0.4,0,0.2,1)] animate-ambient-drift"
-            style={{ 
-              background: gradients.secondaryGradient,
-            }}
-          />
-          
-          {/* Accent glow layer */}
-          <div 
-            className="absolute inset-0 transition-all duration-[2000ms] ease-[cubic-bezier(0.4,0,0.2,1)]"
-            style={{ 
-              background: gradients.accentGlow,
-            }}
-          />
-        </>
-      )}
-      
-      {/* Fallback when ColorThief is disabled */}
-      {!gradients && (
-        <div 
-          className="absolute inset-0 transition-all duration-[2000ms] ease-[cubic-bezier(0.4,0,0.2,1)]"
+          className="absolute inset-[-120px] transition-all duration-[2000ms] ease-[cubic-bezier(0.4,0,0.2,1)] animate-ambient-drift"
           style={{ 
             backgroundImage: `url(${hdImage})`, 
             backgroundSize: 'cover', 
             backgroundPosition: 'center',
-            filter: 'blur(200px) saturate(2) brightness(0.4)',
-            opacity: 0.4,
+            filter: 'blur(120px) saturate(1.8) brightness(0.55)',
+            transform: 'scale(1.35)',
           }}
         />
       )}
       
+      {/* Secondary depth layer with breathing animation */}
+      {hdImage && (
+        <div 
+          className="absolute inset-[-180px] animate-ambient-breathe transition-all duration-[2000ms] ease-[cubic-bezier(0.4,0,0.2,1)]"
+          style={{ 
+            backgroundImage: `url(${hdImage})`, 
+            backgroundSize: 'cover', 
+            backgroundPosition: 'center',
+            filter: 'blur(150px) saturate(2) brightness(0.4)',
+            transform: 'scale(1.6)',
+            opacity: 0.5,
+          }}
+        />
+      )}
+      
+      {/* Multi-stop radial gradient canvas from extracted colors */}
+      <div 
+        className="absolute inset-0 transition-all duration-[2000ms] ease-[cubic-bezier(0.4,0,0.2,1)] animate-gradient-shift"
+        style={{ 
+          background: multiStopGradient,
+        }}
+      />
+      
+      {/* Primary color gradient layer with pulse */}
+      <div 
+        className="absolute inset-0 transition-all duration-[2000ms] ease-[cubic-bezier(0.4,0,0.2,1)] animate-ambient-pulse"
+        style={{ 
+          background: gradients.primaryGradient,
+        }}
+      />
+      
+      {/* Secondary color gradient layer with drift */}
+      <div 
+        className="absolute inset-0 transition-all duration-[2000ms] ease-[cubic-bezier(0.4,0,0.2,1)] animate-ambient-drift-reverse"
+        style={{ 
+          background: gradients.secondaryGradient,
+        }}
+      />
+      
+      {/* Accent glow layer */}
+      <div 
+        className="absolute inset-0 transition-all duration-[2000ms] ease-[cubic-bezier(0.4,0,0.2,1)]"
+        style={{ 
+          background: gradients.accentGlow,
+        }}
+      />
+      
       {/* Dark gradient overlay for content readability - enhanced */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/25 to-black/70" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/30 to-black/75" />
       
       {/* Subtle vignette effect */}
       <div className="absolute inset-0" style={{ 
-        background: 'radial-gradient(ellipse at center, transparent 0%, rgba(0,0,0,0.5) 100%)' 
+        background: 'radial-gradient(ellipse at center, transparent 0%, rgba(0,0,0,0.55) 100%)' 
       }} />
       
       {/* Inner shadow for depth */}
       <div className="absolute inset-0" style={{
-        boxShadow: 'inset 0 0 200px 50px rgba(0,0,0,0.3)'
+        boxShadow: 'inset 0 0 250px 80px rgba(0,0,0,0.35)'
       }} />
     </div>
   );
