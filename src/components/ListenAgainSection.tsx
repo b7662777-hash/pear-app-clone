@@ -50,40 +50,43 @@ export function ListenAgainSection({ tracks, featuredTrack, onTrackClick }: List
           <img 
             src={optimizeImageUrl(featuredTrack.image, 48)} 
             alt="" 
-            className="w-12 h-12 rounded-full object-cover"
+            className="w-12 h-12 rounded-full object-cover ring-2 ring-white/10"
           />
         )}
         <div>
-          <span className="text-xs text-muted-foreground uppercase tracking-wider">BLUE SUN</span>
+          <span className="text-xs text-white/40 uppercase tracking-wider font-medium">BLUE SUN</span>
           <h2 className="text-2xl font-bold text-foreground">Listen again</h2>
         </div>
       </div>
 
       <div className="flex gap-6">
-        {/* Track grid */}
-        <div className="flex-1 grid grid-cols-2 md:grid-cols-4 gap-4">
+        {/* Track grid with stagger animation */}
+        <div className="flex-1 grid grid-cols-2 md:grid-cols-4 gap-5 stagger-children">
           {displayTracks.map((track) => (
             <div
               key={track.id}
               onClick={() => onTrackClick(track)}
-              className="group relative cursor-pointer"
+              className="group relative cursor-pointer glass-card rounded-2xl p-3"
             >
-              <div className="relative aspect-square rounded-md overflow-hidden mb-2">
+              <div className="relative aspect-square rounded-xl overflow-hidden mb-3">
                 <img
                   src={optimizeImageUrl(track.image, 160)}
                   alt={track.title}
-                  className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                   loading="lazy"
                 />
                 {/* Play button overlay */}
-                <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button className="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center shadow-lg" aria-label={`Play ${track.title}`}>
+                <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                  <button 
+                    className="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-lg play-glow"
+                    aria-label={`Play ${track.title}`}
+                  >
                     <Play className="w-5 h-5 text-black fill-black ml-0.5" />
                   </button>
                 </div>
               </div>
-              <h3 className="text-sm font-medium text-foreground truncate">{track.title}</h3>
-              <p className="text-xs text-muted-foreground truncate">{track.artist}</p>
+              <h3 className="text-sm font-semibold text-foreground truncate">{track.title}</h3>
+              <p className="text-xs text-white/50 truncate">{track.artist}</p>
             </div>
           ))}
         </div>
@@ -94,17 +97,20 @@ export function ListenAgainSection({ tracks, featuredTrack, onTrackClick }: List
             onClick={() => onTrackClick(featuredTrack)}
             className="hidden lg:block w-[200px] flex-shrink-0 group cursor-pointer"
           >
-            <div className="relative aspect-square rounded-md overflow-hidden shadow-lg">
+            <div className="relative aspect-square rounded-2xl overflow-hidden shadow-elevated ring-1 ring-white/10 group-hover:ring-white/20 transition-all">
               <img
                 src={optimizeImageUrl(featuredTrack.image, 200)}
                 alt={featuredTrack.title}
-                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                 loading="eager"
                 fetchPriority="high"
               />
-              <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button className="w-14 h-14 rounded-full bg-white/90 flex items-center justify-center shadow-lg" aria-label={`Play ${featuredTrack.title}`}>
-                  <Play className="w-6 h-6 text-black fill-black ml-0.5" />
+              <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                <button 
+                  className="w-16 h-16 rounded-full bg-white flex items-center justify-center shadow-lg play-glow" 
+                  aria-label={`Play ${featuredTrack.title}`}
+                >
+                  <Play className="w-7 h-7 text-black fill-black ml-1" />
                 </button>
               </div>
             </div>

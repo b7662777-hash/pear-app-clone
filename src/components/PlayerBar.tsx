@@ -7,12 +7,8 @@ import {
   Repeat,
   Volume2,
   Maximize2,
-  ListMusic,
   Heart,
-  Mic2,
   Loader2,
-  Sparkles,
-  Download,
   Plus,
   Minimize2
 } from "lucide-react";
@@ -71,14 +67,8 @@ export function PlayerBar({
   onVolumeChange,
   isLiked,
   onLikeToggle,
-  onLyricsToggle,
-  showLyrics,
   isBuffering,
   onExpandClick,
-  onAmbientModeClick,
-  onDownloadClick,
-  isDownloading,
-  downloadProgress = 0,
   onAddToPlaylist,
   onMiniPlayerClick,
 }: PlayerBarProps) {
@@ -87,49 +77,58 @@ export function PlayerBar({
   const currentTime = (progress / 100) * currentTrack.duration;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 h-[72px] bg-black/30 backdrop-blur-xl border-t border-white/5 flex items-center px-4 z-50">
+    <div className="fixed bottom-0 left-0 right-0 h-[80px] glass-dark border-t border-white/[0.06] flex items-center px-4 z-50 shadow-elevated">
       {/* Left: Transport controls */}
       <div className="flex items-center gap-1">
-        <button onClick={onPrevious} className="p-2.5 rounded-full hover:bg-accent transition-colors" aria-label="Previous track">
+        <button 
+          onClick={onPrevious} 
+          className="p-2.5 rounded-full hover:bg-white/10 transition-all duration-200 active:scale-95" 
+          aria-label="Previous track"
+        >
           <SkipBack className="w-5 h-5 text-foreground fill-current" />
         </button>
         <button
           onClick={onPlayPause}
-          className="p-2.5 rounded-full hover:bg-accent transition-colors"
+          className="p-3 rounded-full bg-white text-black hover:scale-105 active:scale-95 transition-all duration-200 play-glow"
           aria-label={isBuffering ? "Loading" : isPlaying ? "Pause" : "Play"}
         >
           {isBuffering ? (
-            <Loader2 className="w-6 h-6 text-foreground animate-spin" />
+            <Loader2 className="w-5 h-5 animate-spin" />
           ) : isPlaying ? (
-            <Pause className="w-6 h-6 text-foreground fill-current" />
+            <Pause className="w-5 h-5 fill-current" />
           ) : (
-            <Play className="w-6 h-6 text-foreground fill-current ml-0.5" />
+            <Play className="w-5 h-5 fill-current ml-0.5" />
           )}
         </button>
-        <button onClick={onNext} className="p-2.5 rounded-full hover:bg-accent transition-colors" aria-label="Next track">
+        <button 
+          onClick={onNext} 
+          className="p-2.5 rounded-full hover:bg-white/10 transition-all duration-200 active:scale-95" 
+          aria-label="Next track"
+        >
           <SkipForward className="w-5 h-5 text-foreground fill-current" />
         </button>
-        <span className="text-xs text-muted-foreground ml-2 min-w-[80px]">
+        <span className="text-xs text-white/50 ml-3 min-w-[80px] font-medium">
           {formatTime(currentTime)} / {formatTime(currentTrack.duration)}
         </span>
       </div>
-      {/* Center: Track info with progress */}
+
+      {/* Center: Track info */}
       <div 
-        className="flex-1 flex items-center justify-center gap-4 cursor-pointer group"
+        className="flex-1 flex items-center justify-center gap-4 cursor-pointer group px-8"
         onClick={onExpandClick}
       >
-        <div className="w-12 h-12 rounded overflow-hidden flex-shrink-0">
+        <div className="w-14 h-14 rounded-lg overflow-hidden flex-shrink-0 shadow-lg ring-1 ring-white/10 group-hover:ring-white/20 transition-all">
           <img
             src={optimizeImageUrl(currentTrack.image, 120)}
             alt={currentTrack.title}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
         </div>
         <div className="text-center min-w-0 max-w-md">
-          <h3 className="text-sm font-medium text-foreground truncate">
+          <h3 className="text-sm font-semibold text-foreground truncate group-hover:text-white transition-colors">
             {currentTrack.title}
           </h3>
-          <p className="text-xs text-muted-foreground truncate">
+          <p className="text-xs text-white/50 truncate">
             {currentTrack.artist} • {currentTrack.album}
           </p>
         </div>
@@ -140,26 +139,23 @@ export function PlayerBar({
         <button
           onClick={(e) => { e.stopPropagation(); onLikeToggle(); }}
           className={cn(
-            "p-2.5 rounded-full hover:bg-accent transition-colors",
-            isLiked && "text-foreground"
+            "p-2.5 rounded-full hover:bg-white/10 transition-all duration-200 active:scale-95",
+            isLiked && "text-primary"
           )}
           aria-label={isLiked ? "Remove from liked songs" : "Add to liked songs"}
         >
-          {isLiked ? (
-            <Heart className="w-5 h-5 fill-current" />
-          ) : (
-            <Heart className="w-5 h-5 text-muted-foreground" />
-          )}
+          <Heart className={cn("w-5 h-5", isLiked && "fill-current")} />
         </button>
         <button 
           onClick={onAddToPlaylist}
-          className="p-2.5 rounded-full hover:bg-accent transition-colors"
+          className="p-2.5 rounded-full hover:bg-white/10 transition-all duration-200 active:scale-95"
           aria-label="Add to playlist"
         >
-          <Plus className="w-5 h-5 text-muted-foreground" />
+          <Plus className="w-5 h-5 text-white/60 hover:text-white" />
         </button>
-        <div className="flex items-center gap-1 mx-2">
-          <Volume2 className="w-5 h-5 text-muted-foreground" />
+        
+        <div className="flex items-center gap-2 mx-3 px-3 py-1.5 rounded-full bg-white/5">
+          <Volume2 className="w-4 h-4 text-white/50" />
           <Slider
             value={[volume]}
             onValueChange={onVolumeChange}
@@ -169,29 +165,31 @@ export function PlayerBar({
             aria-label="Volume"
           />
         </div>
-        <button className="p-2.5 rounded-full hover:bg-accent transition-colors" aria-label="Shuffle">
-          <Shuffle className="w-5 h-5 text-muted-foreground" />
+        
+        <button className="p-2.5 rounded-full hover:bg-white/10 transition-all duration-200 active:scale-95" aria-label="Shuffle">
+          <Shuffle className="w-5 h-5 text-white/60 hover:text-white" />
         </button>
-        <button className="p-2.5 rounded-full hover:bg-accent transition-colors" aria-label="Repeat">
-          <Repeat className="w-5 h-5 text-muted-foreground" />
+        <button className="p-2.5 rounded-full hover:bg-white/10 transition-all duration-200 active:scale-95" aria-label="Repeat">
+          <Repeat className="w-5 h-5 text-white/60 hover:text-white" />
         </button>
+        
         {currentTrack.videoId && (
           <>
             <button 
               onClick={onMiniPlayerClick}
-              className="p-2.5 rounded-full hover:bg-accent transition-colors"
+              className="p-2.5 rounded-full hover:bg-white/10 transition-all duration-200 active:scale-95"
               aria-label="Mini player"
               title="Mini player"
             >
-              <Minimize2 className="w-5 h-5 text-muted-foreground" />
+              <Minimize2 className="w-5 h-5 text-white/60 hover:text-white" />
             </button>
             <button 
               onClick={onExpandClick}
-              className="p-2.5 rounded-full hover:bg-accent transition-colors"
+              className="p-2.5 rounded-full hover:bg-white/10 transition-all duration-200 active:scale-95"
               aria-label="Expand player"
               title="Expand player"
             >
-              <Maximize2 className="w-5 h-5 text-muted-foreground" />
+              <Maximize2 className="w-5 h-5 text-white/60 hover:text-white" />
             </button>
           </>
         )}

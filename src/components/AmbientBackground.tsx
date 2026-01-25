@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { usePlayer } from "@/contexts/PlayerContext";
-import { extractColors, generateGradientStyles, ColorPalette } from "@/lib/colorExtractor";
+import { extractColors, generateGradientStyles, DynamicTheme } from "@/lib/colorExtractor";
+import { useContrastColor } from "@/hooks/useContrastColor";
 
 function getHDThumbnail(thumbnail: string, videoId?: string): string {
   if (videoId) {
@@ -11,9 +12,13 @@ function getHDThumbnail(thumbnail: string, videoId?: string): string {
 
 export function AmbientBackground() {
   const { currentTrack } = usePlayer();
-  const [palette, setPalette] = useState<ColorPalette | null>(null);
-  const [gradients, setGradients] = useState<ReturnType<typeof generateGradientStyles> | null>(null);
+  const [theme, setTheme] = useState<DynamicTheme | null>(null);
+  const [prevTheme, setPrevTheme] = useState<DynamicTheme | null>(null);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const [colorExtractionEnabled, setColorExtractionEnabled] = useState(true);
+
+  // Use contrast color hook for accessibility
+  useContrastColor(theme);
 
   // Check localStorage for color extraction preference
   useEffect(() => {
@@ -23,59 +28,92 @@ export function AmbientBackground() {
     }
   }, []);
 
-  // Extract colors when track changes
+  // Extract colors when track changes with smooth transition
   useEffect(() => {
     if (!currentTrack || !colorExtractionEnabled) {
-      setPalette(null);
-      setGradients(null);
+      setTheme(null);
       return;
     }
 
     const hdImage = getHDThumbnail(currentTrack.image, currentTrack.videoId);
     
-    extractColors(hdImage).then((extractedPalette) => {
-      setPalette(extractedPalette);
-      setGradients(generateGradientStyles(extractedPalette));
+    extractColors(hdImage).then((extractedTheme) => {
+      // Save previous theme for transition
+      if (theme) {
+        setPrevTheme(theme);
+        setIsTransitioning(true);
+      }
+      
+      setTheme(extractedTheme);
+      
+      // End transition after animation completes
+      setTimeout(() => {
+        setIsTransitioning(false);
+        setPrevTheme(null);
+      }, 2000);
     });
   }, [currentTrack, colorExtractionEnabled]);
+
+  // Generate gradient styles
+  const gradients = useMemo(() => {
+    if (!theme) return null;
+    return generateGradientStyles(theme);
+  }, [theme]);
 
   if (!currentTrack) return null;
 
   const hdImage = getHDThumbnail(currentTrack.image, currentTrack.videoId);
 
+  // Build multi-stop radial gradient from theme colors
+  const multiStopGradient = theme ? `
+    radial-gradient(ellipse 80% 60% at 15% 15%, ${theme.vibrant.replace(')', ', 0.45)')} 0%, transparent 55%),
+    radial-gradient(ellipse 70% 70% at 85% 85%, ${theme.darkVibrant.replace(')', ', 0.4)')} 0%, transparent 50%),
+    radial-gradient(ellipse 60% 50% at 50% 50%, ${theme.muted.replace(')', ', 0.3)')} 0%, transparent 45%),
+    radial-gradient(ellipse 50% 40% at 75% 25%, ${theme.lightVibrant.replace(')', ', 0.2)')} 0%, transparent 40%)
+  ` : '';
+
   return (
     <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
       {/* Primary ambient layer - large blurred background */}
       <div 
-        className="absolute inset-[-100px] animate-ambient-drift transition-all duration-1000"
+        className="absolute inset-[-100px] transition-all duration-[2000ms] ease-[cubic-bezier(0.4,0,0.2,1)]"
         style={{ 
           backgroundImage: `url(${hdImage})`, 
           backgroundSize: 'cover', 
           backgroundPosition: 'center',
-          filter: 'blur(80px) saturate(1.5) brightness(0.7)',
+          filter: 'blur(100px) saturate(1.8) brightness(0.6)',
           transform: 'scale(1.3)',
         }}
       />
       
-      {/* Secondary ambient layer - creates depth */}
+      {/* Secondary ambient layer - creates depth with animation */}
       <div 
-        className="absolute inset-[-150px] animate-ambient-drift-reverse transition-all duration-1000"
+        className="absolute inset-[-150px] animate-ambient-breathe transition-all duration-[2000ms] ease-[cubic-bezier(0.4,0,0.2,1)]"
         style={{ 
           backgroundImage: `url(${hdImage})`, 
           backgroundSize: 'cover', 
           backgroundPosition: 'center',
-          filter: 'blur(120px) saturate(1.8) brightness(0.5)',
+          filter: 'blur(140px) saturate(2) brightness(0.4)',
           transform: 'scale(1.5)',
           opacity: 0.6,
         }}
       />
       
-      {/* ColorThief extracted color gradients */}
+      {/* Multi-stop radial gradient canvas from extracted colors */}
+      {theme && (
+        <div 
+          className="absolute inset-0 transition-all duration-[2000ms] ease-[cubic-bezier(0.4,0,0.2,1)] animate-gradient-shift"
+          style={{ 
+            background: multiStopGradient,
+          }}
+        />
+      )}
+      
+      {/* Primary color gradient layer with pulse */}
       {gradients && (
         <>
-          {/* Primary color gradient layer */}
           <div 
-            className="absolute inset-0 transition-all duration-1000 animate-ambient-pulse"
+            className="absolute inset-0 transition-all duration-[2000ms] ease-[cubic-bezier(0.4,0,0.2,1)] animate-ambient-pulse"
             style={{ 
               background: gradients.primaryGradient,
             }}
@@ -83,7 +121,7 @@ export function AmbientBackground() {
           
           {/* Secondary color gradient layer */}
           <div 
-            className="absolute inset-0 transition-all duration-1000 animate-ambient-drift"
+            className="absolute inset-0 transition-all duration-[2000ms] ease-[cubic-bezier(0.4,0,0.2,1)] animate-ambient-drift"
             style={{ 
               background: gradients.secondaryGradient,
             }}
@@ -91,7 +129,7 @@ export function AmbientBackground() {
           
           {/* Accent glow layer */}
           <div 
-            className="absolute inset-0 transition-all duration-1000"
+            className="absolute inset-0 transition-all duration-[2000ms] ease-[cubic-bezier(0.4,0,0.2,1)]"
             style={{ 
               background: gradients.accentGlow,
             }}
@@ -99,10 +137,10 @@ export function AmbientBackground() {
         </>
       )}
       
-      {/* Color accent glow layer (fallback when ColorThief is disabled) */}
+      {/* Fallback when ColorThief is disabled */}
       {!gradients && (
         <div 
-          className="absolute inset-0 transition-all duration-1000"
+          className="absolute inset-0 transition-all duration-[2000ms] ease-[cubic-bezier(0.4,0,0.2,1)]"
           style={{ 
             backgroundImage: `url(${hdImage})`, 
             backgroundSize: 'cover', 
@@ -113,12 +151,17 @@ export function AmbientBackground() {
         />
       )}
       
-      {/* Dark gradient overlay for content readability */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/60" />
+      {/* Dark gradient overlay for content readability - enhanced */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/25 to-black/70" />
       
       {/* Subtle vignette effect */}
       <div className="absolute inset-0" style={{ 
-        background: 'radial-gradient(ellipse at center, transparent 0%, rgba(0,0,0,0.4) 100%)' 
+        background: 'radial-gradient(ellipse at center, transparent 0%, rgba(0,0,0,0.5) 100%)' 
+      }} />
+      
+      {/* Inner shadow for depth */}
+      <div className="absolute inset-0" style={{
+        boxShadow: 'inset 0 0 200px 50px rgba(0,0,0,0.3)'
       }} />
     </div>
   );
