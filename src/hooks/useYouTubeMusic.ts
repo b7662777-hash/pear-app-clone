@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { getCachedLyrics, setCachedLyrics } from "@/hooks/useLyricsCache";
@@ -44,7 +45,24 @@ export function useYouTubeMusic() {
   const [isLoadingRecommended, setIsLoadingRecommended] = useState(false);
   const [lyricsData, setLyricsData] = useState<LyricsData | null>(null);
   const [isLoadingLyrics, setIsLoadingLyrics] = useState(false);
+  const [requiresAuth, setRequiresAuth] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
+
+  // Helper to handle auth errors
+  const handleAuthError = useCallback((data: any, error: any) => {
+    if (error?.message?.includes('401') || data?.requiresAuth) {
+      setRequiresAuth(true);
+      toast({
+        title: "Login required",
+        description: "Please log in to search and play music.",
+        variant: "destructive",
+      });
+      navigate('/auth');
+      return true;
+    }
+    return false;
+  }, [navigate, toast]);
 
   const searchTracks = useCallback(async (query: string) => {
     if (!query.trim()) {
@@ -53,12 +71,17 @@ export function useYouTubeMusic() {
     }
 
     setIsSearching(true);
+    setRequiresAuth(false);
     try {
       console.log("Searching for:", query);
       
       const { data, error } = await supabase.functions.invoke("youtube-music", {
         body: { action: "search", query },
       });
+
+      if (handleAuthError(data, error)) {
+        return [];
+      }
 
       if (error) {
         console.error("Search error:", error);
@@ -92,7 +115,7 @@ export function useYouTubeMusic() {
     } finally {
       setIsSearching(false);
     }
-  }, [toast]);
+  }, [toast, handleAuthError]);
 
   const fetchFromProvider = useCallback(async (
     title: string,
@@ -228,6 +251,7 @@ export function useYouTubeMusic() {
 
   const fetchRelatedTracks = useCallback(async (title: string, artist: string) => {
     setIsLoadingRelated(true);
+    setRequiresAuth(false);
     try {
       // Search for related tracks based on artist name
       const query = `${artist} songs`;
@@ -236,6 +260,10 @@ export function useYouTubeMusic() {
       const { data, error } = await supabase.functions.invoke("youtube-music", {
         body: { action: "search", query },
       });
+
+      if (handleAuthError(data, error)) {
+        return [];
+      }
 
       if (error) {
         console.error("Related tracks error:", error);
@@ -258,7 +286,7 @@ export function useYouTubeMusic() {
     } finally {
       setIsLoadingRelated(false);
     }
-  }, []);
+  }, [handleAuthError]);
 
   const clearRelated = useCallback(() => {
     setRelatedTracks([]);
@@ -266,6 +294,7 @@ export function useYouTubeMusic() {
 
   const fetchRecommendedTracks = useCallback(async () => {
     setIsLoadingRecommended(true);
+    setRequiresAuth(false);
     try {
       // Search for trending/popular music
       const queries = ["trending songs 2025", "popular music", "top hits"];
@@ -276,6 +305,10 @@ export function useYouTubeMusic() {
       const { data, error } = await supabase.functions.invoke("youtube-music", {
         body: { action: "search", query: randomQuery },
       });
+
+      if (handleAuthError(data, error)) {
+        return [];
+      }
 
       if (error) {
         console.error("Recommended tracks error:", error);
@@ -298,7 +331,7 @@ export function useYouTubeMusic() {
     } finally {
       setIsLoadingRecommended(false);
     }
-  }, []);
+  }, [handleAuthError]);
 
   // Backward compatibility getter
   const lyrics = lyricsData?.plainLyrics || null;
@@ -321,5 +354,6 @@ export function useYouTubeMusic() {
     recommendedTracks,
     isLoadingRecommended,
     fetchRecommendedTracks,
+    requiresAuth,
   };
 }
