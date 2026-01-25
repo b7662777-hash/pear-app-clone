@@ -6,13 +6,13 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Strict authentication helper - requires valid JWT token
-async function authenticate(req: Request): Promise<{ userId: string; error?: string }> {
+// Optional authentication helper - allows guest users with IP-based rate limiting
+async function optionalAuthenticate(req: Request): Promise<{ userId: string | null; isAuthenticated: boolean }> {
   const authHeader = req.headers.get('Authorization');
   
-  // Require auth header
+  // No auth header or just anon key - guest user
   if (!authHeader?.startsWith('Bearer ')) {
-    return { userId: '', error: 'Authentication required. Please log in to use this feature.' };
+    return { userId: null, isAuthenticated: false };
   }
 
   try {
@@ -23,17 +23,26 @@ async function authenticate(req: Request): Promise<{ userId: string; error?: str
     );
 
     const token = authHeader.replace('Bearer ', '');
+    
+    // Check if it's just the anon key (not a user JWT)
+    const anonKey = Deno.env.get('SUPABASE_ANON_KEY') ?? '';
+    if (token === anonKey) {
+      // This is just the anon key, not a user token - treat as guest
+      return { userId: null, isAuthenticated: false };
+    }
+    
     const { data, error } = await supabaseClient.auth.getClaims(token);
     
     if (error || !data?.claims) {
-      console.log('Auth token invalid');
-      return { userId: '', error: 'Invalid or expired token. Please log in again.' };
+      // Invalid token - treat as guest user (don't reject)
+      console.log('Auth token invalid, treating as guest');
+      return { userId: null, isAuthenticated: false };
     }
 
-    return { userId: data.claims.sub as string };
+    return { userId: data.claims.sub as string, isAuthenticated: true };
   } catch (e) {
-    console.error('Authentication error:', e);
-    return { userId: '', error: 'Authentication failed. Please try again.' };
+    console.error('Authentication error, treating as guest:', e);
+    return { userId: null, isAuthenticated: false };
   }
 }
 
@@ -731,24 +740,21 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  // Require authentication
-  const { userId, error: authError } = await authenticate(req);
-  if (authError || !userId) {
-    console.log('Unauthenticated request rejected');
-    return new Response(JSON.stringify({ 
-      success: false, 
-      error: authError || 'Authentication required',
-      requiresAuth: true,
-    }), {
-      status: 401,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
-  }
+  // Optional authentication - allows guest users
+  const { userId, isAuthenticated } = await optionalAuthenticate(req);
   
-  console.log(`Authenticated request from user: ${userId.slice(0, 8)}...`);
+  // Get client identifier for rate limiting (user ID for auth users, IP for guests)
+  const clientIp = getClientIp(req);
+  const rateLimitKey = isAuthenticated && userId ? userId : clientIp;
+  
+  if (isAuthenticated) {
+    console.log(`Authenticated request from user: ${userId?.slice(0, 8)}...`);
+  } else {
+    console.log(`Guest request from IP: ${clientIp.slice(0, 12)}...`);
+  }
 
-  // Apply rate limiting per user
-  const rateLimit = checkRateLimit(userId);
+  // Apply rate limiting
+  const rateLimit = checkRateLimit(rateLimitKey);
   
   // Add rate limit headers to all responses
   const rateLimitHeaders = {
@@ -758,7 +764,7 @@ serve(async (req) => {
   };
   
   if (!rateLimit.allowed) {
-    console.warn(`Rate limit exceeded for user: ${userId.slice(0, 8)}...`);
+    console.warn(`Rate limit exceeded for: ${rateLimitKey.slice(0, 12)}...`);
     return new Response(JSON.stringify({ 
       success: false, 
       error: 'Too many requests. Please try again later.',
