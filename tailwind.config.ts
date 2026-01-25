@@ -14,7 +14,12 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['Roboto', 'sans-serif'],
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+      },
+      fontSize: {
+        'display': ['2rem', { lineHeight: '1.2', fontWeight: '700' }],
+        'title': ['1.5rem', { lineHeight: '1.3', fontWeight: '600' }],
+        'subtitle': ['1rem', { lineHeight: '1.4', fontWeight: '500' }],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -67,6 +72,20 @@ export default {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+        xl: "1rem",
+        "2xl": "1.25rem",
+      },
+      boxShadow: {
+        'glass': '0 4px 30px rgba(0, 0, 0, 0.3)',
+        'glass-lg': '0 8px 40px rgba(0, 0, 0, 0.4)',
+        'elevated': '0 20px 50px rgba(0, 0, 0, 0.5)',
+        'glow': '0 0 20px rgba(255, 255, 255, 0.2)',
+        'glow-lg': '0 0 40px rgba(255, 255, 255, 0.3)',
+        'inner-glow': 'inset 0 1px 1px rgba(255, 255, 255, 0.1)',
+      },
+      backdropBlur: {
+        'glass': '25px',
+        'heavy': '40px',
       },
       keyframes: {
         "accordion-down": {
@@ -97,6 +116,14 @@ export default {
           "0%, 100%": { height: "4px" },
           "50%": { height: "16px" },
         },
+        "float": {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-5px)" },
+        },
+        "shimmer": {
+          "0%": { backgroundPosition: "-200% 0" },
+          "100%": { backgroundPosition: "200% 0" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -106,6 +133,14 @@ export default {
         "fade-in": "fade-in 0.3s ease-out",
         "scale-in": "scale-in 0.2s ease-out",
         "equalizer": "equalizer 0.8s ease-in-out infinite",
+        "float": "float 3s ease-in-out infinite",
+        "shimmer": "shimmer 2s linear infinite",
+      },
+      transitionTimingFunction: {
+        'smooth': 'cubic-bezier(0.4, 0, 0.2, 1)',
+      },
+      transitionDuration: {
+        '2000': '2000ms',
       },
     },
   },

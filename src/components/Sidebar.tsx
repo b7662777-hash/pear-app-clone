@@ -1,4 +1,4 @@
-import { Home, Compass, Library, Youtube, Plus, Heart, Clock, ListMusic, User, Sparkles, Settings } from "lucide-react";
+import { Home, Compass, Library, Youtube, Plus, Heart, Clock, ListMusic, User, Settings } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
@@ -21,7 +21,7 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, profile, loading } = useAuth();
-  const { playlists, likedSongs } = usePlaylists();
+  const { playlists } = usePlaylists();
 
   const getInitials = () => {
     if (profile?.display_name) {
@@ -46,7 +46,6 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
       onTabChange('library');
       navigate('/library');
     } else {
-      // Handle custom playlist
       onTabChange('library');
       navigate('/library');
     }
@@ -59,56 +58,58 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
   };
 
   return (
-    <aside className="w-60 h-full bg-black/10 backdrop-blur-xl flex flex-col border-r border-white/5">
+    <aside className="w-60 h-full glass flex flex-col border-r border-white/[0.08]">
       {/* Logo */}
       <div className="p-5 flex items-center gap-3">
-        <div className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center">
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-glow">
           <Youtube className="w-5 h-5 text-white" />
         </div>
-        <span className="text-lg font-medium text-foreground">Music</span>
+        <span className="text-lg font-semibold text-foreground">Music</span>
       </div>
 
       {/* Main Navigation */}
-      <nav className="px-2 space-y-0.5">
+      <nav className="px-3 space-y-1">
         {mainNavItems.map(item => (
           <button 
             key={item.id} 
             onClick={() => item.path ? handleNavClick(item as typeof mainNavItems[0]) : null} 
             className={cn(
-              "nav-item w-full transition-all duration-200 rounded-full",
-              isActive(item.id) && "active bg-accent",
+              "w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200",
+              isActive(item.id) 
+                ? "bg-white/10 text-white shadow-inner-glow" 
+                : "text-white/60 hover:text-white hover:bg-white/5",
               !item.path && "opacity-80"
             )}
           >
             <item.icon className="w-5 h-5" />
-            <span className="font-medium text-sm">{item.label}</span>
+            <span>{item.label}</span>
           </button>
         ))}
       </nav>
 
       {/* Divider */}
-      <div className="my-4 mx-4 h-px bg-border" />
+      <div className="my-4 mx-4 h-px bg-white/[0.08]" />
 
       {/* New Playlist Button */}
       <div className="px-3 mb-4">
-        <button className="w-full flex items-center gap-3 px-4 py-2.5 rounded-full border border-border/50 text-sm font-medium text-foreground hover:bg-accent transition-colors">
+        <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl glass-light text-sm font-medium text-white/80 hover:text-white hover:bg-white/[0.08] transition-all duration-200">
           <Plus className="w-5 h-5" />
           <span>New playlist</span>
         </button>
       </div>
 
       {/* Library Section */}
-      <div className="flex-1 overflow-y-auto px-3">
+      <div className="flex-1 overflow-y-auto px-3 hide-scrollbar">
         <div className="space-y-1">
           {/* Liked music */}
           <button 
             onClick={() => handlePlaylistClick('liked')} 
             className={cn(
-              "w-full flex items-start gap-3 p-2 rounded-lg hover:bg-accent transition-colors text-left",
-              isActive('liked') && "bg-accent"
+              "w-full flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/5 transition-all duration-200 text-left group",
+              isActive('liked') && "bg-white/10"
             )}
           >
-            <div className="w-10 h-10 rounded bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center flex-shrink-0">
+            <div className="w-11 h-11 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center flex-shrink-0 shadow-lg group-hover:shadow-glow transition-shadow">
               <Heart className="w-5 h-5 text-white fill-white" />
             </div>
             <div className="flex-1 min-w-0">
@@ -120,9 +121,9 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
           {/* Episodes for later */}
           <button 
             onClick={() => handlePlaylistClick('recent')} 
-            className="w-full flex items-start gap-3 p-2 rounded-lg hover:bg-accent transition-colors text-left"
+            className="w-full flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/5 transition-all duration-200 text-left group"
           >
-            <div className="w-10 h-10 rounded bg-gradient-to-br from-teal-500 to-green-600 flex items-center justify-center flex-shrink-0">
+            <div className="w-11 h-11 rounded-lg bg-gradient-to-br from-teal-500 to-green-600 flex items-center justify-center flex-shrink-0 shadow-lg group-hover:shadow-glow transition-shadow">
               <Clock className="w-5 h-5 text-white" />
             </div>
             <div className="flex-1 min-w-0">
@@ -136,10 +137,10 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
             <button 
               key={playlist.id}
               onClick={() => navigate('/library')} 
-              className="w-full flex items-start gap-3 p-2 rounded-lg hover:bg-accent transition-colors text-left"
+              className="w-full flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/5 transition-all duration-200 text-left group"
             >
-              <div className="w-10 h-10 rounded bg-card flex items-center justify-center flex-shrink-0">
-                <ListMusic className="w-5 h-5 text-muted-foreground" />
+              <div className="w-11 h-11 rounded-lg glass-light flex items-center justify-center flex-shrink-0">
+                <ListMusic className="w-5 h-5 text-muted-foreground group-hover:text-white transition-colors" />
               </div>
               <div className="flex-1 min-w-0">
                 <span className="text-sm font-medium text-foreground block truncate">{playlist.name}</span>
@@ -152,15 +153,18 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
 
       {/* User Section */}
       {loading ? (
-        <div className="p-4 m-3 rounded-lg bg-card border border-border/50">
-          <div className="animate-pulse h-10 bg-muted rounded" />
+        <div className="p-4 m-3 rounded-xl glass-light">
+          <div className="animate-shimmer h-10 rounded" />
         </div>
       ) : user ? (
-        <div className="p-4 m-3 rounded-lg bg-card border border-border/50 hover:bg-accent/50 transition-colors cursor-pointer" onClick={() => navigate('/profile')}>
+        <div 
+          className="p-4 m-3 rounded-xl glass-light hover:bg-white/[0.08] transition-all duration-200 cursor-pointer group" 
+          onClick={() => navigate('/profile')}
+        >
           <div className="flex items-center gap-3">
-            <Avatar className="h-10 w-10">
+            <Avatar className="h-10 w-10 ring-2 ring-white/10 group-hover:ring-white/20 transition-all">
               <AvatarImage src={profile?.avatar_url || user?.user_metadata?.avatar_url || user?.user_metadata?.picture || undefined} />
-              <AvatarFallback className="bg-primary/10 text-primary">
+              <AvatarFallback className="bg-primary/20 text-primary">
                 {getInitials()}
               </AvatarFallback>
             </Avatar>
@@ -175,13 +179,13 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
           </div>
         </div>
       ) : (
-        <div className="p-4 m-3 rounded-lg bg-card border border-border/50">
+        <div className="p-4 m-3 rounded-xl glass-light">
           <p className="text-sm text-muted-foreground mb-3">
             Sign in to create playlists and save songs
           </p>
           <button 
             onClick={() => navigate('/auth')} 
-            className="w-full py-2 px-4 rounded-full border border-muted-foreground/50 text-sm font-medium text-foreground hover:border-foreground hover:bg-accent transition-colors flex items-center justify-center gap-2 hover-scale-smooth"
+            className="w-full py-2.5 px-4 rounded-xl bg-white/10 hover:bg-white/15 text-sm font-medium text-foreground transition-all duration-200 flex items-center justify-center gap-2 active:scale-95"
           >
             <User className="w-4 h-4" />
             Sign in
