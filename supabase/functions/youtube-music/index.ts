@@ -643,13 +643,42 @@ async function getLrcLibLyrics(title: string, artist: string) {
   }
 }
 
+// Constants for LRC parsing limits
+const MAX_LRC_SIZE = 100000; // 100KB max
+const MAX_LRC_LINES = 1000;
+const MAX_LINE_LENGTH = 500;
+
 function parseLRC(lrc: string): Array<{time: number, text: string}> {
+  // Validate input size to prevent ReDoS attacks
+  if (!lrc || typeof lrc !== 'string') {
+    return [];
+  }
+  
+  if (lrc.length > MAX_LRC_SIZE) {
+    console.warn(`LRC data too large (${lrc.length} bytes), truncating`);
+    lrc = lrc.slice(0, MAX_LRC_SIZE);
+  }
+  
   const lines = lrc.split('\n');
+  
+  // Limit number of lines to prevent excessive processing
+  const linesToProcess = lines.length > MAX_LRC_LINES ? lines.slice(0, MAX_LRC_LINES) : lines;
+  if (lines.length > MAX_LRC_LINES) {
+    console.warn(`LRC has too many lines (${lines.length}), processing first ${MAX_LRC_LINES}`);
+  }
+  
   const result: Array<{time: number, text: string}> = [];
   
-  const timeRegex = /\[(\d{2}):(\d{2})\.(\d{2,3})\]/;
+  // Simple, non-backtracking regex pattern
+  const timeRegex = /^\[(\d{2}):(\d{2})\.(\d{2,3})\]/;
   
-  for (const line of lines) {
+  for (const line of linesToProcess) {
+    // Skip overly long lines to prevent regex issues
+    if (line.length > MAX_LINE_LENGTH) {
+      console.warn(`Skipping overly long LRC line (${line.length} chars)`);
+      continue;
+    }
+    
     const match = line.match(timeRegex);
     if (match) {
       const minutes = parseInt(match[1], 10);
@@ -658,7 +687,7 @@ function parseLRC(lrc: string): Array<{time: number, text: string}> {
       const time = minutes * 60 + seconds + milliseconds / 1000;
       const text = line.replace(timeRegex, '').trim();
       
-      if (text) {
+      if (text && text.length <= MAX_LINE_LENGTH) {
         result.push({ time, text });
       }
     }
