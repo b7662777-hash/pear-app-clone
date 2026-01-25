@@ -10,6 +10,67 @@ const LASTFM_API_KEY = Deno.env.get('LASTFM_API_KEY') || '';
 const LASTFM_SHARED_SECRET = Deno.env.get('LASTFM_SHARED_SECRET') || '';
 const LASTFM_API_URL = 'https://ws.audioscrobbler.com/2.0/';
 
+// Rate limiting
+const RATE_LIMIT_WINDOW_MS = 60000; // 1 minute
+const RATE_LIMIT_MAX_REQUESTS = 30; // Max requests per window
+const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
+
+function checkRateLimit(userId: string): { allowed: boolean; remaining: number; resetIn: number } {
+  const now = Date.now();
+  const entry = rateLimitStore.get(userId);
+  
+  // Clean up periodically
+  if (rateLimitStore.size > 100) {
+    for (const [key, value] of rateLimitStore.entries()) {
+      if (now > value.resetTime) {
+        rateLimitStore.delete(key);
+      }
+    }
+  }
+  
+  if (!entry || now > entry.resetTime) {
+    rateLimitStore.set(userId, { count: 1, resetTime: now + RATE_LIMIT_WINDOW_MS });
+    return { allowed: true, remaining: RATE_LIMIT_MAX_REQUESTS - 1, resetIn: RATE_LIMIT_WINDOW_MS };
+  }
+  
+  if (entry.count >= RATE_LIMIT_MAX_REQUESTS) {
+    return { allowed: false, remaining: 0, resetIn: entry.resetTime - now };
+  }
+  
+  entry.count++;
+  return { allowed: true, remaining: RATE_LIMIT_MAX_REQUESTS - entry.count, resetIn: entry.resetTime - now };
+}
+
+// Strict authentication helper
+async function authenticate(req: Request): Promise<{ userId: string; error?: string }> {
+  const authHeader = req.headers.get('Authorization');
+  
+  if (!authHeader?.startsWith('Bearer ')) {
+    return { userId: '', error: 'Authentication required. Please log in to use this feature.' };
+  }
+
+  try {
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      { global: { headers: { Authorization: authHeader } } }
+    );
+
+    const token = authHeader.replace('Bearer ', '');
+    const { data, error } = await supabaseClient.auth.getClaims(token);
+    
+    if (error || !data?.claims) {
+      console.log('[Last.fm] Auth token invalid');
+      return { userId: '', error: 'Invalid or expired token. Please log in again.' };
+    }
+
+    return { userId: data.claims.sub as string };
+  } catch (e) {
+    console.error('[Last.fm] Authentication error:', e);
+    return { userId: '', error: 'Authentication failed. Please try again.' };
+  }
+}
+
 // Generate MD5 signature for Last.fm API
 async function generateSignature(params: Record<string, string>): Promise<string> {
   const sortedKeys = Object.keys(params).sort();
@@ -63,6 +124,45 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  // Require authentication
+  const { userId, error: authError } = await authenticate(req);
+  if (authError || !userId) {
+    console.log('[Last.fm] Unauthenticated request rejected');
+    return new Response(
+      JSON.stringify({ 
+        error: authError || 'Authentication required',
+        requiresAuth: true,
+      }),
+      { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+  }
+  
+  console.log(`[Last.fm] Authenticated request from user: ${userId.slice(0, 8)}...`);
+
+  // Apply rate limiting
+  const rateLimit = checkRateLimit(userId);
+  const rateLimitHeaders = {
+    'X-RateLimit-Limit': RATE_LIMIT_MAX_REQUESTS.toString(),
+    'X-RateLimit-Remaining': rateLimit.remaining.toString(),
+    'X-RateLimit-Reset': Math.ceil(rateLimit.resetIn / 1000).toString(),
+  };
+  
+  if (!rateLimit.allowed) {
+    console.warn(`[Last.fm] Rate limit exceeded for user: ${userId.slice(0, 8)}...`);
+    return new Response(
+      JSON.stringify({ error: 'Too many requests. Please try again later.' }),
+      { 
+        status: 429, 
+        headers: { 
+          ...corsHeaders, 
+          ...rateLimitHeaders,
+          'Content-Type': 'application/json',
+          'Retry-After': Math.ceil(rateLimit.resetIn / 1000).toString(),
+        } 
+      }
+    );
+  }
+
   try {
     // Check if API keys are configured
     if (!LASTFM_API_KEY || !LASTFM_SHARED_SECRET) {
@@ -74,7 +174,7 @@ serve(async (req) => {
         }),
         { 
           status: 503,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          headers: { ...corsHeaders, ...rateLimitHeaders, 'Content-Type': 'application/json' }
         }
       );
     }
@@ -89,7 +189,7 @@ serve(async (req) => {
         
         return new Response(
           JSON.stringify({ url: authUrl }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          { headers: { ...corsHeaders, ...rateLimitHeaders, 'Content-Type': 'application/json' } }
         );
       }
 
@@ -98,7 +198,7 @@ serve(async (req) => {
         if (!token) {
           return new Response(
             JSON.stringify({ error: 'Token required' }),
-            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            { status: 400, headers: { ...corsHeaders, ...rateLimitHeaders, 'Content-Type': 'application/json' } }
           );
         }
 
@@ -108,13 +208,13 @@ serve(async (req) => {
           console.error('[Last.fm] Session error:', result.message);
           return new Response(
             JSON.stringify({ error: result.message }),
-            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            { status: 400, headers: { ...corsHeaders, ...rateLimitHeaders, 'Content-Type': 'application/json' } }
           );
         }
 
         return new Response(
           JSON.stringify({ session: result.session }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          { headers: { ...corsHeaders, ...rateLimitHeaders, 'Content-Type': 'application/json' } }
         );
       }
 
@@ -123,7 +223,7 @@ serve(async (req) => {
         if (!sessionKey || !track) {
           return new Response(
             JSON.stringify({ error: 'Session key and track required' }),
-            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            { status: 400, headers: { ...corsHeaders, ...rateLimitHeaders, 'Content-Type': 'application/json' } }
           );
         }
 
@@ -142,14 +242,14 @@ serve(async (req) => {
           console.error('[Last.fm] Now Playing error:', result.message);
           return new Response(
             JSON.stringify({ error: result.message }),
-            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            { status: 400, headers: { ...corsHeaders, ...rateLimitHeaders, 'Content-Type': 'application/json' } }
           );
         }
 
         console.log('[Last.fm] Now Playing updated:', track.title);
         return new Response(
           JSON.stringify({ success: true, nowplaying: result.nowplaying }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          { headers: { ...corsHeaders, ...rateLimitHeaders, 'Content-Type': 'application/json' } }
         );
       }
 
@@ -158,7 +258,7 @@ serve(async (req) => {
         if (!sessionKey || !track) {
           return new Response(
             JSON.stringify({ error: 'Session key and track required' }),
-            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            { status: 400, headers: { ...corsHeaders, ...rateLimitHeaders, 'Content-Type': 'application/json' } }
           );
         }
 
@@ -178,27 +278,30 @@ serve(async (req) => {
           console.error('[Last.fm] Scrobble error:', result.message);
           return new Response(
             JSON.stringify({ error: result.message }),
-            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            { status: 400, headers: { ...corsHeaders, ...rateLimitHeaders, 'Content-Type': 'application/json' } }
           );
         }
 
         console.log('[Last.fm] Scrobbled:', track.title);
         return new Response(
           JSON.stringify({ success: true, scrobbles: result.scrobbles }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          { headers: { ...corsHeaders, ...rateLimitHeaders, 'Content-Type': 'application/json' } }
         );
       }
 
       default:
         return new Response(
           JSON.stringify({ error: 'Unknown action' }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          { status: 400, headers: { ...corsHeaders, ...rateLimitHeaders, 'Content-Type': 'application/json' } }
         );
     }
   } catch (error) {
-    console.error('[Last.fm] Error:', error);
+    // Log detailed error server-side only
+    const errorId = crypto.randomUUID().slice(0, 8);
+    console.error(`[Last.fm] [${errorId}] Error:`, error);
+    
     return new Response(
-      JSON.stringify({ error: 'Internal server error', details: String(error) }),
+      JSON.stringify({ error: 'An error occurred', errorId }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
