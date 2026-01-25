@@ -1,4 +1,5 @@
 import { Play } from "lucide-react";
+import { useEffect } from "react";
 import { optimizeImageUrl } from "@/lib/imageUtils";
 
 interface Track {
@@ -16,6 +17,27 @@ interface ListenAgainSectionProps {
 }
 
 export function ListenAgainSection({ tracks, featuredTrack, onTrackClick }: ListenAgainSectionProps) {
+  // Preload LCP image for better discovery
+  useEffect(() => {
+    if (featuredTrack?.image) {
+      const imageUrl = optimizeImageUrl(featuredTrack.image, 200);
+      const existingPreload = document.querySelector(`link[rel="preload"][href="${imageUrl}"]`);
+      
+      if (!existingPreload) {
+        const preloadLink = document.createElement('link');
+        preloadLink.rel = 'preload';
+        preloadLink.as = 'image';
+        preloadLink.href = imageUrl;
+        preloadLink.setAttribute('fetchpriority', 'high');
+        document.head.appendChild(preloadLink);
+        
+        return () => {
+          document.head.removeChild(preloadLink);
+        };
+      }
+    }
+  }, [featuredTrack?.image]);
+
   if (tracks.length === 0) return null;
 
   const displayTracks = tracks.slice(0, 4);
