@@ -49,20 +49,20 @@ export function optimizeGoogleThumbnail(url: string, size: number = 160): string
 export function optimizeUnsplashUrl(url: string, size: number = 160): string {
   if (!url || !url.includes('unsplash.com')) return url;
   
-  // Use 1.25x multiplier for retina (less aggressive to reduce payload)
-  const optimizedSize = Math.ceil(size * 1.25);
+  // Use exact size (no retina multiplier) for minimal payload
+  const optimizedSize = size;
   
   // Parse the URL to properly handle parameters
   try {
     const urlObj = new URL(url);
     
-    // Set size parameters
+    // Set size parameters - exact display size
     urlObj.searchParams.set('w', String(optimizedSize));
     urlObj.searchParams.set('h', String(optimizedSize));
     
-    // Add WebP format and lower quality for better compression
+    // Add WebP format and aggressive compression (q=50) for better delivery
     urlObj.searchParams.set('fm', 'webp');
-    urlObj.searchParams.set('q', '60');
+    urlObj.searchParams.set('q', '50');
     urlObj.searchParams.set('fit', 'crop');
     
     return urlObj.toString();
@@ -74,9 +74,9 @@ export function optimizeUnsplashUrl(url: string, size: number = 160): string {
     
     // Add WebP format and quality if not present
     if (!optimized.includes('fm=webp')) {
-      optimized += optimized.includes('?') ? '&fm=webp&q=60' : '?fm=webp&q=60';
+      optimized += optimized.includes('?') ? '&fm=webp&q=50' : '?fm=webp&q=50';
     } else if (!optimized.includes('q=')) {
-      optimized += '&q=60';
+      optimized += '&q=50';
     }
     
     return optimized;
