@@ -1,8 +1,9 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { getCachedLyrics, setCachedLyrics } from "@/hooks/useLyricsCache";
+import { getCachedRecommended, setCachedRecommended, preloadLCPFromCache } from "@/hooks/useRecommendedCache";
 
 // Video ID validation regex (YouTube IDs are 11 characters: a-z, A-Z, 0-9, -, _)
 const VIDEO_ID_REGEX = /^[a-zA-Z0-9_-]{11}$/;
@@ -41,13 +42,19 @@ export function useYouTubeMusic() {
   const [searchResults, setSearchResults] = useState<YouTubeTrack[]>([]);
   const [relatedTracks, setRelatedTracks] = useState<YouTubeTrack[]>([]);
   const [isLoadingRelated, setIsLoadingRelated] = useState(false);
-  const [recommendedTracks, setRecommendedTracks] = useState<YouTubeTrack[]>([]);
+  // Initialize with cached data for instant LCP
+  const [recommendedTracks, setRecommendedTracks] = useState<YouTubeTrack[]>(() => getCachedRecommended() || []);
   const [isLoadingRecommended, setIsLoadingRecommended] = useState(false);
   const [lyricsData, setLyricsData] = useState<LyricsData | null>(null);
   const [isLoadingLyrics, setIsLoadingLyrics] = useState(false);
   const [requiresAuth, setRequiresAuth] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  // Preload LCP image from cache immediately
+  useEffect(() => {
+    preloadLCPFromCache();
+  }, []);
 
   // Helper to handle auth errors
   const handleAuthError = useCallback((data: any, error: any) => {
@@ -321,6 +328,8 @@ export function useYouTubeMusic() {
           .slice(0, 12);
         console.log("Recommended tracks found:", validResults.length);
         setRecommendedTracks(validResults);
+        // Cache for instant LCP on next visit
+        setCachedRecommended(validResults);
         return validResults;
       }
 
