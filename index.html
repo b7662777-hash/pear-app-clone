@@ -19,10 +19,27 @@
     <meta name="description" content="Stream your favorite music, discover new artists, and create playlists. Your personal music streaming experience.">
     <meta name="author" content="Music App" />
 
-    <!-- Critical CSS for initial render -->
+    <!-- Critical CSS for initial render - prevents FOUC while main CSS loads -->
     <style>
-      #root { min-height: 100vh; background: #0a0a0a; }
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+      html { font-family: 'Inter', system-ui, sans-serif; }
+      body { background: #000; color: #fff; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+      #root { min-height: 100vh; display: flex; background: #000; }
       .page-loader { display: flex; align-items: center; justify-content: center; min-height: 100vh; color: #888; }
+      /* Critical layout structure */
+      .flex { display: flex; }
+      .flex-1 { flex: 1 1 0%; }
+      .flex-col { flex-direction: column; }
+      .h-screen { height: 100vh; }
+      .overflow-hidden { overflow: hidden; }
+      .relative { position: relative; }
+      /* Sidebar critical styles */
+      .w-64 { width: 16rem; }
+      .bg-background { background-color: #000; }
+      /* Scrollbar prevention during load */
+      ::-webkit-scrollbar { width: 8px; height: 8px; }
+      ::-webkit-scrollbar-track { background: transparent; }
+      ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 4px; }
     </style>
     
     <meta property="og:type" content="website" />
