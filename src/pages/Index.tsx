@@ -33,10 +33,12 @@ const Index = () => {
     fetchRecommendedTracks,
   } = useYouTubeMusic();
 
-  // Fetch recommended tracks on mount
+  // Fetch recommended tracks on mount only if cache is empty
   useEffect(() => {
-    fetchRecommendedTracks();
-  }, [fetchRecommendedTracks]);
+    if (recommendedTracks.length === 0) {
+      fetchRecommendedTracks();
+    }
+  }, [fetchRecommendedTracks, recommendedTracks.length]);
 
   // Debounced search
   useEffect(() => {
