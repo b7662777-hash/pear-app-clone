@@ -61,19 +61,24 @@
             if (now - entry.timestamp < 86400000 && entry.tracks && entry.tracks.length > 4 && entry.tracks[4].thumbnail) {
               var url = entry.tracks[4].thumbnail;
               // Apply optimizeImageUrl logic inline for Google images (size 200 for featured track)
-              if (url.includes('googleusercontent.com')) {
-                url = url.replace(/=[^?&]+$/, '=w200-h200-l40-rw');
-                if (!url.includes('=w')) url += '=w200-h200-l40-rw';
-              } else if (url.includes('i.ytimg.com')) {
+              // Must match exactly: optimizeGoogleThumbnail logic
+              if (url.indexOf('googleusercontent.com') !== -1) {
+                // Check if URL has existing parameters (contains '=')
+                if (url.indexOf('=') !== -1) {
+                  url = url.replace(/=[^?&]+$/, '=w200-h200-l40-rw');
+                } else {
+                  url = url + '=w200-h200-l40-rw';
+                }
+              } else if (url.indexOf('i.ytimg.com') !== -1) {
                 url = url.replace(/(hqdefault|maxresdefault|sddefault)/, 'mqdefault');
               }
-              // Create preload link synchronously
+              // Create preload link synchronously - before any async work
               var link = document.createElement('link');
               link.rel = 'preload';
               link.as = 'image';
               link.href = url;
-              link.setAttribute('fetchpriority', 'high');
-              link.setAttribute('crossorigin', 'anonymous');
+              link.fetchPriority = 'high';
+              link.crossOrigin = 'anonymous';
               document.head.appendChild(link);
             }
           }
