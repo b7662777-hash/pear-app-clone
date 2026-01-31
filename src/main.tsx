@@ -1,12 +1,12 @@
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
+// Import CSS files statically - they will be bundled into main CSS
+// This avoids creating a JS→CSS dependency chain
+import "./styles/animations.css";
+import "./styles/effects.css";
 
 // LCP preload now handled by inline script in index.html for earlier discovery
-
-// Defer non-critical CSS to reduce main thread blocking
-import("./styles/animations.css");
-import("./styles/effects.css");
 
 // Use scheduler.yield pattern to break up long tasks and reduce Max Potential FID
 // This yields to the main thread between React render and hydration
