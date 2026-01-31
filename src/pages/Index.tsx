@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, lazy, Suspense, startTransition } from "react";
-import { Sidebar } from "@/components/Sidebar";
-import { SearchBar } from "@/components/SearchBar";
+import { SidebarShell } from "@/components/SidebarShell";
+import { SearchBarShell } from "@/components/SearchBarShell";
 import { MoodChips } from "@/components/MoodChips";
 import { AlbumSection } from "@/components/AlbumSection";
 import { SearchResults } from "@/components/SearchResults";
@@ -115,12 +115,12 @@ const Index = () => {
         <AmbientBackground />
       </Suspense>
 
-      {/* Sidebar */}
-      <Sidebar activeTab={activeTab} onTabChange={handleTabChange} />
+      {/* Sidebar - uses shell for faster initial render */}
+      <SidebarShell activeTab={activeTab} onTabChange={handleTabChange} />
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden relative z-10">
-        <SearchBar value={searchQuery} onChange={setSearchQuery} />
+        <SearchBarShell value={searchQuery} onChange={setSearchQuery} />
 
         <main className="flex-1 overflow-y-auto px-6 pb-32">
           <div className="mb-6">
