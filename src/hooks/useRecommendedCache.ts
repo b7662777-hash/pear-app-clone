@@ -1,4 +1,5 @@
 import { YouTubeTrack } from './useYouTubeMusic';
+import { optimizeImageUrl } from '@/lib/imageUtils';
 
 const CACHE_KEY = 'recommended_tracks_cache';
 const CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours
@@ -44,7 +45,8 @@ export function setCachedRecommended(tracks: YouTubeTrack[]): void {
 export function preloadLCPFromCache(): void {
   const cached = getCachedRecommended();
   if (cached && cached.length > 4 && cached[4]?.thumbnail) {
-    const imageUrl = cached[4].thumbnail;
+    // Use optimizeImageUrl to match the actual rendered image URL (size 200 for featured track)
+    const imageUrl = optimizeImageUrl(cached[4].thumbnail, 200);
     
     // Check if preload already exists
     const existing = document.querySelector(`link[rel="preload"][href="${imageUrl}"]`);
