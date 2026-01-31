@@ -1,9 +1,11 @@
-import { useState } from "react";
-import { Sidebar } from "@/components/Sidebar";
-import { SearchBar } from "@/components/SearchBar";
-import { AmbientBackground } from "@/components/AmbientBackground";
+import { useState, lazy, Suspense } from "react";
+import { SidebarShell } from "@/components/SidebarShell";
+import { SearchBarShell } from "@/components/SearchBarShell";
 import { useNavigate } from "react-router-dom";
 import { Compass, TrendingUp, Music, Radio, Mic2, Headphones } from "lucide-react";
+
+// Lazy load AmbientBackground
+const AmbientBackground = lazy(() => import("@/components/AmbientBackground").then(m => ({ default: m.AmbientBackground })));
 
 const genres = [
   { id: "pop", name: "Pop", color: "from-pink-500 to-rose-500", icon: Music },
@@ -38,13 +40,15 @@ const Explore = () => {
 
   return (
     <div className="flex h-screen bg-background overflow-hidden relative">
-      {/* Global Ambient Background */}
-      <AmbientBackground />
+      {/* Global Ambient Background - lazy loaded */}
+      <Suspense fallback={null}>
+        <AmbientBackground />
+      </Suspense>
 
-      <Sidebar activeTab={activeTab} onTabChange={handleTabChange} />
+      <SidebarShell activeTab={activeTab} onTabChange={handleTabChange} />
 
       <div className="flex-1 flex flex-col overflow-hidden relative z-10">
-        <SearchBar value={searchQuery} onChange={setSearchQuery} />
+        <SearchBarShell value={searchQuery} onChange={setSearchQuery} />
 
         <main className="flex-1 overflow-y-auto px-6 pb-24">
           {/* Header */}

@@ -1,12 +1,14 @@
-import { useState, useEffect } from "react";
-import { Sidebar } from "@/components/Sidebar";
-import { SearchBar } from "@/components/SearchBar";
-import { AmbientBackground } from "@/components/AmbientBackground";
+import { useState, useEffect, lazy, Suspense } from "react";
+import { SidebarShell } from "@/components/SidebarShell";
+import { SearchBarShell } from "@/components/SearchBarShell";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { usePlaylists, PlaylistSong, LikedSong } from "@/hooks/usePlaylists";
 import { usePlayer, Track } from "@/contexts/PlayerContext";
 import { Library as LibraryIcon, Heart, Clock, ListMusic, Plus, Music, Play, Trash2, MoreVertical, Pause } from "lucide-react";
+
+// Lazy load AmbientBackground
+const AmbientBackground = lazy(() => import("@/components/AmbientBackground").then(m => ({ default: m.AmbientBackground })));
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -136,12 +138,14 @@ const Library = () => {
     return (
       <div className="flex h-screen bg-background overflow-hidden relative">
         {/* Global Ambient Background */}
-        <AmbientBackground />
+        <Suspense fallback={null}>
+          <AmbientBackground />
+        </Suspense>
 
-        <Sidebar activeTab={activeTab} onTabChange={handleTabChange} />
+        <SidebarShell activeTab={activeTab} onTabChange={handleTabChange} />
 
         <div className="flex-1 flex flex-col overflow-hidden relative z-10">
-          <SearchBar value={searchQuery} onChange={setSearchQuery} />
+          <SearchBarShell value={searchQuery} onChange={setSearchQuery} />
 
           <main className="flex-1 overflow-y-auto px-6 pb-32">
             {/* Header */}
@@ -242,12 +246,14 @@ const Library = () => {
     return (
       <div className="flex h-screen bg-background overflow-hidden relative">
         {/* Global Ambient Background */}
-        <AmbientBackground />
+        <Suspense fallback={null}>
+          <AmbientBackground />
+        </Suspense>
 
-        <Sidebar activeTab="liked" onTabChange={handleTabChange} />
+        <SidebarShell activeTab="liked" onTabChange={handleTabChange} />
 
         <div className="flex-1 flex flex-col overflow-hidden relative z-10">
-          <SearchBar value={searchQuery} onChange={setSearchQuery} />
+          <SearchBarShell value={searchQuery} onChange={setSearchQuery} />
 
           <main className="flex-1 overflow-y-auto px-6 pb-32">
             {/* Header */}
@@ -346,12 +352,14 @@ const Library = () => {
   return (
     <div className="flex h-screen bg-background overflow-hidden relative">
       {/* Global Ambient Background */}
-      <AmbientBackground />
+      <Suspense fallback={null}>
+        <AmbientBackground />
+      </Suspense>
 
-      <Sidebar activeTab={activeTab} onTabChange={handleTabChange} />
+      <SidebarShell activeTab={activeTab} onTabChange={handleTabChange} />
 
       <div className="flex-1 flex flex-col overflow-hidden relative z-10">
-        <SearchBar value={searchQuery} onChange={setSearchQuery} />
+        <SearchBarShell value={searchQuery} onChange={setSearchQuery} />
 
         <main className="flex-1 overflow-y-auto px-6 pb-32">
           {/* Header */}

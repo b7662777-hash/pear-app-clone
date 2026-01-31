@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ArrowLeft, Settings as SettingsIcon, Radio, Music2, Webhook, ExternalLink, Check, X, Loader2, Info, Palette, Sparkles, Moon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -8,8 +8,10 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
-import { AmbientBackground } from '@/components/AmbientBackground';
-import { Sidebar } from '@/components/Sidebar';
+import { SidebarShell } from '@/components/SidebarShell';
+
+// Lazy load AmbientBackground
+const AmbientBackground = lazy(() => import("@/components/AmbientBackground").then(m => ({ default: m.AmbientBackground })));
 
 // Theme and Visual settings
 function ThemeSettings() {
@@ -364,8 +366,10 @@ export default function Settings() {
 
   return (
     <div className="min-h-screen bg-background text-foreground flex relative overflow-hidden">
-      <AmbientBackground />
-      <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
+      <Suspense fallback={null}>
+        <AmbientBackground />
+      </Suspense>
+      <SidebarShell activeTab={activeTab} onTabChange={setActiveTab} />
       
       <main className="flex-1 overflow-y-auto relative z-10">
         <div className="max-w-2xl mx-auto p-6 space-y-6">
