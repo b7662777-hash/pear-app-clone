@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useRef, useEffect } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { usePlaylists } from '@/hooks/usePlaylists';
 import { useDownload } from '@/hooks/useDownload';
 
