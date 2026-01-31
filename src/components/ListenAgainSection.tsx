@@ -29,6 +29,7 @@ export function ListenAgainSection({ tracks, featuredTrack, onTrackClick }: List
         preloadLink.as = 'image';
         preloadLink.href = imageUrl;
         preloadLink.setAttribute('fetchpriority', 'high');
+        preloadLink.setAttribute('crossorigin', 'anonymous');
         document.head.appendChild(preloadLink);
         
         return () => {
@@ -104,6 +105,7 @@ export function ListenAgainSection({ tracks, featuredTrack, onTrackClick }: List
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                 loading="eager"
                 fetchPriority="high"
+                crossOrigin="anonymous"
               />
               <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-all duration-300">
                 <button 
