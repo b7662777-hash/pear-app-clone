@@ -42,6 +42,34 @@
       ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 4px; }
     </style>
     
+    <!-- Inline LCP preload from cache - must be synchronous for browser discovery -->
+    <script>
+      (function() {
+        try {
+          var cached = localStorage.getItem('recommended_tracks_cache');
+          if (cached) {
+            var entry = JSON.parse(cached);
+            var now = Date.now();
+            if (now - entry.timestamp < 86400000 && entry.tracks && entry.tracks.length > 4 && entry.tracks[4].thumbnail) {
+              var url = entry.tracks[4].thumbnail;
+              // Apply optimizeImageUrl logic inline for Google images
+              if (url.includes('lh3.googleusercontent.com') || url.includes('i.ytimg.com')) {
+                url = url.replace(/=w\d+-h\d+.*$/, '=w200-h200-l40-rw');
+                if (!url.includes('=w')) url += '=w200-h200-l40-rw';
+              }
+              var link = document.createElement('link');
+              link.rel = 'preload';
+              link.as = 'image';
+              link.href = url;
+              link.setAttribute('fetchpriority', 'high');
+              document.head.appendChild(link);
+            }
+          }
+        } catch (e) {}
+      })();
+    </script>
+    
+
     <meta property="og:type" content="website" />
     <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
     <meta name="twitter:card" content="summary_large_image" />
