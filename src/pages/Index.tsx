@@ -1,12 +1,14 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, lazy, Suspense, startTransition } from "react";
 import { Sidebar } from "@/components/Sidebar";
 import { SearchBar } from "@/components/SearchBar";
 import { MoodChips } from "@/components/MoodChips";
 import { AlbumSection } from "@/components/AlbumSection";
 import { SearchResults } from "@/components/SearchResults";
 import { ListenAgainSection } from "@/components/ListenAgainSection";
-import { AmbientBackground } from "@/components/AmbientBackground";
 import { useYouTubeMusic, YouTubeTrack } from "@/hooks/useYouTubeMusic";
+
+// Lazy load AmbientBackground - not critical for initial render, reduces TBT
+const AmbientBackground = lazy(() => import("@/components/AmbientBackground").then(m => ({ default: m.AmbientBackground })));
 import { usePlayer, Track } from "@/contexts/PlayerContext";
 import { useNavigate } from "react-router-dom";
 import { 
@@ -34,9 +36,24 @@ const Index = () => {
   } = useYouTubeMusic();
 
   // Fetch recommended tracks on mount only if cache is empty
+  // Use requestIdleCallback to defer API call and reduce TBT
   useEffect(() => {
     if (recommendedTracks.length === 0) {
-      fetchRecommendedTracks();
+      const fetchData = () => {
+        startTransition(() => {
+          fetchRecommendedTracks();
+        });
+      };
+      
+      // Defer to idle time to reduce main thread blocking
+      if ('requestIdleCallback' in window) {
+        const id = requestIdleCallback(fetchData, { timeout: 2000 });
+        return () => cancelIdleCallback(id);
+      } else {
+        // Fallback for Safari
+        const id = setTimeout(fetchData, 100);
+        return () => clearTimeout(id);
+      }
     }
   }, [fetchRecommendedTracks, recommendedTracks.length]);
 
@@ -103,8 +120,10 @@ const Index = () => {
 
   return (
     <div className="flex h-screen bg-background overflow-hidden relative">
-      {/* Global Ambient Background */}
-      <AmbientBackground />
+      {/* Global Ambient Background - lazy loaded to reduce TBT */}
+      <Suspense fallback={null}>
+        <AmbientBackground />
+      </Suspense>
 
       {/* Sidebar */}
       <Sidebar activeTab={activeTab} onTabChange={handleTabChange} />
