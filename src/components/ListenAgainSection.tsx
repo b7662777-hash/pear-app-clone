@@ -17,8 +17,13 @@ interface ListenAgainSectionProps {
 }
 
 export function ListenAgainSection({ tracks, featuredTrack, onTrackClick }: ListenAgainSectionProps) {
-  // Preload LCP image for better discovery
+  // Preload LCP images for better discovery
+  // - Featured track for desktop (lg screens)
+  // - First track in grid for mobile
   useEffect(() => {
+    const preloadLinks: HTMLLinkElement[] = [];
+    
+    // Preload featured track image for desktop LCP
     if (featuredTrack?.image) {
       const imageUrl = optimizeImageUrl(featuredTrack.image, 200);
       const existingPreload = document.querySelector(`link[rel="preload"][href="${imageUrl}"]`);
@@ -31,13 +36,35 @@ export function ListenAgainSection({ tracks, featuredTrack, onTrackClick }: List
         preloadLink.setAttribute('fetchpriority', 'high');
         preloadLink.setAttribute('crossorigin', 'anonymous');
         document.head.appendChild(preloadLink);
-        
-        return () => {
-          document.head.removeChild(preloadLink);
-        };
+        preloadLinks.push(preloadLink);
       }
     }
-  }, [featuredTrack?.image]);
+    
+    // Preload first track image for mobile LCP
+    if (tracks[0]?.image) {
+      const imageUrl = optimizeImageUrl(tracks[0].image, 160);
+      const existingPreload = document.querySelector(`link[rel="preload"][href="${imageUrl}"]`);
+      
+      if (!existingPreload) {
+        const preloadLink = document.createElement('link');
+        preloadLink.rel = 'preload';
+        preloadLink.as = 'image';
+        preloadLink.href = imageUrl;
+        preloadLink.setAttribute('fetchpriority', 'high');
+        preloadLink.setAttribute('crossorigin', 'anonymous');
+        document.head.appendChild(preloadLink);
+        preloadLinks.push(preloadLink);
+      }
+    }
+    
+    return () => {
+      preloadLinks.forEach(link => {
+        if (document.head.contains(link)) {
+          document.head.removeChild(link);
+        }
+      });
+    };
+  }, [featuredTrack?.image, tracks]);
 
   if (tracks.length === 0) return null;
 
@@ -63,7 +90,7 @@ export function ListenAgainSection({ tracks, featuredTrack, onTrackClick }: List
       <div className="flex gap-6">
         {/* Track grid with stagger animation */}
         <div className="flex-1 grid grid-cols-2 md:grid-cols-4 gap-5 stagger-children">
-          {displayTracks.map((track) => (
+          {displayTracks.map((track, index) => (
             <div
               key={track.id}
               onClick={() => onTrackClick(track)}
@@ -74,7 +101,9 @@ export function ListenAgainSection({ tracks, featuredTrack, onTrackClick }: List
                   src={optimizeImageUrl(track.image, 160)}
                   alt={track.title}
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                  loading="lazy"
+                  loading={index === 0 ? "eager" : "lazy"}
+                  fetchPriority={index === 0 ? "high" : undefined}
+                  crossOrigin={index === 0 ? "anonymous" : undefined}
                 />
                 {/* Play button overlay */}
                 <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-all duration-300">
