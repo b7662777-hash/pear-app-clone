@@ -36,24 +36,14 @@ const Index = () => {
   } = useYouTubeMusic();
 
   // Fetch recommended tracks on mount only if cache is empty
-  // Use requestIdleCallback to defer API call and reduce TBT
+  // Use startTransition to keep UI responsive during fetch
   useEffect(() => {
     if (recommendedTracks.length === 0) {
-      const fetchData = () => {
-        startTransition(() => {
-          fetchRecommendedTracks();
-        });
-      };
-      
-      // Defer to idle time to reduce main thread blocking
-      if ('requestIdleCallback' in window) {
-        const id = requestIdleCallback(fetchData, { timeout: 2000 });
-        return () => cancelIdleCallback(id);
-      } else {
-        // Fallback for Safari
-        const id = setTimeout(fetchData, 100);
-        return () => clearTimeout(id);
-      }
+      // Fetch immediately to reduce LCP resource load delay
+      // The API call is already non-blocking and cached results load instantly
+      startTransition(() => {
+        fetchRecommendedTracks();
+      });
     }
   }, [fetchRecommendedTracks, recommendedTracks.length]);
 
