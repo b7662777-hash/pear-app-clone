@@ -64,12 +64,8 @@
                 url = url.replace(/=w\d+-h\d+.*$/, '=w200-h200-l40-rw');
                 if (!url.includes('=w')) url += '=w200-h200-l40-rw';
               }
-              var link = document.createElement('link');
-              link.rel = 'preload';
-              link.as = 'image';
-              link.href = url;
-              link.setAttribute('fetchpriority', 'high');
-              document.head.appendChild(link);
+              // Use document.write for synchronous preload insertion (before parser continues)
+              document.write('<link rel="preload" as="image" href="' + url + '" fetchpriority="high" crossorigin="anonymous">');
             }
           }
         } catch (e) {}
