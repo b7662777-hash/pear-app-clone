@@ -2,7 +2,7 @@ import { lazy, Suspense } from "react";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { PlayerProvider } from "@/contexts/PlayerContext";
+import { PlayerProvider, usePlayer } from "@/contexts/PlayerContext";
 
 // Lazy load pages for code splitting
 const Index = lazy(() => import("./pages/Index"));
@@ -28,6 +28,18 @@ const PageLoader = () => (
   </div>
 );
 
+// Conditionally render GlobalPlayer only when a track is loaded
+// This defers loading the 25KB GlobalPlayer bundle until needed
+const ConditionalGlobalPlayer = () => {
+  const { currentTrack } = usePlayer();
+  if (!currentTrack) return null;
+  return (
+    <Suspense fallback={null}>
+      <GlobalPlayer />
+    </Suspense>
+  );
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -50,7 +62,7 @@ const App = () => (
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
-            <GlobalPlayer />
+            <ConditionalGlobalPlayer />
           </Suspense>
         </PlayerProvider>
       </BrowserRouter>
