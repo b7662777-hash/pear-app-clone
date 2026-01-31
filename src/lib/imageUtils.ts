@@ -11,8 +11,8 @@
 export function optimizeGoogleThumbnail(url: string, size: number = 160): string {
   if (!url) return url;
   
-  // Use 1.25x multiplier for retina (less aggressive to reduce payload)
-  const optimizedSize = Math.ceil(size * 1.25);
+  // Use exact size (no retina multiplier) to minimize payload
+  const optimizedSize = size;
   
   // For Google/YouTube images (lh3.googleusercontent.com)
   if (url.includes('googleusercontent.com')) {
@@ -20,12 +20,12 @@ export function optimizeGoogleThumbnail(url: string, size: number = 160): string
     const hasParams = url.includes('=');
     if (hasParams) {
       // Replace any existing size/quality parameters with optimized ones
-      // -l50 sets quality to 50 for better compression
+      // -l40 sets quality to 40 for aggressive compression
       // -rw requests WebP format for modern browsers
-      return url.replace(/=[^?&]+$/, `=w${optimizedSize}-h${optimizedSize}-l50-rw`);
+      return url.replace(/=[^?&]+$/, `=w${optimizedSize}-h${optimizedSize}-l40-rw`);
     } else {
       // Add parameters if none exist
-      return `${url}=w${optimizedSize}-h${optimizedSize}-l50-rw`;
+      return `${url}=w${optimizedSize}-h${optimizedSize}-l40-rw`;
     }
   }
   
@@ -60,9 +60,9 @@ export function optimizeUnsplashUrl(url: string, size: number = 160): string {
     urlObj.searchParams.set('w', String(optimizedSize));
     urlObj.searchParams.set('h', String(optimizedSize));
     
-    // Add WebP format and aggressive compression (q=50) for better delivery
+    // Add WebP format and aggressive compression (q=30) for better delivery
     urlObj.searchParams.set('fm', 'webp');
-    urlObj.searchParams.set('q', '50');
+    urlObj.searchParams.set('q', '30');
     urlObj.searchParams.set('fit', 'crop');
     
     return urlObj.toString();
@@ -74,9 +74,9 @@ export function optimizeUnsplashUrl(url: string, size: number = 160): string {
     
     // Add WebP format and quality if not present
     if (!optimized.includes('fm=webp')) {
-      optimized += optimized.includes('?') ? '&fm=webp&q=50' : '?fm=webp&q=50';
+      optimized += optimized.includes('?') ? '&fm=webp&q=30' : '?fm=webp&q=30';
     } else if (!optimized.includes('q=')) {
-      optimized += '&q=50';
+      optimized += '&q=30';
     }
     
     return optimized;
