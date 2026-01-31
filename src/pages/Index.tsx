@@ -134,42 +134,44 @@ const Index = () => {
             </div>
           )}
 
-          {/* Listen again - using recommended tracks */}
-          {!searchQuery.trim() && recommendedTracks.length > 0 && (
-            <div className="animate-fade-in-up animation-delay-100">
-              <ListenAgainSection
-                tracks={recommendedTracks.slice(0, 4).map(t => ({
-                  id: t.videoId,
-                  title: t.title,
-                  artist: t.artist,
-                  image: t.thumbnail,
-                  videoId: t.videoId,
-                }))}
-                featuredTrack={recommendedTracks[4] ? {
-                  id: recommendedTracks[4].videoId,
-                  title: recommendedTracks[4].title,
-                  artist: recommendedTracks[4].artist,
-                  image: recommendedTracks[4].thumbnail,
-                  videoId: recommendedTracks[4].videoId,
-                } : null}
-                onTrackClick={(track) => {
-                  const ytTrack = recommendedTracks.find(t => t.videoId === track.videoId);
-                  if (ytTrack) handleYouTubeTrackClick(ytTrack);
-                }}
-              />
+          {/* Listen again - using recommended tracks - min-height prevents CLS */}
+          {!searchQuery.trim() && (
+            <div className="min-h-[320px]">
+              {recommendedTracks.length > 0 && (
+                <ListenAgainSection
+                  tracks={recommendedTracks.slice(0, 4).map(t => ({
+                    id: t.videoId,
+                    title: t.title,
+                    artist: t.artist,
+                    image: t.thumbnail,
+                    videoId: t.videoId,
+                  }))}
+                  featuredTrack={recommendedTracks[4] ? {
+                    id: recommendedTracks[4].videoId,
+                    title: recommendedTracks[4].title,
+                    artist: recommendedTracks[4].artist,
+                    image: recommendedTracks[4].thumbnail,
+                    videoId: recommendedTracks[4].videoId,
+                  } : null}
+                  onTrackClick={(track) => {
+                    const ytTrack = recommendedTracks.find(t => t.videoId === track.videoId);
+                    if (ytTrack) handleYouTubeTrackClick(ytTrack);
+                  }}
+                />
+              )}
             </div>
           )}
 
-          {/* Album Sections */}
+          {/* Album Sections - removed animation delays to prevent CLS */}
           {!searchQuery.trim() && (
             <>
-              <div className="mb-10 animate-fade-in-up animation-delay-200">
+              <div className="mb-10">
                 <AlbumSection title="Throwback jams" subtitle="Hits from every decade" albums={throwbackAlbums} onAlbumClick={handleAlbumClick} />
               </div>
-              <div className="mb-10 animate-fade-in-up animation-delay-300">
+              <div className="mb-10">
                 <AlbumSection title="Popular albums" subtitle="Top picks this week" albums={recommendedAlbums} onAlbumClick={handleAlbumClick} />
               </div>
-              <div className="mb-10 animate-fade-in-up animation-delay-400">
+              <div className="mb-10">
                 <AlbumSection title="New releases" subtitle="Fresh music just dropped" albums={newReleases} onAlbumClick={handleAlbumClick} />
               </div>
             </>
