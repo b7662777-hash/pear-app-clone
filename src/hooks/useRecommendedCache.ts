@@ -52,12 +52,12 @@ export function preloadLCPFromCache(): void {
     const existing = document.querySelector(`link[rel="preload"][href="${imageUrl}"]`);
     if (existing) return;
     
-    // Create preload link for LCP image
     const preloadLink = document.createElement('link');
     preloadLink.rel = 'preload';
     preloadLink.as = 'image';
     preloadLink.href = imageUrl;
     preloadLink.setAttribute('fetchpriority', 'high');
+    preloadLink.setAttribute('crossorigin', 'anonymous');
     document.head.appendChild(preloadLink);
   }
 }
