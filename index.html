@@ -49,7 +49,7 @@
       ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 4px; }
     </style>
     
-    <!-- Inline LCP preload from cache - must be synchronous for browser discovery -->
+    <!-- Inline LCP preload from cache - uses document.write for true preload scanner discovery -->
     <script>
       (function() {
         try {
@@ -59,36 +59,35 @@
             var now = Date.now();
             // Cache valid for 24 hours
             if (now - entry.timestamp < 86400000 && entry.tracks && entry.tracks.length > 0) {
-              // Helper to create preload link
-              function preloadImage(url, size) {
-                if (!url) return;
-                // Apply optimizeImageUrl logic inline for Google images
+              // Helper to transform URL for optimal size
+              function optimizeUrl(url, size) {
+                if (!url) return null;
                 if (url.indexOf('googleusercontent.com') !== -1) {
                   if (url.indexOf('=') !== -1) {
-                    url = url.replace(/=[^?&]+$/, '=w' + size + '-h' + size + '-l40-rw');
+                    return url.replace(/=[^?&]+$/, '=w' + size + '-h' + size + '-l40-rw');
                   } else {
-                    url = url + '=w' + size + '-h' + size + '-l40-rw';
+                    return url + '=w' + size + '-h' + size + '-l40-rw';
                   }
                 } else if (url.indexOf('i.ytimg.com') !== -1) {
-                  url = url.replace(/(hqdefault|maxresdefault|sddefault)/, 'mqdefault');
+                  return url.replace(/(hqdefault|maxresdefault|sddefault)/, 'mqdefault');
                 }
-                var link = document.createElement('link');
-                link.rel = 'preload';
-                link.as = 'image';
-                link.href = url;
-                link.fetchPriority = 'high';
-                link.crossOrigin = 'anonymous';
-                document.head.appendChild(link);
+                return url;
               }
               
-              // Preload first track (index 0) for mobile LCP
-              if (entry.tracks[0] && entry.tracks[0].thumbnail) {
-                preloadImage(entry.tracks[0].thumbnail, 160);
-              }
-              
-              // Preload featured track (index 4) for desktop LCP
+              // Desktop LCP: featured track at index 4 (200x200)
               if (entry.tracks.length > 4 && entry.tracks[4].thumbnail) {
-                preloadImage(entry.tracks[4].thumbnail, 200);
+                var desktopUrl = optimizeUrl(entry.tracks[4].thumbnail, 200);
+                if (desktopUrl) {
+                  document.write('<link rel="preload" as="image" href="' + desktopUrl + '" fetchpriority="high" crossorigin="anonymous">');
+                }
+              }
+              
+              // Mobile LCP: first track at index 0 (160x160)
+              if (entry.tracks[0] && entry.tracks[0].thumbnail) {
+                var mobileUrl = optimizeUrl(entry.tracks[0].thumbnail, 160);
+                if (mobileUrl) {
+                  document.write('<link rel="preload" as="image" href="' + mobileUrl + '" crossorigin="anonymous">');
+                }
               }
             }
           }
