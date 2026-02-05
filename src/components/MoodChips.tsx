@@ -27,10 +27,10 @@ export function MoodChips({ selected, onSelect }: MoodChipsProps) {
           key={mood}
           onClick={() => onSelect(selected === mood ? null : mood)}
           className={cn(
-            "px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer whitespace-nowrap border",
+            "px-4 py-2 rounded-full text-sm font-medium transition-colors cursor-pointer whitespace-nowrap",
             selected === mood 
-              ? "bg-foreground text-background border-transparent" 
-              : "bg-transparent text-foreground border-border/60 hover:bg-accent hover:border-border"
+              ? "bg-white text-black" 
+              : "bg-[#2a2a2a] text-white hover:bg-[#3a3a3a]"
           )}
         >
           {mood}

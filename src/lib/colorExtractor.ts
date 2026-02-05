@@ -302,3 +302,27 @@ export function generateGradientStyles(theme: DynamicTheme): {
 export function clearColorCache(): void {
   colorCache.clear();
 }
+
+/**
+ * Generate a solid background color from the theme
+ * Returns a very dark, slightly tinted color for solid ambient backgrounds
+ */
+export function getSolidBackgroundColor(theme: DynamicTheme): string {
+  // Extract the darkVibrant color and darken it significantly
+  const rgb = theme.rgbPalette[4] || theme.rgbPalette[0] || [30, 30, 30];
+  
+  // Reduce brightness significantly (to 8-12% lightness) and reduce saturation
+  const [r, g, b] = rgb;
+  const factor = 0.12; // Darken to ~12% of original brightness
+  const saturationFactor = 0.4; // Reduce saturation to 40%
+  
+  // Calculate average for desaturation
+  const avg = (r + g + b) / 3;
+  
+  // Blend towards average (reduces saturation) then darken
+  const newR = Math.round((r * saturationFactor + avg * (1 - saturationFactor)) * factor);
+  const newG = Math.round((g * saturationFactor + avg * (1 - saturationFactor)) * factor);
+  const newB = Math.round((b * saturationFactor + avg * (1 - saturationFactor)) * factor);
+  
+  return `rgb(${newR}, ${newG}, ${newB})`;
+}

@@ -58,7 +58,7 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
   };
 
   return (
-    <aside className="w-60 h-full flex flex-col border-r glass-premium">
+    <aside className="w-60 h-full flex flex-col bg-[#0f0f0f] border-r border-white/[0.08]">
       {/* Logo */}
       <div className="p-5 flex items-center gap-3">
         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-glow">
@@ -76,8 +76,8 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
             className={cn(
               "w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200",
               isActive(item.id) 
-                ? "bg-white/[0.12] text-white shadow-inner-glow" 
-                : "text-white/60 hover:text-white hover:bg-white/[0.06]",
+                ? "bg-white/[0.12] text-white" 
+                : "text-white/60 hover:text-white hover:bg-white/[0.08]",
               !item.path && "opacity-80"
             )}
           >
@@ -88,11 +88,11 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
       </nav>
 
       {/* Divider */}
-      <div className="my-4 mx-4 h-px bg-white/[0.1]" />
+      <div className="my-4 mx-4 h-px bg-white/[0.08]" />
 
       {/* New Playlist Button */}
       <div className="px-3 mb-4">
-        <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl glass-card-premium text-sm font-medium text-white/80 hover:text-white transition-all duration-200">
+        <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-[#1a1a1a] hover:bg-[#222] text-sm font-medium text-white/80 hover:text-white transition-all duration-200">
           <Plus className="w-5 h-5" />
           <span>New playlist</span>
         </button>
@@ -105,11 +105,11 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
           <button 
             onClick={() => handlePlaylistClick('liked')} 
             className={cn(
-              "w-full flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/[0.06] transition-all duration-200 text-left group",
+              "w-full flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/[0.08] transition-all duration-200 text-left group",
               isActive('liked') && "bg-white/[0.12]"
             )}
           >
-            <div className="w-11 h-11 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center flex-shrink-0 shadow-lg group-hover:shadow-glow transition-shadow">
+            <div className="w-11 h-11 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center flex-shrink-0 shadow-lg">
               <Heart className="w-5 h-5 text-white fill-white" />
             </div>
             <div className="flex-1 min-w-0">
@@ -121,9 +121,9 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
           {/* Episodes for later */}
           <button 
             onClick={() => handlePlaylistClick('recent')} 
-            className="w-full flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/[0.06] transition-all duration-200 text-left group"
+            className="w-full flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/[0.08] transition-all duration-200 text-left group"
           >
-            <div className="w-11 h-11 rounded-lg bg-gradient-to-br from-teal-500 to-green-600 flex items-center justify-center flex-shrink-0 shadow-lg group-hover:shadow-glow transition-shadow">
+            <div className="w-11 h-11 rounded-lg bg-gradient-to-br from-teal-500 to-green-600 flex items-center justify-center flex-shrink-0 shadow-lg">
               <Clock className="w-5 h-5 text-white" />
             </div>
             <div className="flex-1 min-w-0">
@@ -137,9 +137,9 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
             <button 
               key={playlist.id}
               onClick={() => navigate('/library')} 
-              className="w-full flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/[0.06] transition-all duration-200 text-left group"
+              className="w-full flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/[0.08] transition-all duration-200 text-left group"
             >
-              <div className="w-11 h-11 rounded-lg glass-card-premium flex items-center justify-center flex-shrink-0">
+              <div className="w-11 h-11 rounded-lg bg-[#1a1a1a] flex items-center justify-center flex-shrink-0">
                 <ListMusic className="w-5 h-5 text-muted-foreground group-hover:text-white transition-colors" />
               </div>
               <div className="flex-1 min-w-0">
@@ -153,16 +153,16 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
 
       {/* User Section */}
       {loading ? (
-        <div className="p-4 m-3 rounded-xl glass-card-premium">
+        <div className="p-4 m-3 rounded-xl bg-[#1a1a1a]">
           <div className="animate-shimmer h-10 rounded" />
         </div>
       ) : user ? (
         <div 
-          className="p-4 m-3 rounded-xl glass-card-premium cursor-pointer group" 
+          className="p-4 m-3 rounded-xl bg-[#1a1a1a] hover:bg-[#222] cursor-pointer transition-colors" 
           onClick={() => navigate('/profile')}
         >
           <div className="flex items-center gap-3">
-            <Avatar className="h-10 w-10 ring-2 ring-white/[0.1] group-hover:ring-white/[0.2] transition-all">
+            <Avatar className="h-10 w-10 ring-2 ring-white/[0.1]">
               <AvatarImage src={profile?.avatar_url || user?.user_metadata?.avatar_url || user?.user_metadata?.picture || undefined} />
               <AvatarFallback className="bg-primary/20 text-primary">
                 {getInitials()}
@@ -179,13 +179,13 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
           </div>
         </div>
       ) : (
-        <div className="p-4 m-3 rounded-xl glass-card-premium">
+        <div className="p-4 m-3 rounded-xl bg-[#1a1a1a]">
           <p className="text-sm text-muted-foreground mb-3">
             Sign in to create playlists and save songs
           </p>
           <button 
             onClick={() => navigate('/auth')} 
-            className="w-full py-2.5 px-4 rounded-xl bg-white/[0.1] hover:bg-white/[0.15] text-sm font-medium text-foreground transition-all duration-200 flex items-center justify-center gap-2 active:scale-95"
+            className="w-full py-2.5 px-4 rounded-xl bg-white/[0.1] hover:bg-white/[0.15] text-sm font-medium text-foreground transition-colors flex items-center justify-center gap-2"
           >
             <User className="w-4 h-4" />
             Sign in

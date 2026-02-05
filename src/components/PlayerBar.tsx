@@ -15,9 +15,7 @@ import {
 import { Slider } from "@/components/ui/slider";
 import { cn } from "@/lib/utils";
 import { optimizeImageUrl } from "@/lib/imageUtils";
-import { WaveformSeekbar } from "@/components/WaveformSeekbar";
 import { usePlayer } from "@/contexts/PlayerContext";
-import { useMemo } from "react";
 
 interface Track {
   title: string;
@@ -75,26 +73,21 @@ export function PlayerBar({
   onAddToPlaylist,
   onMiniPlayerClick,
 }: PlayerBarProps) {
+  const currentTime = currentTrack ? (progress / 100) * currentTrack.duration : 0;
+
   if (!currentTrack) return null;
 
-  const currentTime = (progress / 100) * currentTrack.duration;
-
-  // Get accent color from player context for waveform
-  const accentColor = useMemo(() => {
-    // Default to primary if no dynamic color available
-    return 'hsl(var(--primary))';
-  }, []);
-
   return (
-    <div className="fixed bottom-0 left-0 right-0 h-[90px] glass-premium border-t border-white/[0.1] flex flex-col z-50">
-      {/* Waveform Seekbar at top */}
+    <div className="fixed bottom-0 left-0 right-0 h-[90px] bg-[#181818] border-t border-white/[0.08] flex flex-col z-50">
+      {/* Progress bar at the very top */}
       <div className="px-4 pt-2">
-        <WaveformSeekbar
-          progress={progress}
-          duration={currentTrack.duration}
-          onSeek={(value) => onProgressChange([value])}
-          accentColor={accentColor}
-          className="h-8"
+        <Slider
+          value={[progress]}
+          onValueChange={onProgressChange}
+          max={100}
+          step={0.1}
+          className="w-full"
+          aria-label="Track progress"
         />
       </div>
       
@@ -104,14 +97,14 @@ export function PlayerBar({
         <div className="flex items-center gap-1">
           <button 
             onClick={onPrevious} 
-            className="p-2.5 rounded-full hover:bg-white/[0.1] transition-all duration-200 active:scale-95" 
+            className="p-2.5 rounded-full hover:bg-white/[0.08] transition-colors" 
             aria-label="Previous track"
           >
             <SkipBack className="w-5 h-5 text-foreground fill-current" />
           </button>
           <button
             onClick={onPlayPause}
-            className="p-3 rounded-full bg-white text-black hover:scale-105 active:scale-95 transition-all duration-200 play-glow"
+            className="p-3 rounded-full bg-white text-black hover:bg-white/90 transition-colors"
             aria-label={isBuffering ? "Loading" : isPlaying ? "Pause" : "Play"}
           >
             {isBuffering ? (
@@ -124,7 +117,7 @@ export function PlayerBar({
           </button>
           <button 
             onClick={onNext} 
-            className="p-2.5 rounded-full hover:bg-white/[0.1] transition-all duration-200 active:scale-95" 
+            className="p-2.5 rounded-full hover:bg-white/[0.08] transition-colors" 
             aria-label="Next track"
           >
             <SkipForward className="w-5 h-5 text-foreground fill-current" />
@@ -134,23 +127,20 @@ export function PlayerBar({
           </span>
         </div>
 
-        {/* Center: Track info with breathing album art */}
+        {/* Center: Track info */}
         <div 
           className="flex-1 flex items-center justify-center gap-4 cursor-pointer group px-8"
           onClick={onExpandClick}
         >
-          <div className={cn(
-            "w-12 h-12 rounded-xl overflow-hidden flex-shrink-0 shadow-lg ring-1 ring-white/[0.1] group-hover:ring-white/[0.2] transition-all",
-            isPlaying && "animate-album-breathe"
-          )}>
+          <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 shadow-lg">
             <img
               src={optimizeImageUrl(currentTrack.image, 120)}
               alt={currentTrack.title}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              className="w-full h-full object-cover"
             />
           </div>
           <div className="text-center min-w-0 max-w-md">
-            <h3 className="text-sm font-semibold text-foreground truncate group-hover:text-white transition-colors">
+            <h3 className="text-sm font-semibold text-foreground truncate">
               {currentTrack.title}
             </h3>
             <p className="text-xs text-white/50 truncate">
@@ -164,7 +154,7 @@ export function PlayerBar({
           <button
             onClick={(e) => { e.stopPropagation(); onLikeToggle(); }}
             className={cn(
-              "p-2.5 rounded-full hover:bg-white/[0.1] transition-all duration-200 active:scale-95",
+              "p-2.5 rounded-full hover:bg-white/[0.08] transition-colors",
               isLiked && "text-primary"
             )}
             aria-label={isLiked ? "Remove from liked songs" : "Add to liked songs"}
@@ -173,13 +163,13 @@ export function PlayerBar({
           </button>
           <button 
             onClick={onAddToPlaylist}
-            className="p-2.5 rounded-full hover:bg-white/[0.1] transition-all duration-200 active:scale-95"
+            className="p-2.5 rounded-full hover:bg-white/[0.08] transition-colors"
             aria-label="Add to playlist"
           >
             <Plus className="w-5 h-5 text-white/60 hover:text-white" />
           </button>
           
-          <div className="flex items-center gap-2 mx-3 px-3 py-1.5 rounded-full bg-white/[0.06]">
+          <div className="flex items-center gap-2 mx-3 px-3 py-1.5 rounded-full bg-white/[0.08]">
             <Volume2 className="w-4 h-4 text-white/50" />
             <Slider
               value={[volume]}
@@ -191,10 +181,10 @@ export function PlayerBar({
             />
           </div>
           
-          <button className="p-2.5 rounded-full hover:bg-white/[0.1] transition-all duration-200 active:scale-95" aria-label="Shuffle">
+          <button className="p-2.5 rounded-full hover:bg-white/[0.08] transition-colors" aria-label="Shuffle">
             <Shuffle className="w-5 h-5 text-white/60 hover:text-white" />
           </button>
-          <button className="p-2.5 rounded-full hover:bg-white/[0.1] transition-all duration-200 active:scale-95" aria-label="Repeat">
+          <button className="p-2.5 rounded-full hover:bg-white/[0.08] transition-colors" aria-label="Repeat">
             <Repeat className="w-5 h-5 text-white/60 hover:text-white" />
           </button>
           
@@ -202,7 +192,7 @@ export function PlayerBar({
             <>
               <button 
                 onClick={onMiniPlayerClick}
-                className="p-2.5 rounded-full hover:bg-white/[0.1] transition-all duration-200 active:scale-95"
+                className="p-2.5 rounded-full hover:bg-white/[0.08] transition-colors"
                 aria-label="Mini player"
                 title="Mini player"
               >
@@ -210,7 +200,7 @@ export function PlayerBar({
               </button>
               <button 
                 onClick={onExpandClick}
-                className="p-2.5 rounded-full hover:bg-white/[0.1] transition-all duration-200 active:scale-95"
+                className="p-2.5 rounded-full hover:bg-white/[0.08] transition-colors"
                 aria-label="Expand player"
                 title="Expand player"
               >
