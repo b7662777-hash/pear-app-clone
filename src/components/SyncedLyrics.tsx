@@ -43,7 +43,7 @@ export const SyncedLyrics = forwardRef<HTMLDivElement, SyncedLyricsProps>(
         ref={containerRef}
         className="h-full overflow-y-auto scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent"
       >
-        <div className="py-6 px-4 space-y-4">
+      <div className="py-6 px-4 space-y-6">
           {lyrics.map((line, index) => {
             const isActive = index === activeIndex;
             const isPast = index < activeIndex;
@@ -54,10 +54,10 @@ export const SyncedLyrics = forwardRef<HTMLDivElement, SyncedLyricsProps>(
                 ref={isActive ? activeLineRef : null}
                 onClick={() => onSeek?.(line.time)}
                 className={cn(
-                  "text-lg font-medium leading-relaxed cursor-pointer transition-all duration-300",
-                  isActive && "text-foreground text-xl",
-                  isPast && "text-muted-foreground/40",
-                  !isActive && !isPast && "text-muted-foreground/60 hover:text-muted-foreground"
+                "text-xl font-semibold leading-relaxed cursor-pointer transition-all duration-300 text-left",
+                isActive && "text-white text-2xl",
+                isPast && "text-white/30",
+                !isActive && !isPast && "text-white/50 hover:text-white/70"
                 )}
               >
                 {line.text || "♪"}

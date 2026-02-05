@@ -42,7 +42,7 @@ export function ExpandedLyrics({ lyrics, currentTime, onSeek }: ExpandedLyricsPr
       ref={containerRef}
       className="h-full overflow-y-auto scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent px-6"
     >
-      <div className="py-8 space-y-6">
+      <div className="py-8 space-y-8">
         {lyrics.map((line, index) => {
           const isActive = index === activeIndex;
           const isPast = index < activeIndex;
@@ -53,10 +53,10 @@ export function ExpandedLyrics({ lyrics, currentTime, onSeek }: ExpandedLyricsPr
               ref={isActive ? activeLineRef : null}
               onClick={() => onSeek?.(line.time)}
               className={cn(
-                "text-xl font-medium leading-relaxed cursor-pointer transition-all duration-300",
-                isActive && "text-foreground",
-                isPast && "text-muted-foreground/40",
-                !isActive && !isPast && "text-muted-foreground/60 hover:text-muted-foreground"
+                "text-2xl font-semibold leading-relaxed cursor-pointer transition-all duration-300 text-left",
+                isActive && "text-white text-3xl",
+                isPast && "text-white/30",
+                !isActive && !isPast && "text-white/50 hover:text-white/70"
               )}
             >
               {line.text || "♪"}

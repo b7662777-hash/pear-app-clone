@@ -89,26 +89,26 @@ export function ListenAgainSection({ tracks, featuredTrack, onTrackClick }: List
 
       <div className="flex gap-6">
         {/* Track grid with stagger animation */}
-        <div className="flex-1 grid grid-cols-2 md:grid-cols-4 gap-5 stagger-children">
+        <div className="flex-1 grid grid-cols-2 md:grid-cols-4 gap-4">
           {displayTracks.map((track, index) => (
             <div
               key={track.id}
               onClick={() => onTrackClick(track)}
-              className="group relative cursor-pointer glass-card-premium rounded-[20px] p-3"
+              className="group relative cursor-pointer bg-[#1a1a1a] hover:bg-[#252525] rounded-xl p-3 transition-colors"
             >
-              <div className="relative aspect-square rounded-[16px] overflow-hidden mb-3">
+              <div className="relative aspect-square rounded-lg overflow-hidden mb-3">
                 <img
                   src={optimizeImageUrl(track.image, 160)}
                   alt={track.title}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  className="w-full h-full object-cover"
                   loading={index === 0 ? "eager" : "lazy"}
                   fetchPriority={index === 0 ? "high" : undefined}
                   crossOrigin={index === 0 ? "anonymous" : undefined}
                 />
                 {/* Play button overlay */}
-                <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity">
                   <button 
-                    className="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-lg play-glow"
+                    className="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-lg"
                     aria-label={`Play ${track.title}`}
                   >
                     <Play className="w-5 h-5 text-black fill-black ml-0.5" />
@@ -127,18 +127,18 @@ export function ListenAgainSection({ tracks, featuredTrack, onTrackClick }: List
             onClick={() => onTrackClick(featuredTrack)}
             className="hidden lg:block w-[200px] flex-shrink-0 group cursor-pointer"
           >
-            <div className="relative aspect-square rounded-[20px] overflow-hidden shadow-elevated ring-1 ring-white/[0.1] group-hover:ring-white/[0.2] transition-all">
+            <div className="relative aspect-square rounded-xl overflow-hidden shadow-lg">
               <img
                 src={optimizeImageUrl(featuredTrack.image, 200)}
                 alt={featuredTrack.title}
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                className="w-full h-full object-cover"
                 loading="eager"
                 fetchPriority="high"
                 crossOrigin="anonymous"
               />
-              <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-all duration-300">
+              <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity">
                 <button 
-                  className="w-16 h-16 rounded-full bg-white flex items-center justify-center shadow-lg play-glow" 
+                  className="w-16 h-16 rounded-full bg-white flex items-center justify-center shadow-lg" 
                   aria-label={`Play ${featuredTrack.title}`}
                 >
                   <Play className="w-7 h-7 text-black fill-black ml-1" />

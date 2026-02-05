@@ -7,8 +7,9 @@ import { usePlaylists, PlaylistSong, LikedSong } from "@/hooks/usePlaylists";
 import { usePlayer, Track } from "@/contexts/PlayerContext";
 import { Library as LibraryIcon, Heart, Clock, ListMusic, Plus, Music, Play, Trash2, MoreVertical, Pause } from "lucide-react";
 
-// Lazy load AmbientBackground
+// Lazy load components
 const AmbientBackground = lazy(() => import("@/components/AmbientBackground").then(m => ({ default: m.AmbientBackground })));
+const RightPanel = lazy(() => import("@/components/RightPanel"));
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -237,6 +238,13 @@ const Library = () => {
             )}
           </main>
         </div>
+
+        {/* Right Panel */}
+        {currentTrack && (
+          <Suspense fallback={null}>
+            <RightPanel />
+          </Suspense>
+        )}
       </div>
     );
   }
@@ -345,6 +353,13 @@ const Library = () => {
             )}
           </main>
         </div>
+
+        {/* Right Panel */}
+        {currentTrack && (
+          <Suspense fallback={null}>
+            <RightPanel />
+          </Suspense>
+        )}
       </div>
     );
   }
@@ -518,6 +533,13 @@ const Library = () => {
           )}
         </main>
       </div>
+
+      {/* Right Panel */}
+      {currentTrack && (
+        <Suspense fallback={null}>
+          <RightPanel />
+        </Suspense>
+      )}
 
       {/* Create Playlist Dialog */}
       <Dialog open={showCreatePlaylist} onOpenChange={setShowCreatePlaylist}>

@@ -7,8 +7,9 @@ import { SearchResults } from "@/components/SearchResults";
 import { ListenAgainSection } from "@/components/ListenAgainSection";
 import { useYouTubeMusic, YouTubeTrack } from "@/hooks/useYouTubeMusic";
 
-// Lazy load AmbientBackground - not critical for initial render, reduces TBT
+// Lazy load components that aren't critical for initial render
 const AmbientBackground = lazy(() => import("@/components/AmbientBackground").then(m => ({ default: m.AmbientBackground })));
+const RightPanel = lazy(() => import("@/components/RightPanel"));
 import { usePlayer, Track } from "@/contexts/PlayerContext";
 import { useNavigate } from "react-router-dom";
 import { 
@@ -23,7 +24,7 @@ const Index = () => {
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
   const navigate = useNavigate();
   
-  const { playTrack, currentTrack, setQueue } = usePlayer();
+  const { playTrack, currentTrack } = usePlayer();
 
   const {
     isSearching,
@@ -110,12 +111,12 @@ const Index = () => {
 
   return (
     <div className="flex h-screen bg-background overflow-hidden relative">
-      {/* Global Ambient Background - lazy loaded to reduce TBT */}
+      {/* Global Ambient Background */}
       <Suspense fallback={null}>
         <AmbientBackground />
       </Suspense>
 
-      {/* Sidebar - uses shell for faster initial render */}
+      {/* Sidebar */}
       <SidebarShell activeTab={activeTab} onTabChange={handleTabChange} />
 
       {/* Main Content */}
@@ -138,12 +139,12 @@ const Index = () => {
 
           {/* Albums for you */}
           {!searchQuery.trim() && (
-            <div className="mb-10 animate-fade-in-up">
+            <div className="mb-10">
               <AlbumSection title="Albums for you" albums={recommendedAlbums} onAlbumClick={handleAlbumClick} />
             </div>
           )}
 
-          {/* Listen again - using recommended tracks - min-height prevents CLS */}
+          {/* Listen again */}
           {!searchQuery.trim() && (
             <div className="min-h-[320px]">
               {recommendedTracks.length > 0 && (
@@ -171,7 +172,7 @@ const Index = () => {
             </div>
           )}
 
-          {/* Album Sections - removed animation delays to prevent CLS */}
+          {/* Album Sections */}
           {!searchQuery.trim() && (
             <>
               <div className="mb-10">
@@ -187,6 +188,13 @@ const Index = () => {
           )}
         </main>
       </div>
+
+      {/* Right Panel - only visible when track is playing */}
+      {currentTrack && (
+        <Suspense fallback={null}>
+          <RightPanel />
+        </Suspense>
+      )}
     </div>
   );
 };

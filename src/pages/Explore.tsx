@@ -2,10 +2,12 @@ import { useState, lazy, Suspense } from "react";
 import { SidebarShell } from "@/components/SidebarShell";
 import { SearchBarShell } from "@/components/SearchBarShell";
 import { useNavigate } from "react-router-dom";
+import { usePlayer } from "@/contexts/PlayerContext";
 import { Compass, TrendingUp, Music, Radio, Mic2, Headphones } from "lucide-react";
 
-// Lazy load AmbientBackground
+// Lazy load components
 const AmbientBackground = lazy(() => import("@/components/AmbientBackground").then(m => ({ default: m.AmbientBackground })));
+const RightPanel = lazy(() => import("@/components/RightPanel"));
 
 const genres = [
   { id: "pop", name: "Pop", color: "from-pink-500 to-rose-500", icon: Music },
@@ -31,6 +33,7 @@ const Explore = () => {
   const [activeTab, setActiveTab] = useState("explore");
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
+  const { currentTrack } = usePlayer();
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
@@ -40,7 +43,7 @@ const Explore = () => {
 
   return (
     <div className="flex h-screen bg-background overflow-hidden relative">
-      {/* Global Ambient Background - lazy loaded */}
+      {/* Global Ambient Background */}
       <Suspense fallback={null}>
         <AmbientBackground />
       </Suspense>
@@ -50,7 +53,7 @@ const Explore = () => {
       <div className="flex-1 flex flex-col overflow-hidden relative z-10">
         <SearchBarShell value={searchQuery} onChange={setSearchQuery} />
 
-        <main className="flex-1 overflow-y-auto px-6 pb-24">
+        <main className="flex-1 overflow-y-auto px-6 pb-32">
           {/* Header */}
           <div className="mb-8">
             <div className="flex items-center gap-3 mb-2">
@@ -70,7 +73,7 @@ const Explore = () => {
               {["Top 50 Global", "Viral Hits", "New Music Friday", "Discover Weekly"].map((item, i) => (
                 <div
                   key={item}
-                  className="relative group cursor-pointer rounded-xl overflow-hidden aspect-square bg-gradient-to-br from-primary/30 to-primary/10 hover:scale-[1.02] transition-transform"
+                  className="relative group cursor-pointer rounded-xl overflow-hidden aspect-square bg-gradient-to-br from-primary/30 to-primary/10 hover:brightness-110 transition-all"
                 >
                   <div className="absolute inset-0 flex items-center justify-center">
                     <span className="text-lg font-bold text-center px-4">{item}</span>
@@ -87,7 +90,7 @@ const Explore = () => {
               {genres.map((genre) => (
                 <div
                   key={genre.id}
-                  className={`relative group cursor-pointer rounded-xl overflow-hidden aspect-[2/1] bg-gradient-to-br ${genre.color} hover:scale-[1.02] transition-transform`}
+                  className={`relative group cursor-pointer rounded-xl overflow-hidden aspect-[2/1] bg-gradient-to-br ${genre.color} hover:brightness-110 transition-all`}
                 >
                   <div className="absolute inset-0 flex items-center justify-between p-4">
                     <span className="text-lg font-bold text-white">{genre.name}</span>
@@ -105,7 +108,7 @@ const Explore = () => {
               {moods.map((mood) => (
                 <button
                   key={mood.id}
-                  className="px-6 py-3 rounded-full bg-card border border-border hover:bg-accent transition-colors flex items-center gap-2"
+                  className="px-6 py-3 rounded-full bg-[#1a1a1a] hover:bg-[#252525] transition-colors flex items-center gap-2"
                 >
                   <span className="text-xl">{mood.emoji}</span>
                   <span className="font-medium">{mood.name}</span>
@@ -121,7 +124,7 @@ const Explore = () => {
               {["Top Songs", "Top Artists", "Top Albums"].map((chart) => (
                 <div
                   key={chart}
-                  className="p-6 rounded-xl bg-card border border-border hover:bg-accent/50 transition-colors cursor-pointer"
+                  className="p-6 rounded-xl bg-[#1a1a1a] hover:bg-[#252525] transition-colors cursor-pointer"
                 >
                   <h3 className="font-semibold mb-2">{chart}</h3>
                   <p className="text-sm text-muted-foreground">Updated daily</p>
@@ -131,6 +134,13 @@ const Explore = () => {
           </section>
         </main>
       </div>
+
+      {/* Right Panel */}
+      {currentTrack && (
+        <Suspense fallback={null}>
+          <RightPanel />
+        </Suspense>
+      )}
     </div>
   );
 };

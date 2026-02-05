@@ -91,3 +91,41 @@
 .play-glow:active {
   transform: scale(0.95);
 }
+
+/* Solid panel utilities for the new design system */
+.solid-panel {
+  background-color: hsl(var(--sidebar-background));
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.solid-card {
+  background-color: hsl(var(--card-solid));
+  border-radius: 0.75rem;
+  transition: background-color 0.2s ease;
+}
+
+.solid-card:hover {
+  background-color: hsl(0 0% 14%);
+}
+
+/* Solid player bar */
+.solid-player {
+  background-color: hsl(var(--player-bg));
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Solid chip/pill button */
+.solid-chip {
+  background-color: hsl(var(--chip-bg));
+  color: white;
+  border: none;
+}
+
+.solid-chip:hover {
+  background-color: hsl(0 0% 22%);
+}
+
+.solid-chip-active {
+  background-color: white;
+  color: black;
+}

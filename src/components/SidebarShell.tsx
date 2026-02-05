@@ -48,7 +48,7 @@ export function SidebarShell({ activeTab, onTabChange }: SidebarShellProps) {
   };
 
   return (
-    <aside className="w-60 h-full flex flex-col border-r glass-premium">
+    <aside className="w-60 h-full flex flex-col bg-[#0f0f0f] border-r border-white/[0.08]">
       {/* Logo */}
       <div className="p-5 flex items-center gap-3">
         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-glow">
@@ -66,8 +66,8 @@ export function SidebarShell({ activeTab, onTabChange }: SidebarShellProps) {
             className={cn(
               "w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200",
               isActive(item.id) 
-                ? "bg-white/[0.12] text-white shadow-inner-glow" 
-                : "text-white/60 hover:text-white hover:bg-white/[0.06]",
+                ? "bg-white/[0.12] text-white" 
+                : "text-white/60 hover:text-white hover:bg-white/[0.08]",
               !item.path && "opacity-80"
             )}
           >
@@ -78,11 +78,11 @@ export function SidebarShell({ activeTab, onTabChange }: SidebarShellProps) {
       </nav>
 
       {/* Divider */}
-      <div className="my-4 mx-4 h-px bg-white/[0.1]" />
+      <div className="my-4 mx-4 h-px bg-white/[0.08]" />
 
       {/* New Playlist Button */}
       <div className="px-3 mb-4">
-        <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl glass-card-premium text-sm font-medium text-white/80 hover:text-white transition-all duration-200">
+        <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-[#1a1a1a] hover:bg-[#222] text-sm font-medium text-white/80 hover:text-white transition-all duration-200">
           <Plus className="w-5 h-5" />
           <span>New playlist</span>
         </button>
@@ -95,11 +95,11 @@ export function SidebarShell({ activeTab, onTabChange }: SidebarShellProps) {
           <button 
             onClick={() => handlePlaylistClick('liked')} 
             className={cn(
-              "w-full flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/[0.06] transition-all duration-200 text-left group",
+              "w-full flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/[0.08] transition-all duration-200 text-left group",
               isActive('liked') && "bg-white/[0.12]"
             )}
           >
-            <div className="w-11 h-11 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center flex-shrink-0 shadow-lg group-hover:shadow-glow transition-shadow">
+            <div className="w-11 h-11 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center flex-shrink-0 shadow-lg">
               <Heart className="w-5 h-5 text-white fill-white" />
             </div>
             <div className="flex-1 min-w-0">
@@ -111,9 +111,9 @@ export function SidebarShell({ activeTab, onTabChange }: SidebarShellProps) {
           {/* Episodes for later */}
           <button 
             onClick={() => handlePlaylistClick('recent')} 
-            className="w-full flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/[0.06] transition-all duration-200 text-left group"
+            className="w-full flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/[0.08] transition-all duration-200 text-left group"
           >
-            <div className="w-11 h-11 rounded-lg bg-gradient-to-br from-teal-500 to-green-600 flex items-center justify-center flex-shrink-0 shadow-lg group-hover:shadow-glow transition-shadow">
+            <div className="w-11 h-11 rounded-lg bg-gradient-to-br from-teal-500 to-green-600 flex items-center justify-center flex-shrink-0 shadow-lg">
               <Clock className="w-5 h-5 text-white" />
             </div>
             <div className="flex-1 min-w-0">
@@ -131,7 +131,7 @@ export function SidebarShell({ activeTab, onTabChange }: SidebarShellProps) {
 
       {/* User Section - lazy loaded to defer Supabase */}
       <Suspense fallback={
-        <div className="p-4 m-3 rounded-xl glass-card-premium">
+        <div className="p-4 m-3 rounded-xl bg-[#1a1a1a]">
           <div className="animate-shimmer h-10 rounded" />
         </div>
       }>
