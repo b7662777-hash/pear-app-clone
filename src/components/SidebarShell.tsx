@@ -19,6 +19,8 @@ const mainNavItems = [
   { id: "settings", label: "Settings", icon: Settings, path: "/settings" },
 ];
 
+// Note: "Upgrade" would go here in a premium version
+
 export function SidebarShell({ activeTab, onTabChange }: SidebarShellProps) {
   const navigate = useNavigate();
   const location = useLocation();
