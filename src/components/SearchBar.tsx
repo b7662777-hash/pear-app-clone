@@ -1,11 +1,11 @@
-import { Search, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { Search, ChevronLeft, ChevronRight, X, Users } from "lucide-react";
 import { UserProfileMenu } from "./UserProfileMenu";
 import { useAuth } from "@/hooks/useAuth";
-import { useScrollOpacity } from "@/hooks/useScrollOpacity";
 import { cn } from "@/lib/utils";
 import { useState, useCallback } from "react";
 import { SearchDropdown } from "./SearchDropdown";
 import { usePlayer } from "@/contexts/PlayerContext";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface SearchBarProps {
   value: string;
@@ -21,18 +21,19 @@ interface SearchBarProps {
 
 export function SearchBar({ value, onChange, searchResults = [] }: SearchBarProps) {
   const { user, profile } = useAuth();
-  const { hasScrolled, opacity } = useScrollOpacity(80, 0.85, 1);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const { playTrack } = usePlayer();
 
   // Generate suggestions based on query
   const suggestions = value.length >= 2 
     ? [
-        value,
-        `${value} remix`,
-        `${value} slowed`,
-        `${value} lyrics`,
-      ].slice(0, 4)
+        `${value} chhod kar`,
+        `${value} rocky aur rani`,
+        `${value} rekha bhardwaj`,
+        `${value}`,
+        `${value} ke dil abhi bhara nahin`,
+        `${value} world music day`,
+      ].slice(0, 6)
     : [];
 
   const handleInputFocus = () => {
@@ -74,18 +75,20 @@ export function SearchBar({ value, onChange, searchResults = [] }: SearchBarProp
     setIsDropdownOpen(false);
   }, [playTrack]);
 
+  const getInitials = () => {
+    if (profile?.display_name) {
+      return profile.display_name.slice(0, 2).toUpperCase();
+    }
+    if (user?.email) {
+      return user.email.slice(0, 2).toUpperCase();
+    }
+    return "U";
+  };
+
   return (
-    <header 
-      className={cn(
-        "sticky top-0 z-40 flex items-center justify-between gap-4 px-6 py-3 transition-all duration-300",
-        hasScrolled 
-          ? "bg-[#0f0f0f]/95 border-b border-white/[0.08]" 
-          : "bg-transparent"
-      )}
-      style={{ opacity }}
-    >
+    <header className="sticky top-0 z-40 flex items-center justify-between gap-4 px-4 py-2 bg-transparent">
       {/* Search Input */}
-      <div className="relative flex-1 max-w-lg">
+      <div className="relative flex-1 max-w-[480px]">
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/50" />
         <input
           type="text"
@@ -93,7 +96,7 @@ export function SearchBar({ value, onChange, searchResults = [] }: SearchBarProp
           value={value}
           onChange={(e) => handleInputChange(e.target.value)}
           onFocus={handleInputFocus}
-          className="w-full bg-[#1a1a1a] rounded-full px-4 py-2.5 pl-12 pr-10 text-white placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-white/20 focus:bg-[#222] transition-colors"
+          className="w-full bg-[#3d3d3d] hover:bg-[#4a4a4a] focus:bg-[#4a4a4a] rounded-lg px-4 py-2.5 pl-12 pr-10 text-white placeholder:text-white/50 focus:outline-none transition-colors text-sm"
         />
         {value && (
           <button
@@ -101,7 +104,7 @@ export function SearchBar({ value, onChange, searchResults = [] }: SearchBarProp
             className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-white/[0.1] transition-colors"
             aria-label="Clear search"
           >
-            <X className="w-4 h-4 text-white/50" />
+            <X className="w-5 h-5 text-white/60" />
           </button>
         )}
 
@@ -118,24 +121,34 @@ export function SearchBar({ value, onChange, searchResults = [] }: SearchBarProp
       </div>
 
       {/* Right Actions */}
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-2">
         <button 
-          className="p-2.5 rounded-full hover:bg-white/[0.08] transition-colors" 
+          className="p-2 rounded-full hover:bg-white/[0.08] transition-colors" 
           aria-label="Go back"
         >
-          <ChevronLeft className="w-5 h-5 text-white/60" />
+          <ChevronLeft className="w-6 h-6 text-white/70" />
         </button>
         <button 
-          className="p-2.5 rounded-full hover:bg-white/[0.08] transition-colors" 
+          className="p-2 rounded-full hover:bg-white/[0.08] transition-colors" 
           aria-label="Go forward"
         >
-          <ChevronRight className="w-5 h-5 text-white/60" />
+          <ChevronRight className="w-6 h-6 text-white/70" />
         </button>
         
-        {/* User Profile */}
-        <div className="ml-2">
-          <UserProfileMenu user={user} profile={profile} />
-        </div>
+        <button 
+          className="p-2 rounded-full hover:bg-white/[0.08] transition-colors ml-2" 
+          aria-label="Cast"
+        >
+          <Users className="w-5 h-5 text-white/70" />
+        </button>
+        
+        {/* User Avatar */}
+        <Avatar className="w-8 h-8 cursor-pointer hover:ring-2 hover:ring-white/20 transition-all">
+          <AvatarImage src={profile?.avatar_url || user?.user_metadata?.avatar_url || undefined} />
+          <AvatarFallback className="bg-purple-600 text-white text-xs font-medium">
+            {getInitials()}
+          </AvatarFallback>
+        </Avatar>
       </div>
     </header>
   );

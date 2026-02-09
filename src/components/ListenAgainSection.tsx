@@ -1,6 +1,7 @@
 import { Play, ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { optimizeImageUrl } from "@/lib/imageUtils";
+import { useAuth } from "@/hooks/useAuth";
 
 interface Track {
   id: string;
@@ -8,6 +9,8 @@ interface Track {
   artist: string;
   image: string;
   videoId?: string;
+  type?: string;
+  views?: string;
 }
 
 interface ListenAgainSectionProps {
@@ -20,14 +23,16 @@ export function ListenAgainSection({ tracks, featuredTrack, onTrackClick }: List
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
+  const { profile, user } = useAuth();
+
+  const displayName = profile?.display_name || user?.email?.split('@')[0] || 'BLUE SUN';
 
   // Preload LCP images for better discovery
   useEffect(() => {
     const preloadLinks: HTMLLinkElement[] = [];
     
-    // Preload first track image for LCP
     if (tracks[0]?.image) {
-      const imageUrl = optimizeImageUrl(tracks[0].image, 160);
+      const imageUrl = optimizeImageUrl(tracks[0].image, 226);
       const existingPreload = document.querySelector(`link[rel="preload"][href="${imageUrl}"]`);
       
       if (!existingPreload) {
@@ -36,7 +41,6 @@ export function ListenAgainSection({ tracks, featuredTrack, onTrackClick }: List
         preloadLink.as = 'image';
         preloadLink.href = imageUrl;
         preloadLink.setAttribute('fetchpriority', 'high');
-        preloadLink.setAttribute('crossorigin', 'anonymous');
         document.head.appendChild(preloadLink);
         preloadLinks.push(preloadLink);
       }
@@ -80,36 +84,35 @@ export function ListenAgainSection({ tracks, featuredTrack, onTrackClick }: List
 
   if (tracks.length === 0) return null;
 
-  // Use all available tracks for the grid
   const displayTracks = tracks.slice(0, 12);
 
   return (
-    <section className="mb-10">
+    <section className="mb-8">
       {/* Header with avatar, title, and navigation */}
-      <div className="flex items-center justify-between mb-5">
+      <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           {featuredTrack && (
             <img 
               src={optimizeImageUrl(featuredTrack.image, 48)} 
               alt="" 
-              className="w-12 h-12 rounded-lg object-cover ring-2 ring-white/[0.1]"
+              className="w-12 h-12 rounded object-cover"
             />
           )}
           <div>
-            <span className="text-xs text-white/40 uppercase tracking-wider font-medium">BLUE SUN</span>
-            <h2 className="text-2xl font-bold text-foreground">Listen again</h2>
+            <span className="text-xs text-white/50 uppercase tracking-wide font-medium block">{displayName.toUpperCase()}</span>
+            <h2 className="text-2xl font-bold text-white">Listen again</h2>
           </div>
         </div>
 
         {/* Navigation controls */}
         <div className="flex items-center gap-2">
-          <button className="text-sm font-medium text-white/60 hover:text-white transition-colors px-3 py-1.5">
+          <button className="px-4 py-1.5 rounded-full border border-white/20 text-sm font-medium text-white hover:bg-white/[0.05] transition-colors">
             More
           </button>
           <button 
             onClick={() => scroll('left')}
             disabled={!canScrollLeft}
-            className="p-1.5 rounded-full hover:bg-white/[0.08] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+            className="p-2 rounded-full hover:bg-white/[0.08] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             aria-label="Scroll left"
           >
             <ChevronLeft className="w-5 h-5 text-white/60" />
@@ -117,7 +120,7 @@ export function ListenAgainSection({ tracks, featuredTrack, onTrackClick }: List
           <button 
             onClick={() => scroll('right')}
             disabled={!canScrollRight}
-            className="p-1.5 rounded-full hover:bg-white/[0.08] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+            className="p-2 rounded-full hover:bg-white/[0.08] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             aria-label="Scroll right"
           >
             <ChevronRight className="w-5 h-5 text-white/60" />
@@ -125,39 +128,41 @@ export function ListenAgainSection({ tracks, featuredTrack, onTrackClick }: List
         </div>
       </div>
 
-      {/* Track grid - 6 columns on larger screens */}
+      {/* Track grid - 6 columns */}
       <div 
         ref={scrollContainerRef}
-        className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 overflow-x-auto scrollbar-hide"
+        className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4"
       >
         {displayTracks.map((track, index) => (
           <div
             key={track.id}
             onClick={() => onTrackClick(track)}
-            className="group relative cursor-pointer bg-[#1a1a1a] hover:bg-[#252525] rounded-xl p-3 transition-colors min-w-0"
+            className="group relative cursor-pointer"
           >
-            <div className="relative aspect-square rounded-lg overflow-hidden mb-3">
+            {/* Album art container */}
+            <div className="relative aspect-square rounded overflow-hidden mb-2">
               <img
-                src={optimizeImageUrl(track.image, 160)}
+                src={optimizeImageUrl(track.image, 226)}
                 alt={track.title}
                 className="w-full h-full object-cover"
                 loading={index < 2 ? "eager" : "lazy"}
                 fetchPriority={index === 0 ? "high" : undefined}
-                crossOrigin={index === 0 ? "anonymous" : undefined}
               />
               {/* Play button overlay */}
-              <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
                 <button 
-                  className="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-lg"
+                  className="w-12 h-12 rounded-full bg-white/90 hover:bg-white flex items-center justify-center shadow-lg transition-transform hover:scale-105"
                   aria-label={`Play ${track.title}`}
                 >
                   <Play className="w-5 h-5 text-black fill-black ml-0.5" />
                 </button>
               </div>
             </div>
-            <h3 className="text-sm font-semibold text-foreground truncate">{track.title}</h3>
+            
+            {/* Track info */}
+            <h3 className="text-sm font-medium text-white truncate">{track.title}</h3>
             <p className="text-xs text-white/50 truncate">
-              Song • {track.artist}
+              {track.type || 'Song'} • {track.artist}{track.views ? ` • ${track.views}` : ''}
             </p>
           </div>
         ))}

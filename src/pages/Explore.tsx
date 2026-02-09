@@ -1,13 +1,12 @@
 import { useState, lazy, Suspense } from "react";
 import { SidebarShell } from "@/components/SidebarShell";
-import { SearchBarShell } from "@/components/SearchBarShell";
+import { SearchBar } from "@/components/SearchBar";
 import { useNavigate } from "react-router-dom";
 import { usePlayer } from "@/contexts/PlayerContext";
 import { Compass, TrendingUp, Music, Radio, Mic2, Headphones } from "lucide-react";
 
 // Lazy load components
 const AmbientBackground = lazy(() => import("@/components/AmbientBackground").then(m => ({ default: m.AmbientBackground })));
-const RightPanel = lazy(() => import("@/components/RightPanel"));
 
 const genres = [
   { id: "pop", name: "Pop", color: "from-pink-500 to-rose-500", icon: Music },
@@ -42,7 +41,7 @@ const Explore = () => {
   };
 
   return (
-    <div className="flex h-screen bg-background overflow-hidden relative">
+    <div className="flex h-screen bg-[#1f1f1f] overflow-hidden relative">
       {/* Global Ambient Background */}
       <Suspense fallback={null}>
         <AmbientBackground />
@@ -51,9 +50,9 @@ const Explore = () => {
       <SidebarShell activeTab={activeTab} onTabChange={handleTabChange} />
 
       <div className="flex-1 flex flex-col overflow-hidden relative z-10">
-        <SearchBarShell value={searchQuery} onChange={setSearchQuery} />
+        <SearchBar value={searchQuery} onChange={setSearchQuery} />
 
-        <main className="flex-1 overflow-y-auto px-6 pb-32">
+        <main className="flex-1 overflow-y-auto px-6 pb-24">
           {/* Header */}
           <div className="mb-8">
             <div className="flex items-center gap-3 mb-2">
@@ -134,13 +133,6 @@ const Explore = () => {
           </section>
         </main>
       </div>
-
-      {/* Right Panel */}
-      {currentTrack && (
-        <Suspense fallback={null}>
-          <RightPanel />
-        </Suspense>
-      )}
     </div>
   );
 };
