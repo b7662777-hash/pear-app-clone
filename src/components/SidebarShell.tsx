@@ -1,4 +1,4 @@
-import { Home, Compass, Library, Youtube, Plus, Heart, Clock, Settings } from "lucide-react";
+import { Home, Compass, Library, Plus, Heart, Clock, Settings } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { lazy, Suspense } from "react";
@@ -51,12 +51,14 @@ export function SidebarShell({ activeTab, onTabChange }: SidebarShellProps) {
 
   return (
     <aside className="w-60 h-full flex flex-col bg-[#0f0f0f] border-r border-white/[0.08]">
-      {/* Logo */}
-      <div className="p-5 flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center shadow-glow">
-          <Youtube className="w-5 h-5 text-white" />
+      {/* YouTube Music Logo */}
+      <div className="p-5 flex items-center gap-2">
+        <div className="w-8 h-8 rounded-md bg-red-600 flex items-center justify-center">
+          <svg viewBox="0 0 24 24" className="w-5 h-5 text-white fill-current">
+            <path d="M12 0C5.376 0 0 5.376 0 12s5.376 12 12 12 12-5.376 12-12S18.624 0 12 0zm0 19.104c-3.924 0-7.104-3.18-7.104-7.104S8.076 4.896 12 4.896s7.104 3.18 7.104 7.104-3.18 7.104-7.104 7.104zm0-13.332c-3.432 0-6.228 2.796-6.228 6.228S8.568 18.228 12 18.228 18.228 15.432 18.228 12 15.432 5.772 12 5.772zM9.684 15.54V8.46L15.816 12l-6.132 3.54z"/>
+          </svg>
         </div>
-        <span className="text-lg font-semibold text-foreground">Music</span>
+        <span className="text-lg font-medium text-white tracking-tight">Music</span>
       </div>
 
       {/* Main Navigation */}
