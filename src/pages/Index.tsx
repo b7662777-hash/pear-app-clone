@@ -1,22 +1,16 @@
 import { useState, useEffect, useCallback, lazy, Suspense, startTransition } from "react";
 import { SidebarShell } from "@/components/SidebarShell";
-import { SearchBarShell } from "@/components/SearchBarShell";
+import { SearchBar } from "@/components/SearchBar";
 import { MoodChips } from "@/components/MoodChips";
-import { AlbumSection } from "@/components/AlbumSection";
 import { SearchResults } from "@/components/SearchResults";
 import { ListenAgainSection } from "@/components/ListenAgainSection";
+import { SimilarToSection } from "@/components/SimilarToSection";
 import { useYouTubeMusic, YouTubeTrack } from "@/hooks/useYouTubeMusic";
 
 // Lazy load components that aren't critical for initial render
 const AmbientBackground = lazy(() => import("@/components/AmbientBackground").then(m => ({ default: m.AmbientBackground })));
-const RightPanel = lazy(() => import("@/components/RightPanel"));
 import { usePlayer, Track } from "@/contexts/PlayerContext";
 import { useNavigate } from "react-router-dom";
-import { 
-  throwbackAlbums, 
-  recommendedAlbums, 
-  newReleases 
-} from "@/data/mockData";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("home");
@@ -37,11 +31,8 @@ const Index = () => {
   } = useYouTubeMusic();
 
   // Fetch recommended tracks on mount only if cache is empty
-  // Use startTransition to keep UI responsive during fetch
   useEffect(() => {
     if (recommendedTracks.length === 0) {
-      // Fetch immediately to reduce LCP resource load delay
-      // The API call is already non-blocking and cached results load instantly
       startTransition(() => {
         fetchRecommendedTracks();
       });
@@ -82,7 +73,6 @@ const Index = () => {
       videoId: track.videoId,
     };
     
-    // Set queue from search results or recommended
     const queue = (searchResults.length > 0 ? searchResults : recommendedTracks).map(t => ({
       id: t.videoId,
       title: t.title,
@@ -97,11 +87,6 @@ const Index = () => {
     playTrack(newTrack, queue);
   }, [searchResults, recommendedTracks, playTrack]);
 
-  const handleAlbumClick = (album: { id: string; title: string }) => {
-    searchTracks(album.title);
-    setSearchQuery(album.title);
-  };
-
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
     if (tab === "explore") navigate("/explore");
@@ -109,8 +94,17 @@ const Index = () => {
     if (tab === "liked") navigate("/library/liked");
   };
 
+  // Convert recommended tracks for SimilarToSection
+  const similarAlbums = recommendedTracks.slice(6, 12).map(t => ({
+    id: t.videoId,
+    title: t.title,
+    artist: t.artist,
+    image: t.thumbnail,
+    videoId: t.videoId,
+  }));
+
   return (
-    <div className="flex h-screen bg-background overflow-hidden relative">
+    <div className="flex h-screen bg-[#1f1f1f] overflow-hidden relative">
       {/* Global Ambient Background */}
       <Suspense fallback={null}>
         <AmbientBackground />
@@ -121,10 +115,21 @@ const Index = () => {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden relative z-10">
-        <SearchBarShell value={searchQuery} onChange={setSearchQuery} />
+        <SearchBar 
+          value={searchQuery} 
+          onChange={setSearchQuery}
+          searchResults={searchResults.map(r => ({
+            id: r.videoId,
+            title: r.title,
+            artist: r.artist,
+            image: r.thumbnail,
+            videoId: r.videoId,
+          }))}
+        />
 
-        <main className="flex-1 overflow-y-auto px-6 pb-32">
-          <div className="mb-6">
+        <main className="flex-1 overflow-y-auto px-6 pb-24">
+          {/* Mood Chips */}
+          <div className="mb-6 pt-2">
             <MoodChips selected={selectedMood} onSelect={setSelectedMood} />
           </div>
 
@@ -137,64 +142,46 @@ const Index = () => {
             isVisible={searchQuery.trim().length > 0}
           />
 
-          {/* Albums for you */}
-          {!searchQuery.trim() && (
-            <div className="mb-10">
-              <AlbumSection title="Albums for you" albums={recommendedAlbums} onAlbumClick={handleAlbumClick} />
-            </div>
-          )}
-
           {/* Listen again */}
-          {!searchQuery.trim() && (
-            <div className="min-h-[320px]">
-              {recommendedTracks.length > 0 && (
-                <ListenAgainSection
-                  tracks={recommendedTracks.slice(0, 4).map(t => ({
-                    id: t.videoId,
-                    title: t.title,
-                    artist: t.artist,
-                    image: t.thumbnail,
-                    videoId: t.videoId,
-                  }))}
-                  featuredTrack={recommendedTracks[4] ? {
-                    id: recommendedTracks[4].videoId,
-                    title: recommendedTracks[4].title,
-                    artist: recommendedTracks[4].artist,
-                    image: recommendedTracks[4].thumbnail,
-                    videoId: recommendedTracks[4].videoId,
-                  } : null}
-                  onTrackClick={(track) => {
-                    const ytTrack = recommendedTracks.find(t => t.videoId === track.videoId);
-                    if (ytTrack) handleYouTubeTrackClick(ytTrack);
-                  }}
-                />
-              )}
-            </div>
+          {!searchQuery.trim() && recommendedTracks.length > 0 && (
+            <ListenAgainSection
+              tracks={recommendedTracks.slice(0, 6).map(t => ({
+                id: t.videoId,
+                title: t.title,
+                artist: t.artist,
+                image: t.thumbnail,
+                videoId: t.videoId,
+                type: 'Song',
+              }))}
+              featuredTrack={recommendedTracks[0] ? {
+                id: recommendedTracks[0].videoId,
+                title: recommendedTracks[0].title,
+                artist: recommendedTracks[0].artist,
+                image: recommendedTracks[0].thumbnail,
+                videoId: recommendedTracks[0].videoId,
+              } : null}
+              onTrackClick={(track) => {
+                const ytTrack = recommendedTracks.find(t => t.videoId === track.videoId);
+                if (ytTrack) handleYouTubeTrackClick(ytTrack);
+              }}
+            />
           )}
 
-          {/* Album Sections */}
-          {!searchQuery.trim() && (
-            <>
-              <div className="mb-10">
-                <AlbumSection title="Throwback jams" subtitle="Hits from every decade" albums={throwbackAlbums} onAlbumClick={handleAlbumClick} />
-              </div>
-              <div className="mb-10">
-                <AlbumSection title="Popular albums" subtitle="Top picks this week" albums={recommendedAlbums} onAlbumClick={handleAlbumClick} />
-              </div>
-              <div className="mb-10">
-                <AlbumSection title="New releases" subtitle="Fresh music just dropped" albums={newReleases} onAlbumClick={handleAlbumClick} />
-              </div>
-            </>
+          {/* Similar To Section */}
+          {!searchQuery.trim() && similarAlbums.length > 0 && (
+            <SimilarToSection
+              title="New Phonk Songs 2025 - Latest Phonk Music 2025 Playlist (New Released"
+              subtitle="SIMILAR TO"
+              featuredImage={similarAlbums[0]?.image}
+              albums={similarAlbums}
+              onAlbumClick={(album) => {
+                const ytTrack = recommendedTracks.find(t => t.videoId === album.videoId);
+                if (ytTrack) handleYouTubeTrackClick(ytTrack);
+              }}
+            />
           )}
         </main>
       </div>
-
-      {/* Right Panel - only visible when track is playing */}
-      {currentTrack && (
-        <Suspense fallback={null}>
-          <RightPanel />
-        </Suspense>
-      )}
     </div>
   );
 };

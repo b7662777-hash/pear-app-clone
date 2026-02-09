@@ -1,6 +1,6 @@
 import { useState, useEffect, lazy, Suspense } from "react";
 import { SidebarShell } from "@/components/SidebarShell";
-import { SearchBarShell } from "@/components/SearchBarShell";
+import { SearchBar } from "@/components/SearchBar";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { usePlaylists, PlaylistSong, LikedSong } from "@/hooks/usePlaylists";
@@ -9,7 +9,6 @@ import { Library as LibraryIcon, Heart, Clock, ListMusic, Plus, Music, Play, Tra
 
 // Lazy load components
 const AmbientBackground = lazy(() => import("@/components/AmbientBackground").then(m => ({ default: m.AmbientBackground })));
-const RightPanel = lazy(() => import("@/components/RightPanel"));
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -146,7 +145,7 @@ const Library = () => {
         <SidebarShell activeTab={activeTab} onTabChange={handleTabChange} />
 
         <div className="flex-1 flex flex-col overflow-hidden relative z-10">
-          <SearchBarShell value={searchQuery} onChange={setSearchQuery} />
+          <SearchBar value={searchQuery} onChange={setSearchQuery} />
 
           <main className="flex-1 overflow-y-auto px-6 pb-32">
             {/* Header */}
@@ -239,12 +238,6 @@ const Library = () => {
           </main>
         </div>
 
-        {/* Right Panel */}
-        {currentTrack && (
-          <Suspense fallback={null}>
-            <RightPanel />
-          </Suspense>
-        )}
       </div>
     );
   }
@@ -261,7 +254,7 @@ const Library = () => {
         <SidebarShell activeTab="liked" onTabChange={handleTabChange} />
 
         <div className="flex-1 flex flex-col overflow-hidden relative z-10">
-          <SearchBarShell value={searchQuery} onChange={setSearchQuery} />
+          <SearchBar value={searchQuery} onChange={setSearchQuery} />
 
           <main className="flex-1 overflow-y-auto px-6 pb-32">
             {/* Header */}
@@ -354,12 +347,6 @@ const Library = () => {
           </main>
         </div>
 
-        {/* Right Panel */}
-        {currentTrack && (
-          <Suspense fallback={null}>
-            <RightPanel />
-          </Suspense>
-        )}
       </div>
     );
   }
@@ -374,7 +361,7 @@ const Library = () => {
       <SidebarShell activeTab={activeTab} onTabChange={handleTabChange} />
 
       <div className="flex-1 flex flex-col overflow-hidden relative z-10">
-        <SearchBarShell value={searchQuery} onChange={setSearchQuery} />
+        <SearchBar value={searchQuery} onChange={setSearchQuery} />
 
         <main className="flex-1 overflow-y-auto px-6 pb-32">
           {/* Header */}
@@ -534,12 +521,6 @@ const Library = () => {
         </main>
       </div>
 
-      {/* Right Panel */}
-      {currentTrack && (
-        <Suspense fallback={null}>
-          <RightPanel />
-        </Suspense>
-      )}
 
       {/* Create Playlist Dialog */}
       <Dialog open={showCreatePlaylist} onOpenChange={setShowCreatePlaylist}>
