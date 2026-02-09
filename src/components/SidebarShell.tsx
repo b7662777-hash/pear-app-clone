@@ -49,7 +49,7 @@ export function SidebarShell({ activeTab, onTabChange }: SidebarShellProps) {
 
   return (
     <aside className={cn(
-      "h-full flex flex-col bg-[#0f0f0f] transition-all duration-200",
+      "h-full flex flex-col bg-[#3f3116] transition-all duration-200 border-r border-white/5",
       isCollapsed ? "w-[72px]" : "w-[200px]"
     )}>
       {/* Logo with hamburger */}
@@ -82,8 +82,8 @@ export function SidebarShell({ activeTab, onTabChange }: SidebarShellProps) {
             className={cn(
               "w-full flex items-center gap-5 px-4 py-3 rounded-lg text-sm font-medium transition-colors",
               isActive(item.id) 
-                ? "bg-white/[0.1] text-white" 
-                : "text-white/70 hover:text-white hover:bg-white/[0.05]",
+                ? "bg-white/[0.12] text-white" 
+                : "text-white/70 hover:text-white hover:bg-white/[0.08]",
               !item.path && "opacity-60"
             )}
           >
@@ -96,7 +96,7 @@ export function SidebarShell({ activeTab, onTabChange }: SidebarShellProps) {
       {/* New Playlist Button */}
       {!isCollapsed && (
         <div className="px-3 mt-6">
-          <button className="w-full flex items-center justify-center gap-2 py-2.5 rounded-full border border-white/20 hover:bg-white/[0.05] text-sm font-medium text-white/90 transition-colors">
+          <button className="w-full flex items-center justify-center gap-2 py-2.5 rounded-full border border-white/20 hover:bg-white/[0.08] text-sm font-medium text-white/90 transition-colors">
             <Plus className="w-5 h-5" />
             <span>New playlist</span>
           </button>

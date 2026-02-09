@@ -49,7 +49,7 @@ export function TrackCard({ title, artist, image, plays, isPlaying, onClick, acc
       <div className="flex-1 min-w-0">
         <h3 className={cn(
           "text-sm font-semibold truncate transition-colors",
-          isPlaying ? "text-primary" : "text-foreground"
+          isPlaying ? "text-primary" : "text-white"
         )}>
           {title}
         </h3>

@@ -86,7 +86,7 @@ export function SearchBar({ value, onChange, searchResults = [] }: SearchBarProp
   };
 
   return (
-    <header className="sticky top-0 z-40 flex items-center justify-between gap-4 px-4 py-2 bg-transparent">
+    <header className="sticky top-0 z-40 flex items-center justify-between gap-4 px-4 py-4 bg-transparent">
       {/* Search Input */}
       <div className="relative flex-1 max-w-[480px]">
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/50" />
@@ -96,7 +96,7 @@ export function SearchBar({ value, onChange, searchResults = [] }: SearchBarProp
           value={value}
           onChange={(e) => handleInputChange(e.target.value)}
           onFocus={handleInputFocus}
-          className="w-full bg-[#3d3d3d] hover:bg-[#4a4a4a] focus:bg-[#4a4a4a] rounded-lg px-4 py-2.5 pl-12 pr-10 text-white placeholder:text-white/50 focus:outline-none transition-colors text-sm"
+          className="w-full bg-[#6a5a3c] hover:bg-[#766544] focus:bg-[#766544] rounded-lg px-4 py-2.5 pl-12 pr-10 text-white placeholder:text-white/60 focus:outline-none transition-colors text-sm shadow-[0_16px_30px_-20px_rgba(0,0,0,0.6)]"
         />
         {value && (
           <button

@@ -104,7 +104,7 @@ const Index = () => {
   }));
 
   return (
-    <div className="flex h-screen bg-[#1f1f1f] overflow-hidden relative">
+    <div className="flex h-screen bg-[#4b3b19] overflow-hidden relative">
       {/* Global Ambient Background */}
       <Suspense fallback={null}>
         <AmbientBackground />
