@@ -26,8 +26,8 @@ export function QuickPicks({ tracks, currentTrackId, onTrackClick }: QuickPicksP
   return (
     <section className="animate-slide-up">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-2xl font-bold text-foreground">Quick picks</h2>
-        <button className="px-4 py-1.5 rounded-full border border-muted-foreground/50 text-sm font-medium text-foreground hover:border-foreground transition-colors">
+        <h2 className="text-2xl font-bold text-white">Quick picks</h2>
+        <button className="px-4 py-1.5 rounded-full border border-white/30 text-sm font-medium text-white hover:border-white/60 transition-colors">
           Play all
         </button>
       </div>

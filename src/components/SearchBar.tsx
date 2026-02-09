@@ -86,17 +86,17 @@ export function SearchBar({ value, onChange, searchResults = [] }: SearchBarProp
   };
 
   return (
-    <header className="sticky top-0 z-40 flex items-center justify-between gap-4 px-4 py-2 bg-transparent">
+    <header className="sticky top-0 z-40 flex items-center justify-between gap-4 px-4 py-3 bg-[#0b0b0b]/80 backdrop-blur-xl border-b border-white/5">
       {/* Search Input */}
       <div className="relative flex-1 max-w-[480px]">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/50" />
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
         <input
           type="text"
           placeholder="Search songs, albums, artists, podcasts"
           value={value}
           onChange={(e) => handleInputChange(e.target.value)}
           onFocus={handleInputFocus}
-          className="w-full bg-[#3d3d3d] hover:bg-[#4a4a4a] focus:bg-[#4a4a4a] rounded-lg px-4 py-2.5 pl-12 pr-10 text-white placeholder:text-white/50 focus:outline-none transition-colors text-sm"
+          className="w-full bg-[#1a1a1a] hover:bg-[#242424] focus:bg-[#242424] rounded-full px-4 py-2.5 pl-12 pr-10 text-white placeholder:text-white/40 focus:outline-none transition-colors text-sm shadow-[0_12px_30px_-24px_rgba(255,0,0,0.6)]"
         />
         {value && (
           <button
