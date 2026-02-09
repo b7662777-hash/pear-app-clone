@@ -3,31 +3,31 @@ import { DynamicTheme } from '@/lib/colorExtractor';
 
 const STORAGE_KEY = 'ambient_theme';
 
-// Deep Sea default gradient (Indigo + Purple)
+// Warm Wood default gradient (Olive + Brown)
 export const DEEP_SEA_THEME: DynamicTheme = {
-  dominant: 'hsl(250, 60%, 30%)',
+  dominant: 'hsl(39, 34%, 28%)',
   palette: [
-    'hsl(250, 60%, 30%)',
-    'hsl(270, 50%, 25%)',
-    'hsl(260, 55%, 35%)',
-    'hsl(280, 45%, 40%)',
-    'hsl(240, 50%, 20%)',
+    'hsl(39, 34%, 28%)',
+    'hsl(35, 28%, 22%)',
+    'hsl(42, 30%, 32%)',
+    'hsl(30, 26%, 20%)',
+    'hsl(45, 22%, 36%)',
   ],
   rgbPalette: [
-    [64, 51, 122],   // Indigo
-    [82, 51, 96],    // Purple
-    [89, 64, 138],   // Light indigo
-    [122, 82, 147],  // Light purple
-    [41, 41, 82],    // Dark indigo
+    [93, 72, 40],    // Warm brown
+    [74, 58, 33],    // Deep olive
+    [112, 85, 51],   // Golden brown
+    [64, 50, 30],    // Dark umber
+    [126, 102, 65],  // Soft tan
   ],
-  vibrant: 'hsl(260, 65%, 55%)',
-  muted: 'hsl(270, 35%, 35%)',
-  darkVibrant: 'hsl(250, 55%, 22%)',
-  lightVibrant: 'hsl(280, 55%, 65%)',
-  luminance: 0.12,
+  vibrant: 'hsl(38, 45%, 45%)',
+  muted: 'hsl(34, 22%, 30%)',
+  darkVibrant: 'hsl(34, 40%, 20%)',
+  lightVibrant: 'hsl(40, 40%, 60%)',
+  luminance: 0.18,
   textColor: 'white',
   textSecondary: 'rgba(255, 255, 255, 0.6)',
-  accentGlow: 'rgba(120, 80, 200, 0.4)',
+  accentGlow: 'rgba(120, 90, 45, 0.4)',
 };
 
 interface PersistedAmbientState {

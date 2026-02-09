@@ -67,7 +67,7 @@ export function SearchDropdown({
   return (
     <div
       ref={dropdownRef}
-      className="absolute top-full left-0 right-0 mt-1 bg-[#212121] rounded-lg border border-white/10 shadow-2xl overflow-hidden z-50 max-h-[400px] overflow-y-auto"
+      className="absolute top-full left-0 right-0 mt-2 bg-[#1b140a] rounded-xl border border-white/10 shadow-2xl overflow-hidden z-50 max-h-[400px] overflow-y-auto"
     >
       {/* Autocomplete suggestions */}
       {suggestions.length > 0 && (

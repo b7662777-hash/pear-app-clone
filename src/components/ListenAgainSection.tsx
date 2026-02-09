@@ -106,7 +106,7 @@ export function ListenAgainSection({ tracks, featuredTrack, onTrackClick }: List
 
         {/* Navigation controls */}
         <div className="flex items-center gap-2">
-          <button className="px-4 py-1.5 rounded-full border border-white/20 text-sm font-medium text-white hover:bg-white/[0.05] transition-colors">
+          <button className="px-4 py-1.5 rounded-full border border-white/20 text-sm font-medium text-white hover:bg-white/[0.08] transition-colors">
             More
           </button>
           <button 

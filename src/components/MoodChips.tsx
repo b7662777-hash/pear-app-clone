@@ -29,8 +29,8 @@ export function MoodChips({ selected, onSelect }: MoodChipsProps) {
           className={cn(
             "px-4 py-2 rounded-full text-sm font-medium transition-colors cursor-pointer whitespace-nowrap",
             selected === mood 
-              ? "bg-[#ff2c2c] text-white shadow-[0_10px_30px_-20px_rgba(255,44,44,0.8)]" 
-              : "bg-[#1d1d1d] text-white/80 hover:bg-[#2b2b2b] hover:text-white"
+              ? "bg-[#7a663f] text-white shadow-[0_10px_20px_-15px_rgba(0,0,0,0.6)]" 
+              : "bg-[#5d4b2f] text-white/80 hover:bg-[#6b5837] hover:text-white"
           )}
         >
           {mood}
