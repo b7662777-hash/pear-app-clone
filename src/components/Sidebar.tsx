@@ -50,11 +50,11 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
 
   return (
     <aside className={cn(
-      "h-full flex flex-col bg-[#0f0f0f] transition-all duration-200",
-      isCollapsed ? "w-[72px]" : "w-[200px]"
+      "h-full flex flex-col bg-[#0f0f0f] transition-all duration-200 relative z-20",
+      isCollapsed ? "w-[72px]" : "w-[240px]"
     )}>
       {/* Logo with hamburger */}
-      <div className="flex items-center gap-3 px-4 py-4">
+      <div className="flex items-center gap-3 px-4 py-4 flex-shrink-0">
         <button 
           onClick={() => setIsCollapsed(!isCollapsed)}
           className="p-2 rounded-full hover:bg-white/[0.08] transition-colors"
@@ -81,7 +81,7 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
             key={item.id} 
             onClick={() => handleNavClick(item)} 
             className={cn(
-              "w-full flex items-center gap-5 px-4 py-3 rounded-lg text-sm font-medium transition-colors",
+              "w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors",
               isActive(item.id) 
                 ? "bg-white/[0.1] text-white" 
                 : "text-white/70 hover:text-white hover:bg-white/[0.05]",

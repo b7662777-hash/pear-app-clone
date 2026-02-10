@@ -136,7 +136,7 @@ const Library = () => {
   // Playlist Detail View
   if (selectedPlaylistId && selectedPlaylist) {
     return (
-      <div className="flex h-screen bg-background overflow-hidden relative">
+      <div className="flex h-screen bg-transparent overflow-hidden relative">
         {/* Global Ambient Background */}
         <Suspense fallback={null}>
           <AmbientBackground />
@@ -245,7 +245,7 @@ const Library = () => {
   // Liked Songs View
   if (showLikedSongs) {
     return (
-      <div className="flex h-screen bg-background overflow-hidden relative">
+      <div className="flex h-screen bg-transparent overflow-hidden relative">
         {/* Global Ambient Background */}
         <Suspense fallback={null}>
           <AmbientBackground />
@@ -352,7 +352,7 @@ const Library = () => {
   }
 
   return (
-    <div className="flex h-screen bg-background overflow-hidden relative">
+    <div className="flex h-screen bg-transparent overflow-hidden relative">
       {/* Global Ambient Background */}
       <Suspense fallback={null}>
         <AmbientBackground />
