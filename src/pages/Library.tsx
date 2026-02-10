@@ -147,7 +147,7 @@ const Library = () => {
         <div className="flex-1 flex flex-col overflow-hidden relative z-10">
           <SearchBar value={searchQuery} onChange={setSearchQuery} />
 
-          <main className="flex-1 overflow-y-auto px-6 pb-32">
+          <main className="flex-1 overflow-y-auto px-3 md:px-6 pb-16 md:pb-32">
             {/* Header */}
             <div className="mb-8 animate-fade-in-up">
               <button 
@@ -256,7 +256,7 @@ const Library = () => {
         <div className="flex-1 flex flex-col overflow-hidden relative z-10">
           <SearchBar value={searchQuery} onChange={setSearchQuery} />
 
-          <main className="flex-1 overflow-y-auto px-6 pb-32">
+          <main className="flex-1 overflow-y-auto px-3 md:px-6 pb-16 md:pb-32">
             {/* Header */}
             <div className="mb-8 animate-fade-in-up">
               <button 
@@ -363,7 +363,7 @@ const Library = () => {
       <div className="flex-1 flex flex-col overflow-hidden relative z-10">
         <SearchBar value={searchQuery} onChange={setSearchQuery} />
 
-        <main className="flex-1 overflow-y-auto px-6 pb-32">
+        <main className="flex-1 overflow-y-auto px-3 md:px-6 pb-16 md:pb-32">
           {/* Header */}
           <div className="mb-8 animate-fade-in-up">
             <div className="flex items-center gap-3 mb-2">

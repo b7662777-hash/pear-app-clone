@@ -50,7 +50,7 @@ export function Sidebar({ activeTab, onTabChange }: SidebarProps) {
 
   return (
     <aside className={cn(
-      "h-full flex flex-col bg-[#0f0f0f] transition-all duration-200 relative z-20",
+      "h-full flex-col bg-[#0f0f0f] transition-all duration-200 relative z-20 hidden md:flex",
       isCollapsed ? "w-[72px]" : "w-[240px]"
     )}>
       {/* Logo with hamburger */}

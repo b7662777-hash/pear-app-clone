@@ -52,7 +52,7 @@ const Explore = () => {
       <div className="flex-1 flex flex-col overflow-hidden relative z-10">
         <SearchBar value={searchQuery} onChange={setSearchQuery} />
 
-        <main className="flex-1 overflow-y-auto px-6 pb-24">
+        <main className="flex-1 overflow-y-auto px-3 md:px-6 pb-16 md:pb-24">
           {/* Header */}
           <div className="mb-8">
             <div className="flex items-center gap-3 mb-2">
@@ -68,7 +68,7 @@ const Explore = () => {
               <TrendingUp className="w-5 h-5 text-primary" />
               <h2 className="text-xl font-semibold">Trending Now</h2>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 md:gap-4">
               {["Top 50 Global", "Viral Hits", "New Music Friday", "Discover Weekly"].map((item, i) => (
                 <div
                   key={item}
@@ -85,7 +85,7 @@ const Explore = () => {
           {/* Browse by Genre */}
           <section className="mb-10">
             <h2 className="text-xl font-semibold mb-4">Browse by Genre</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 md:gap-4">
               {genres.map((genre) => (
                 <div
                   key={genre.id}
