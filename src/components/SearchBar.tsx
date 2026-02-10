@@ -86,9 +86,9 @@ export function SearchBar({ value, onChange, searchResults = [] }: SearchBarProp
   };
 
   return (
-    <header className="sticky top-0 z-40 flex items-center justify-between gap-4 px-4 py-2 bg-transparent">
+    <header className="sticky top-0 z-40 flex items-center justify-between gap-2 md:gap-4 px-3 md:px-4 py-2 bg-transparent">
       {/* Search Input */}
-      <div className="relative flex-1 max-w-[480px]">
+      <div className="relative flex-1 max-w-full md:max-w-[480px]">
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/50" />
         <input
           type="text"
@@ -121,22 +121,22 @@ export function SearchBar({ value, onChange, searchResults = [] }: SearchBarProp
       </div>
 
       {/* Right Actions */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1 md:gap-2 flex-shrink-0">
         <button 
-          className="p-2 rounded-full hover:bg-white/[0.08] transition-colors" 
+          className="p-2 rounded-full hover:bg-white/[0.08] transition-colors hidden md:block" 
           aria-label="Go back"
         >
           <ChevronLeft className="w-6 h-6 text-white/70" />
         </button>
         <button 
-          className="p-2 rounded-full hover:bg-white/[0.08] transition-colors" 
+          className="p-2 rounded-full hover:bg-white/[0.08] transition-colors hidden md:block" 
           aria-label="Go forward"
         >
           <ChevronRight className="w-6 h-6 text-white/70" />
         </button>
         
         <button 
-          className="p-2 rounded-full hover:bg-white/[0.08] transition-colors ml-2" 
+          className="p-2 rounded-full hover:bg-white/[0.08] transition-colors hidden sm:block" 
           aria-label="Cast"
         >
           <Users className="w-5 h-5 text-white/70" />
