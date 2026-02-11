@@ -8,20 +8,24 @@ interface RecommendedSongsProps {
   isLoading: boolean;
   onTrackClick: (track: YouTubeTrack) => void;
   currentVideoId?: string;
+  title?: string;
+  subtitle?: string;
 }
 
 export function RecommendedSongs({ 
   tracks, 
   isLoading, 
   onTrackClick, 
-  currentVideoId 
+  currentVideoId,
+  title = "Recommended for you",
+  subtitle = "Based on what's popular",
 }: RecommendedSongsProps) {
   if (isLoading) {
     return (
-      <div className="space-y-4">
+      <div className="space-y-4 mb-8">
         <div>
-          <h2 className="text-xl font-bold text-foreground">Recommended for you</h2>
-          <p className="text-sm text-muted-foreground">Based on what's popular</p>
+          <h2 className="text-xl font-bold text-foreground">{title}</h2>
+          <p className="text-sm text-muted-foreground">{subtitle}</p>
         </div>
         <div className="flex items-center justify-center py-12">
           <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
@@ -35,13 +39,13 @@ export function RecommendedSongs({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 mb-8">
       <div>
-        <h2 className="text-xl font-bold text-foreground">Recommended for you</h2>
-        <p className="text-sm text-muted-foreground">Based on what's popular</p>
+        <h2 className="text-xl font-bold text-foreground">{title}</h2>
+        <p className="text-sm text-muted-foreground">{subtitle}</p>
       </div>
       
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+      <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
         {tracks.map((track, index) => {
           const isPlaying = track.videoId === currentVideoId;
           
@@ -49,7 +53,7 @@ export function RecommendedSongs({
             <div
               key={track.videoId}
               onClick={() => onTrackClick(track)}
-              className="group cursor-pointer"
+              className="group cursor-pointer flex-shrink-0 w-[140px] md:w-[160px]"
             >
               <div className="relative aspect-square rounded-lg overflow-hidden mb-2">
                 <img

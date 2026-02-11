@@ -5,7 +5,9 @@ import { MoodChips } from "@/components/MoodChips";
 import { SearchResults } from "@/components/SearchResults";
 import { ListenAgainSection } from "@/components/ListenAgainSection";
 import { SimilarToSection } from "@/components/SimilarToSection";
+import { RecommendedSongs } from "@/components/RecommendedSongs";
 import { useYouTubeMusic, YouTubeTrack } from "@/hooks/useYouTubeMusic";
+import { Loader2, Music } from "lucide-react";
 
 // Lazy load components that aren't critical for initial render
 const AmbientBackground = lazy(() => import("@/components/AmbientBackground").then(m => ({ default: m.AmbientBackground })));
@@ -28,16 +30,22 @@ const Index = () => {
     recommendedTracks,
     isLoadingRecommended,
     fetchRecommendedTracks,
+    trendingTracks,
+    isLoadingTrending,
+    fetchTrendingTracks,
+    newReleaseTracks,
+    isLoadingNewReleases,
+    fetchNewReleases,
   } = useYouTubeMusic();
 
-  // Fetch recommended tracks on mount only if cache is empty
+  // Fetch all sections on mount
   useEffect(() => {
     if (recommendedTracks.length === 0) {
-      startTransition(() => {
-        fetchRecommendedTracks();
-      });
+      startTransition(() => { fetchRecommendedTracks(); });
     }
-  }, [fetchRecommendedTracks, recommendedTracks.length]);
+    startTransition(() => { fetchTrendingTracks(); });
+    startTransition(() => { fetchNewReleases(); });
+  }, [fetchRecommendedTracks, fetchTrendingTracks, fetchNewReleases, recommendedTracks.length]);
 
   // Debounced search
   useEffect(() => {
@@ -51,7 +59,6 @@ const Index = () => {
     return () => clearTimeout(timer);
   }, [searchQuery, searchTracks, clearSearch]);
 
-  // Parse duration string to seconds
   const parseDuration = (durationStr: string): number => {
     if (!durationStr) return 0;
     const parts = durationStr.split(":").map(Number);
@@ -60,7 +67,6 @@ const Index = () => {
     return 0;
   };
 
-  // Handle YouTube track click
   const handleYouTubeTrackClick = useCallback((track: YouTubeTrack) => {
     const newTrack: Track = {
       id: track.videoId,
@@ -94,7 +100,7 @@ const Index = () => {
     if (tab === "liked") navigate("/library/liked");
   };
 
-  // Convert recommended tracks for SimilarToSection
+  // Convert tracks for SimilarToSection
   const similarAlbums = recommendedTracks.slice(6, 12).map(t => ({
     id: t.videoId,
     title: t.title,
@@ -103,8 +109,10 @@ const Index = () => {
     videoId: t.videoId,
   }));
 
+  const isHomeLoading = isLoadingRecommended && recommendedTracks.length === 0;
+
   return (
-    <div className="flex h-screen bg-transparent overflow-hidden relative">
+    <div className="flex h-screen bg-[#0f0f0f] overflow-hidden relative">
       {/* Global Ambient Background */}
       <Suspense fallback={null}>
         <AmbientBackground />
@@ -142,43 +150,84 @@ const Index = () => {
             isVisible={searchQuery.trim().length > 0}
           />
 
-          {/* Listen again */}
-          {!searchQuery.trim() && recommendedTracks.length > 0 && (
-            <ListenAgainSection
-              tracks={recommendedTracks.slice(0, 6).map(t => ({
-                id: t.videoId,
-                title: t.title,
-                artist: t.artist,
-                image: t.thumbnail,
-                videoId: t.videoId,
-                type: 'Song',
-              }))}
-              featuredTrack={recommendedTracks[0] ? {
-                id: recommendedTracks[0].videoId,
-                title: recommendedTracks[0].title,
-                artist: recommendedTracks[0].artist,
-                image: recommendedTracks[0].thumbnail,
-                videoId: recommendedTracks[0].videoId,
-              } : null}
-              onTrackClick={(track) => {
-                const ytTrack = recommendedTracks.find(t => t.videoId === track.videoId);
-                if (ytTrack) handleYouTubeTrackClick(ytTrack);
-              }}
-            />
-          )}
+          {/* Home content when not searching */}
+          {!searchQuery.trim() && (
+            <>
+              {/* Loading state */}
+              {isHomeLoading && (
+                <div className="flex flex-col items-center justify-center py-20">
+                  <Loader2 className="w-8 h-8 animate-spin text-muted-foreground mb-4" />
+                  <p className="text-muted-foreground text-sm">Loading your music...</p>
+                </div>
+              )}
 
-          {/* Similar To Section */}
-          {!searchQuery.trim() && similarAlbums.length > 0 && (
-            <SimilarToSection
-              title="New Phonk Songs 2025 - Latest Phonk Music 2025 Playlist (New Released"
-              subtitle="SIMILAR TO"
-              featuredImage={similarAlbums[0]?.image}
-              albums={similarAlbums}
-              onAlbumClick={(album) => {
-                const ytTrack = recommendedTracks.find(t => t.videoId === album.videoId);
-                if (ytTrack) handleYouTubeTrackClick(ytTrack);
-              }}
-            />
+              {/* Quick Picks / Listen Again */}
+              {recommendedTracks.length > 0 && (
+                <ListenAgainSection
+                  tracks={recommendedTracks.slice(0, 6).map(t => ({
+                    id: t.videoId,
+                    title: t.title,
+                    artist: t.artist,
+                    image: t.thumbnail,
+                    videoId: t.videoId,
+                    type: 'Song',
+                  }))}
+                  featuredTrack={recommendedTracks[0] ? {
+                    id: recommendedTracks[0].videoId,
+                    title: recommendedTracks[0].title,
+                    artist: recommendedTracks[0].artist,
+                    image: recommendedTracks[0].thumbnail,
+                    videoId: recommendedTracks[0].videoId,
+                  } : null}
+                  onTrackClick={(track) => {
+                    const ytTrack = recommendedTracks.find(t => t.videoId === track.videoId);
+                    if (ytTrack) handleYouTubeTrackClick(ytTrack);
+                  }}
+                />
+              )}
+
+              {/* Trending */}
+              <RecommendedSongs
+                tracks={trendingTracks}
+                isLoading={isLoadingTrending}
+                onTrackClick={handleYouTubeTrackClick}
+                currentVideoId={currentTrack?.videoId}
+                title="Trending Now"
+                subtitle="What's hot right now"
+              />
+
+              {/* New Releases */}
+              <RecommendedSongs
+                tracks={newReleaseTracks}
+                isLoading={isLoadingNewReleases}
+                onTrackClick={handleYouTubeTrackClick}
+                currentVideoId={currentTrack?.videoId}
+                title="New Releases"
+                subtitle="Fresh tracks just dropped"
+              />
+
+              {/* Similar To Section */}
+              {similarAlbums.length > 0 && (
+                <SimilarToSection
+                  title={currentTrack?.artist || "Popular Artists"}
+                  subtitle="SIMILAR TO"
+                  featuredImage={similarAlbums[0]?.image}
+                  albums={similarAlbums}
+                  onAlbumClick={(album) => {
+                    const ytTrack = recommendedTracks.find(t => t.videoId === album.videoId);
+                    if (ytTrack) handleYouTubeTrackClick(ytTrack);
+                  }}
+                />
+              )}
+
+              {/* Empty state when nothing loaded */}
+              {!isHomeLoading && recommendedTracks.length === 0 && trendingTracks.length === 0 && (
+                <div className="flex flex-col items-center justify-center py-20">
+                  <Music className="w-16 h-16 text-muted-foreground mb-4" />
+                  <p className="text-muted-foreground">No music found. Try refreshing.</p>
+                </div>
+              )}
+            </>
           )}
         </main>
       </div>

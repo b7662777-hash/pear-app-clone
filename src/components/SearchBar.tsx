@@ -24,22 +24,22 @@ export function SearchBar({ value, onChange, searchResults = [] }: SearchBarProp
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const { playTrack } = usePlayer();
 
-  // Generate suggestions based on query
+  // Generate suggestions based on current query only (no history)
+  const trendingGenres = ["Lo-fi", "Hip Hop", "Classical", "Phonk", "Jazz", "Electronic"];
   const suggestions = value.length >= 2 
     ? [
-        `${value} chhod kar`,
-        `${value} rocky aur rani`,
-        `${value} rekha bhardwaj`,
-        `${value}`,
-        `${value} ke dil abhi bhara nahin`,
-        `${value} world music day`,
+        `${value} songs`,
+        `${value} remix`,
+        `${value} playlist`,
+        `${value} album`,
+        `${value} live`,
+        `${value} acoustic`,
       ].slice(0, 6)
-    : [];
+    : trendingGenres;
 
   const handleInputFocus = () => {
-    if (value.length >= 2 || searchResults.length > 0) {
-      setIsDropdownOpen(true);
-    }
+    // Show dropdown on focus (trending genres when empty, suggestions when typing)
+    setIsDropdownOpen(true);
   };
 
   const handleInputChange = (newValue: string) => {
