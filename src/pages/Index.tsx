@@ -155,7 +155,7 @@ const Index = () => {
             <>
               {/* Loading state */}
               {isHomeLoading && (
-                <div className="flex flex-col items-center justify-center py-20">
+                <div className="fixed inset-0 z-20 flex flex-col items-center justify-center">
                   <Loader2 className="w-8 h-8 animate-spin text-muted-foreground mb-4" />
                   <p className="text-muted-foreground text-sm">Loading your music...</p>
                 </div>
