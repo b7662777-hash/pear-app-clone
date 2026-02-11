@@ -299,46 +299,88 @@ export function useYouTubeMusic() {
     setRelatedTracks([]);
   }, []);
 
+  const [trendingTracks, setTrendingTracks] = useState<YouTubeTrack[]>([]);
+  const [isLoadingTrending, setIsLoadingTrending] = useState(false);
+  const [newReleaseTracks, setNewReleaseTracks] = useState<YouTubeTrack[]>([]);
+  const [isLoadingNewReleases, setIsLoadingNewReleases] = useState(false);
+
   const fetchRecommendedTracks = useCallback(async () => {
     setIsLoadingRecommended(true);
     setRequiresAuth(false);
     try {
-      // Search for trending/popular music
-      const queries = ["trending songs 2025", "popular music", "top hits"];
-      const randomQuery = queries[Math.floor(Math.random() * queries.length)];
-      
-      console.log("Fetching recommended tracks:", randomQuery);
-      
       const { data, error } = await supabase.functions.invoke("youtube-music", {
-        body: { action: "search", query: randomQuery },
+        body: { action: "search", query: "top hits 2025" },
       });
 
-      if (handleAuthError(data, error)) {
-        return [];
-      }
-
-      if (error) {
-        console.error("Recommended tracks error:", error);
-        return [];
-      }
+      if (handleAuthError(data, error)) return [];
+      if (error) { console.error("Recommended tracks error:", error); return []; }
 
       if (data?.success && data?.data) {
         const validResults = data.data
           .filter((track: YouTubeTrack) => track.videoId && isValidVideoId(track.videoId))
           .slice(0, 12);
-        console.log("Recommended tracks found:", validResults.length);
         setRecommendedTracks(validResults);
-        // Cache for instant LCP on next visit
         setCachedRecommended(validResults);
         return validResults;
       }
-
       return [];
     } catch (error) {
       console.error("Recommended tracks error:", error);
       return [];
     } finally {
       setIsLoadingRecommended(false);
+    }
+  }, [handleAuthError]);
+
+  const fetchTrendingTracks = useCallback(async () => {
+    setIsLoadingTrending(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("youtube-music", {
+        body: { action: "search", query: "trending music 2025" },
+      });
+
+      if (handleAuthError(data, error)) return [];
+      if (error) { console.error("Trending tracks error:", error); return []; }
+
+      if (data?.success && data?.data) {
+        const validResults = data.data
+          .filter((track: YouTubeTrack) => track.videoId && isValidVideoId(track.videoId))
+          .slice(0, 12);
+        setTrendingTracks(validResults);
+        return validResults;
+      }
+      return [];
+    } catch (error) {
+      console.error("Trending tracks error:", error);
+      return [];
+    } finally {
+      setIsLoadingTrending(false);
+    }
+  }, [handleAuthError]);
+
+  const fetchNewReleases = useCallback(async () => {
+    setIsLoadingNewReleases(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("youtube-music", {
+        body: { action: "search", query: "new music releases 2025" },
+      });
+
+      if (handleAuthError(data, error)) return [];
+      if (error) { console.error("New releases error:", error); return []; }
+
+      if (data?.success && data?.data) {
+        const validResults = data.data
+          .filter((track: YouTubeTrack) => track.videoId && isValidVideoId(track.videoId))
+          .slice(0, 12);
+        setNewReleaseTracks(validResults);
+        return validResults;
+      }
+      return [];
+    } catch (error) {
+      console.error("New releases error:", error);
+      return [];
+    } finally {
+      setIsLoadingNewReleases(false);
     }
   }, [handleAuthError]);
 
@@ -363,6 +405,12 @@ export function useYouTubeMusic() {
     recommendedTracks,
     isLoadingRecommended,
     fetchRecommendedTracks,
+    trendingTracks,
+    isLoadingTrending,
+    fetchTrendingTracks,
+    newReleaseTracks,
+    isLoadingNewReleases,
+    fetchNewReleases,
     requiresAuth,
   };
 }
