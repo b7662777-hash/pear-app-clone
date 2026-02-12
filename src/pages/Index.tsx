@@ -153,16 +153,9 @@ const Index = () => {
           {/* Home content when not searching */}
           {!searchQuery.trim() && (
             <>
-              {/* Loading state - use non-fixed positioning to avoid layout shifts */}
-              {isHomeLoading && (
-                <div className="flex flex-col items-center justify-center min-h-[400px]">
-                  <Loader2 className="w-8 h-8 animate-spin text-muted-foreground mb-4" />
-                  <p className="text-muted-foreground text-sm">Loading your music...</p>
-                </div>
-              )}
-
-              {/* Quick Picks / Listen Again */}
-              {recommendedTracks.length > 0 && (
+              {/* Quick Picks / Listen Again - always reserve space */}
+              <div className="min-h-[320px]">
+              {recommendedTracks.length > 0 ? (
                 <ListenAgainSection
                   tracks={recommendedTracks.slice(0, 6).map(t => ({
                     id: t.videoId,
@@ -184,7 +177,13 @@ const Index = () => {
                     if (ytTrack) handleYouTubeTrackClick(ytTrack);
                   }}
                 />
-              )}
+              ) : isHomeLoading ? (
+                <div className="flex flex-col items-center justify-center min-h-[320px]">
+                  <Loader2 className="w-8 h-8 animate-spin text-muted-foreground mb-4" />
+                  <p className="text-muted-foreground text-sm">Loading your music...</p>
+                </div>
+              ) : null}
+              </div>
 
               {/* Trending */}
               <RecommendedSongs
