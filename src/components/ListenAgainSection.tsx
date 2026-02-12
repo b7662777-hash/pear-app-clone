@@ -145,8 +145,8 @@ export function ListenAgainSection({ tracks, featuredTrack, onTrackClick }: List
                 src={optimizeImageUrl(track.image, 226)}
                 alt={track.title}
                 className="w-full h-full object-cover"
-                loading={index < 2 ? "eager" : "lazy"}
-                fetchPriority={index === 0 ? "high" : undefined}
+                loading={index < 6 ? "eager" : "lazy"}
+                fetchPriority={index < 6 ? "high" : undefined}
               />
               {/* Play button overlay */}
               <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
