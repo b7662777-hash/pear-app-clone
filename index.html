@@ -72,9 +72,9 @@
                 return url;
               }
               
-              // Desktop LCP: featured track at index 4 (200x200)
+              // Desktop LCP: featured track at index 4 (226x226 to match component)
               if (entry.tracks.length > 4 && entry.tracks[4].thumbnail) {
-                var desktopUrl = optimizeUrl(entry.tracks[4].thumbnail, 200);
+                var desktopUrl = optimizeUrl(entry.tracks[4].thumbnail, 226);
                 if (desktopUrl) {
                   document.write('<link rel="preload" as="image" href="' + desktopUrl + '" fetchpriority="high">');
                 }
