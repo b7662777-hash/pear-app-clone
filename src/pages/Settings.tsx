@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 import { SidebarShell } from '@/components/SidebarShell';
 
 // Lazy load AmbientBackground
@@ -211,12 +212,21 @@ function LastFmIntegration() {
     }
   }, [searchParams]);
 
-  const handleConnect = () => {
+  const handleConnect = async () => {
     setConnecting(true);
-    // Redirect to Last.fm auth
-    const apiKey = 'YOUR_LASTFM_API_KEY'; // This should come from edge function
-    const callbackUrl = `${window.location.origin}/settings`;
-    window.location.href = `https://www.last.fm/api/auth/?api_key=${apiKey}&cb=${encodeURIComponent(callbackUrl)}`;
+    try {
+      const { data, error } = await supabase.functions.invoke('lastfm-scrobble', {
+        body: { action: 'getAuthUrl', callbackUrl: `${window.location.origin}/settings` },
+      });
+      if (error) throw error;
+      if (data?.url) {
+        window.location.href = data.url;
+      }
+    } catch (error) {
+      console.error('Failed to get Last.fm auth URL:', error);
+      toast.error('Failed to connect to Last.fm');
+      setConnecting(false);
+    }
   };
 
   const handleCallback = async (token: string) => {
