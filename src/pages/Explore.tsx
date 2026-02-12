@@ -17,6 +17,10 @@ const genres = [
   { id: "jazz", name: "Jazz", color: "from-amber-500 to-yellow-600", icon: Music },
   { id: "classical", name: "Classical", color: "from-emerald-500 to-green-600", icon: Music },
   { id: "country", name: "Country", color: "from-orange-500 to-amber-600", icon: Music },
+  { id: "latin", name: "Latin", color: "from-red-400 to-pink-600", icon: Music },
+  { id: "metal", name: "Metal", color: "from-gray-600 to-gray-800", icon: Headphones },
+  { id: "indie", name: "Indie", color: "from-teal-500 to-cyan-600", icon: Music },
+  { id: "reggae", name: "Reggae", color: "from-green-500 to-yellow-500", icon: Music },
 ];
 
 const moods = [
@@ -26,6 +30,12 @@ const moods = [
   { id: "party", name: "Party", emoji: "🎉" },
   { id: "sleep", name: "Sleep", emoji: "😴" },
   { id: "romantic", name: "Romantic", emoji: "💕" },
+  { id: "energize", name: "Energize", emoji: "⚡" },
+  { id: "sad", name: "Sad", emoji: "😢" },
+  { id: "commute", name: "Commute", emoji: "🚗" },
+  { id: "study", name: "Study", emoji: "📚" },
+  { id: "cooking", name: "Cooking", emoji: "🍳" },
+  { id: "gaming", name: "Gaming", emoji: "🎮" },
 ];
 
 const Explore = () => {
@@ -63,7 +73,7 @@ const Explore = () => {
           </div>
 
           {/* Trending Section */}
-          <section className="mb-10">
+          <section className="mb-10 rounded-2xl bg-[#1a1a1a]/30 p-5">
             <div className="flex items-center gap-2 mb-4">
               <TrendingUp className="w-5 h-5 text-primary" />
               <h2 className="text-xl font-semibold">Trending Now</h2>
@@ -83,7 +93,7 @@ const Explore = () => {
           </section>
 
           {/* Browse by Genre */}
-          <section className="mb-10">
+          <section className="mb-10 rounded-2xl bg-[#1a1a1a]/30 p-5">
             <h2 className="text-xl font-semibold mb-4">Browse by Genre</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4">
               {genres.map((genre) => (
@@ -101,13 +111,13 @@ const Explore = () => {
           </section>
 
           {/* Browse by Mood */}
-          <section className="mb-10">
+          <section className="mb-10 rounded-2xl bg-[#1a1a1a]/30 p-5">
             <h2 className="text-xl font-semibold mb-4">Browse by Mood</h2>
-            <div className="flex flex-wrap gap-3">
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3">
               {moods.map((mood) => (
                 <button
                   key={mood.id}
-                  className="px-6 py-3 rounded-full bg-[#1a1a1a] hover:bg-[#252525] transition-colors flex items-center gap-2"
+                  className="w-full px-4 py-3 rounded-full bg-[#1a1a1a] hover:bg-[#252525] transition-colors flex items-center justify-center gap-2"
                 >
                   <span className="text-xl">{mood.emoji}</span>
                   <span className="font-medium">{mood.name}</span>
@@ -117,10 +127,10 @@ const Explore = () => {
           </section>
 
           {/* Charts */}
-          <section className="mb-10">
+          <section className="mb-10 rounded-2xl bg-[#1a1a1a]/30 p-5">
             <h2 className="text-xl font-semibold mb-4">Charts</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {["Top Songs", "Top Artists", "Top Albums"].map((chart) => (
+              {["Top Songs", "Top Artists", "Top Albums", "Top Podcasts"].map((chart) => (
                 <div
                   key={chart}
                   className="p-6 rounded-xl bg-[#1a1a1a] hover:bg-[#252525] transition-colors cursor-pointer"
