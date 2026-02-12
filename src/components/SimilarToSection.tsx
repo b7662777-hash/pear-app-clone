@@ -59,7 +59,7 @@ export function SimilarToSection({
   if (albums.length === 0) return null;
 
   return (
-    <section className="mb-8">
+    <section className="mb-8 min-h-[284px]">
       {/* Header with featured image and title */}
       <div className="flex items-start gap-4 mb-4">
         {featuredImage && (
