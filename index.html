@@ -76,7 +76,7 @@
               if (entry.tracks.length > 4 && entry.tracks[4].thumbnail) {
                 var desktopUrl = optimizeUrl(entry.tracks[4].thumbnail, 200);
                 if (desktopUrl) {
-                  document.write('<link rel="preload" as="image" href="' + desktopUrl + '" fetchpriority="high" crossorigin="anonymous">');
+                  document.write('<link rel="preload" as="image" href="' + desktopUrl + '" fetchpriority="high">');
                 }
               }
               
@@ -84,7 +84,7 @@
               if (entry.tracks[0] && entry.tracks[0].thumbnail) {
                 var mobileUrl = optimizeUrl(entry.tracks[0].thumbnail, 160);
                 if (mobileUrl) {
-                  document.write('<link rel="preload" as="image" href="' + mobileUrl + '" crossorigin="anonymous">');
+                  document.write('<link rel="preload" as="image" href="' + mobileUrl + '">');
                 }
               }
             }
