@@ -84,7 +84,7 @@ export function SidebarShell({ activeTab, onTabChange }: SidebarShellProps) {
               isActive(item.id) 
                 ? "bg-white/[0.1] text-white" 
                 : "text-white/70 hover:text-white hover:bg-white/[0.05]",
-              !item.path && "opacity-60"
+              !item.path && "opacity-[0.68]"
             )}
           >
             <item.icon className="w-5 h-5 flex-shrink-0" />
