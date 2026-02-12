@@ -22,7 +22,7 @@ export function RecommendedSongs({
 }: RecommendedSongsProps) {
   if (isLoading) {
     return (
-      <div className="space-y-4 mb-8">
+      <div className="space-y-4 mb-8 min-h-[284px]">
         <div>
           <h2 className="text-xl font-bold text-foreground">{title}</h2>
           <p className="text-sm text-muted-foreground">{subtitle}</p>
@@ -39,7 +39,7 @@ export function RecommendedSongs({
   }
 
   return (
-    <div className="space-y-4 mb-8">
+    <div className="space-y-4 mb-8 min-h-[284px]">
       <div>
         <h2 className="text-xl font-bold text-foreground">{title}</h2>
         <p className="text-sm text-muted-foreground">{subtitle}</p>
