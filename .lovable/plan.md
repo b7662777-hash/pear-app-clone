@@ -1,58 +1,43 @@
 
 
-# Fix Plan: Blank Pages, Search Context Leak, and Home Recommendations
+# Fix: Fill Full Screen Width on All Pages
 
-## Issue 1: Fix Blank/Black Pages in Tabs
+## Problem
+The content area on Library, Explore, and Search Results pages only occupies roughly the left half of the screen. The right side shows blank/black space because:
 
-**Root Cause**: The Explore and Library pages render content but have no loading states or fallbacks. If data is slow to load or undefined, users see a blank dark screen. Additionally, the `bg-transparent` containers combined with the ambient background (which only activates when a track is playing) result in a pure black screen when no track is active.
+1. **Library page**: The Quick Access cards use `grid-cols-1 md:grid-cols-2` which only fills part of the width. The Artists and Albums empty states are centered text that doesn't span the full area. The content visually "stops" because there are no background fills on sections.
+2. **Explore page**: Content sections end prematurely with no visual fill for the remaining space.
+3. **Search Results page**: The results grid uses `grid-cols-1 md:grid-cols-2` leaving the right side empty.
 
-**Changes**:
+## Solution
 
-- **`src/pages/Explore.tsx`**: Add a subtle dark background fallback (`bg-[#0f0f0f]`) instead of fully transparent, so the page is never invisible. The ambient background will still show through since it uses fixed positioning with z-0.
-- **`src/pages/Library.tsx`**: Same background fallback. Add a loading spinner state while `isLoading` is true instead of showing nothing.
-- **`src/pages/Index.tsx`**: Same background fallback. Add a loading skeleton/spinner when `isLoadingRecommended` is true and there are no cached tracks.
-- **All pages**: Wrap main content in a conditional that shows a "No music found" empty state if data loads but returns empty.
+Make all content sections stretch to fill the full available width by:
 
-## Issue 2: Reset Search Suggestions (Stop Context Leaking)
+1. **Library page (`src/pages/Library.tsx`)**:
+   - Change Quick Access grid from `grid-cols-1 md:grid-cols-2` to `grid-cols-1 sm:grid-cols-2 lg:grid-cols-3` so cards stretch wider on large screens
+   - Change Playlists grid from `grid-cols-2 md:grid-cols-4 lg:grid-cols-5` to include `xl:grid-cols-6` for wider coverage
+   - Add `min-h-[200px]` to Artists and Albums empty state containers and use full-width background styling so they don't leave blank gaps
+   - All three return blocks (playlist detail, liked songs, main library) need the same treatment
 
-**Root Cause**: In `src/components/SearchBar.tsx` (lines 28-37), the suggestions are hardcoded with Hindi song fragments like `"chhod kar"`, `"rocky aur rani"`, `"rekha bhardwaj"`, etc. These are static strings appended to whatever the user types, creating the illusion of "remembering" previous searches.
+2. **Explore page (`src/pages/Explore.tsx`)**:
+   - Expand the genre grid to include `lg:grid-cols-5 xl:grid-cols-6` for wider screens
+   - Expand the trending grid similarly
+   - Expand Charts grid from `md:grid-cols-3` to `md:grid-cols-3 lg:grid-cols-4`
 
-**Changes**:
+3. **Search Results (`src/components/SearchResults.tsx`)**:
+   - Change result grid from `grid-cols-1 md:grid-cols-2` to `grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4` so results fill the full width on wider screens
 
-- **`src/components/SearchBar.tsx`**: Replace the hardcoded suggestion strings with generic, query-based completions. When the input is empty, show trending genre chips (Lo-fi, Hip Hop, Classical, Phonk, etc.). When typing, generate neutral suggestions like `"{query} songs"`, `"{query} remix"`, `"{query} playlist"`, `"{query} album"`.
-- **`src/components/SearchDropdown.tsx`**: No structural changes needed -- it correctly renders whatever suggestions are passed to it.
-
-## Issue 3: Home Screen Recommendations (YTM-style Layout)
-
-**Root Cause**: The home screen currently makes a single random search query ("trending songs 2025" or "popular music" or "top hits") and splits the 12 results between "Listen Again" (first 6) and "Similar To" (last 6). This doesn't provide distinct content categories.
-
-**Changes**:
-
-- **`src/hooks/useYouTubeMusic.ts`**: Add two new fetch functions:
-  - `fetchTrendingTracks()` - searches for "trending music 2025" specifically
-  - `fetchNewReleases()` - searches for "new music releases 2025"
-  - Keep `fetchRecommendedTracks()` for the "Quick Picks" row
-  - Each returns separate state arrays with independent loading states
-
-- **`src/pages/Index.tsx`**: Reorganize the home screen into distinct horizontal scrolling rows:
-  1. **"Quick Picks"** - Uses the existing `QuickPicks` component with the first batch of recommended tracks (3-column list layout)
-  2. **"Listen again"** - Uses `ListenAgainSection` with recommended tracks (horizontal card grid)
-  3. **"Trending"** - New horizontal row using trending tracks data
-  4. **"New Releases"** - New horizontal row using new releases data
-  5. **"Similar to [Last Played Artist]"** - Uses `SimilarToSection`, dynamically updates title based on `currentTrack?.artist`
-
-- **`src/components/RecommendedSongs.tsx`**: Create a new reusable horizontal scroll row component for "Trending" and "New Releases" sections with the same card style as ListenAgainSection.
+4. **Index page (`src/pages/Index.tsx`)**:
+   - Ensure the search results section also uses expanded grid columns when searching
 
 ---
 
-## Technical Summary
+## Technical Details
 
-| File | Changes |
-|------|---------|
-| `src/pages/Index.tsx` | Add bg fallback, loading skeleton, reorganize into Quick Picks / Listen Again / Trending / New Releases / Similar To rows |
-| `src/pages/Explore.tsx` | Add `bg-[#0f0f0f]` fallback background |
-| `src/pages/Library.tsx` | Add `bg-[#0f0f0f]` fallback, loading spinner while data loads |
-| `src/components/SearchBar.tsx` | Replace hardcoded Hindi suggestions with generic query completions and trending genres when empty |
-| `src/hooks/useYouTubeMusic.ts` | Add `fetchTrendingTracks()` and `fetchNewReleases()` with separate state |
-| `src/components/RecommendedSongs.tsx` | New reusable horizontal scroll row component for content sections |
+| File | Change |
+|------|--------|
+| `src/pages/Library.tsx` | Expand grid column counts for Quick Access, Playlists; add full-width backgrounds to Artists/Albums empty states |
+| `src/pages/Explore.tsx` | Add `lg:grid-cols-5 xl:grid-cols-6` to genre/trending grids, expand charts grid |
+| `src/components/SearchResults.tsx` | Expand grid to `lg:grid-cols-3 xl:grid-cols-4` |
+| `src/pages/Library.tsx` (playlist/liked views) | Ensure song list items stretch full width with proper padding |
 
