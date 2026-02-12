@@ -392,7 +392,7 @@ const Library = () => {
               {/* Quick Access */}
               <section className="mb-10 animate-fade-in-up animation-delay-100">
                 <h2 className="text-xl font-semibold mb-4">Quick Access</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {/* Liked Songs */}
                   <div
                     onClick={handleLikedSongsClick}
@@ -435,7 +435,7 @@ const Library = () => {
                     Create Playlist
                   </Button>
                 </div>
-                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 stagger-children">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 stagger-children">
                   {/* User Playlists */}
                   {playlists.map((playlist) => (
                     <div
@@ -504,7 +504,7 @@ const Library = () => {
               {/* Artists */}
               <section className="mb-10 animate-fade-in-up animation-delay-300">
                 <h2 className="text-xl font-semibold mb-4">Artists</h2>
-                <div className="flex items-center justify-center py-12 text-muted-foreground">
+                <div className="w-full rounded-xl bg-card/30 border border-border/50 flex items-center justify-center py-16 text-muted-foreground">
                   <p>Artists you follow will appear here</p>
                 </div>
               </section>
@@ -512,7 +512,7 @@ const Library = () => {
               {/* Albums */}
               <section className="mb-10 animate-fade-in-up animation-delay-400">
                 <h2 className="text-xl font-semibold mb-4">Albums</h2>
-                <div className="flex items-center justify-center py-12 text-muted-foreground">
+                <div className="w-full rounded-xl bg-card/30 border border-border/50 flex items-center justify-center py-16 text-muted-foreground">
                   <p>Albums you save will appear here</p>
                 </div>
               </section>

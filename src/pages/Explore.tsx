@@ -68,8 +68,8 @@ const Explore = () => {
               <TrendingUp className="w-5 h-5 text-primary" />
               <h2 className="text-xl font-semibold">Trending Now</h2>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 md:gap-4">
-              {["Top 50 Global", "Viral Hits", "New Music Friday", "Discover Weekly"].map((item, i) => (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4">
+              {["Top 50 Global", "Viral Hits", "New Music Friday", "Discover Weekly", "Hot Hits", "Chill Vibes"].map((item, i) => (
                 <div
                   key={item}
                   className="relative group cursor-pointer rounded-xl overflow-hidden aspect-square bg-gradient-to-br from-primary/30 to-primary/10 hover:brightness-110 transition-all"
@@ -85,7 +85,7 @@ const Explore = () => {
           {/* Browse by Genre */}
           <section className="mb-10">
             <h2 className="text-xl font-semibold mb-4">Browse by Genre</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 md:gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4">
               {genres.map((genre) => (
                 <div
                   key={genre.id}
@@ -119,7 +119,7 @@ const Explore = () => {
           {/* Charts */}
           <section className="mb-10">
             <h2 className="text-xl font-semibold mb-4">Charts</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {["Top Songs", "Top Artists", "Top Albums"].map((chart) => (
                 <div
                   key={chart}
