@@ -1,43 +1,32 @@
 
 
-# Fix: Fill Full Screen Width on All Pages
+# Fix Blank Space on Explore Page
 
 ## Problem
-The content area on Library, Explore, and Search Results pages only occupies roughly the left half of the screen. The right side shows blank/black space because:
+The Explore page has visible blank/empty space on the right side. While the grid columns are properly configured, the content is sparse in several sections, creating visual gaps.
 
-1. **Library page**: The Quick Access cards use `grid-cols-1 md:grid-cols-2` which only fills part of the width. The Artists and Albums empty states are centered text that doesn't span the full area. The content visually "stops" because there are no background fills on sections.
-2. **Explore page**: Content sections end prematurely with no visual fill for the remaining space.
-3. **Search Results page**: The results grid uses `grid-cols-1 md:grid-cols-2` leaving the right side empty.
+## Changes
 
-## Solution
+### File: `src/pages/Explore.tsx`
 
-Make all content sections stretch to fill the full available width by:
+1. **Add more genres** to fill the grid rows evenly (add 4 more genres like "Latin", "Metal", "Indie", "Reggae" to make 12 total -- two full rows of 6)
 
-1. **Library page (`src/pages/Library.tsx`)**:
-   - Change Quick Access grid from `grid-cols-1 md:grid-cols-2` to `grid-cols-1 sm:grid-cols-2 lg:grid-cols-3` so cards stretch wider on large screens
-   - Change Playlists grid from `grid-cols-2 md:grid-cols-4 lg:grid-cols-5` to include `xl:grid-cols-6` for wider coverage
-   - Add `min-h-[200px]` to Artists and Albums empty state containers and use full-width background styling so they don't leave blank gaps
-   - All three return blocks (playlist detail, liked songs, main library) need the same treatment
+2. **Add more mood chips** and make the mood section use a grid layout instead of `flex flex-wrap` so items stretch across the full width:
+   - Change from `flex flex-wrap gap-3` to `grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3`
+   - Make each mood button `w-full` so it stretches within its column
 
-2. **Explore page (`src/pages/Explore.tsx`)**:
-   - Expand the genre grid to include `lg:grid-cols-5 xl:grid-cols-6` for wider screens
-   - Expand the trending grid similarly
-   - Expand Charts grid from `md:grid-cols-3` to `md:grid-cols-3 lg:grid-cols-4`
+3. **Add more chart items** to fill the grid (add "Top Podcasts" as a 4th item to fill the `lg:grid-cols-4` grid evenly)
 
-3. **Search Results (`src/components/SearchResults.tsx`)**:
-   - Change result grid from `grid-cols-1 md:grid-cols-2` to `grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4` so results fill the full width on wider screens
-
-4. **Index page (`src/pages/Index.tsx`)**:
-   - Ensure the search results section also uses expanded grid columns when searching
+4. **Add full-width section backgrounds** to each section using rounded `bg-[#1a1a1a]/30` containers with padding, so sections visually span the entire content width even where grid cells are empty
 
 ---
 
 ## Technical Details
 
-| File | Change |
-|------|--------|
-| `src/pages/Library.tsx` | Expand grid column counts for Quick Access, Playlists; add full-width backgrounds to Artists/Albums empty states |
-| `src/pages/Explore.tsx` | Add `lg:grid-cols-5 xl:grid-cols-6` to genre/trending grids, expand charts grid |
-| `src/components/SearchResults.tsx` | Expand grid to `lg:grid-cols-3 xl:grid-cols-4` |
-| `src/pages/Library.tsx` (playlist/liked views) | Ensure song list items stretch full width with proper padding |
+| Area | Current | After |
+|------|---------|-------|
+| Genres | 8 items (6+2 rows) | 12 items (6+6 rows, fully filled) |
+| Moods | `flex flex-wrap` (left-aligned chips) | `grid grid-cols-6` (full-width stretch) |
+| Charts | 3 items in 4-col grid | 4 items (fully filled) |
+| Section styling | No backgrounds | Subtle section backgrounds spanning full width |
 
