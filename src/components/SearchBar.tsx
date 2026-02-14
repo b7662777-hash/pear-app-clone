@@ -26,16 +26,16 @@ export function SearchBar({ value, onChange, searchResults = [] }: SearchBarProp
 
   // Generate suggestions based on current query only (no history)
   const trendingGenres = ["Lo-fi", "Hip Hop", "Classical", "Phonk", "Jazz", "Electronic"];
-  const suggestions = value.length >= 2 
-    ? [
-        `${value} songs`,
-        `${value} remix`,
-        `${value} playlist`,
-        `${value} album`,
-        `${value} live`,
-        `${value} acoustic`,
-      ].slice(0, 6)
-    : trendingGenres;
+  const suggestions = value.length >= 2 ?
+  [
+  `${value} songs`,
+  `${value} remix`,
+  `${value} playlist`,
+  `${value} album`,
+  `${value} live`,
+  `${value} acoustic`].
+  slice(0, 6) :
+  trendingGenres;
 
   const handleInputFocus = () => {
     // Show dropdown on focus (trending genres when empty, suggestions when typing)
@@ -59,7 +59,7 @@ export function SearchBar({ value, onChange, searchResults = [] }: SearchBarProp
     setIsDropdownOpen(false);
   };
 
-  const handleResultClick = useCallback((result: { id: string; title: string; artist: string; image: string; videoId?: string }) => {
+  const handleResultClick = useCallback((result: {id: string;title: string;artist: string;image: string;videoId?: string;}) => {
     if (result.videoId) {
       playTrack({
         id: result.id,
@@ -69,7 +69,7 @@ export function SearchBar({ value, onChange, searchResults = [] }: SearchBarProp
         videoId: result.videoId,
         album: "",
         plays: "",
-        duration: 0,
+        duration: 0
       }, []);
     }
     setIsDropdownOpen(false);
@@ -86,27 +86,27 @@ export function SearchBar({ value, onChange, searchResults = [] }: SearchBarProp
   };
 
   return (
-    <header className="sticky top-0 z-40 flex items-center justify-between gap-2 md:gap-4 px-3 md:px-4 py-2 bg-transparent">
+    <header className="sticky top-0 z-40 flex items-center justify-between gap-2 md:gap-4 px-3 py-2 bg-transparent md:px-0 pr-0 pl-[250px] my-[10px]">
       {/* Search Input */}
-      <div className="relative flex-1 max-w-full md:max-w-[480px]">
+      <div className="relative flex-1 max-w-full md:max-w-[480px] mx-0 my-0 py-0 px-0 pr-0 pt-0">
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/50" />
         <input
           type="text"
-          placeholder="Search songs, albums, artists, podcasts"
+
           value={value}
           onChange={(e) => handleInputChange(e.target.value)}
           onFocus={handleInputFocus}
-          className="w-full bg-[#3d3d3d] hover:bg-[#4a4a4a] focus:bg-[#4a4a4a] rounded-lg px-4 py-2.5 pl-12 pr-10 text-white placeholder:text-white/50 focus:outline-none transition-colors text-sm"
-        />
-        {value && (
-          <button
-            onClick={handleClear}
-            className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-white/[0.1] transition-colors"
-            aria-label="Clear search"
-          >
+          className="w-full bg-[#3d3d3d] hover:bg-[#4a4a4a] focus:bg-[#4a4a4a] rounded-lg py-2.5 text-white placeholder:text-white/50 focus:outline-none transition-colors text-sm px-[4px] mx-px pr-0 pl-0 ml-0 mr-0" placeholder="" />
+
+        {value &&
+        <button
+          onClick={handleClear}
+          className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full hover:bg-white/[0.1] transition-colors"
+          aria-label="Clear search">
+
             <X className="w-5 h-5 text-white/60" />
           </button>
-        )}
+        }
 
         {/* Search Dropdown */}
         <SearchDropdown
@@ -116,29 +116,29 @@ export function SearchBar({ value, onChange, searchResults = [] }: SearchBarProp
           isOpen={isDropdownOpen}
           onClose={() => setIsDropdownOpen(false)}
           onSuggestionClick={handleSuggestionClick}
-          onResultClick={handleResultClick}
-        />
+          onResultClick={handleResultClick} />
+
       </div>
 
       {/* Right Actions */}
-      <div className="flex items-center gap-1 md:gap-2 flex-shrink-0">
-        <button 
-          className="p-2 rounded-full hover:bg-white/[0.08] transition-colors hidden md:block" 
-          aria-label="Go back"
-        >
+      <div className="flex items-center gap-1 md:gap-2 flex-shrink-0 pt-0 mx-0 px-px pr-[10px] pl-[500px]">
+        <button
+          className="p-2 rounded-full hover:bg-white/[0.08] transition-colors hidden md:block"
+          aria-label="Go back">
+
           <ChevronLeft className="w-6 h-6 text-white/70" />
         </button>
-        <button 
-          className="p-2 rounded-full hover:bg-white/[0.08] transition-colors hidden md:block" 
-          aria-label="Go forward"
-        >
+        <button
+          className="p-2 rounded-full hover:bg-white/[0.08] transition-colors hidden md:block"
+          aria-label="Go forward">
+
           <ChevronRight className="w-6 h-6 text-white/70" />
         </button>
         
-        <button 
-          className="p-2 rounded-full hover:bg-white/[0.08] transition-colors hidden sm:block" 
-          aria-label="Cast"
-        >
+        <button
+          className="p-2 rounded-full hover:bg-white/[0.08] transition-colors hidden sm:block"
+          aria-label="Cast">
+
           <Users className="w-5 h-5 text-white/70" />
         </button>
         
@@ -150,6 +150,6 @@ export function SearchBar({ value, onChange, searchResults = [] }: SearchBarProp
           </AvatarFallback>
         </Avatar>
       </div>
-    </header>
-  );
+    </header>);
+
 }
