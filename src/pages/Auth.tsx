@@ -21,20 +21,20 @@ export default function Auth() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user, loading, signIn, signUp, signInWithGoogle } = useAuth();
-  
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  
+
   // Form state
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
   const [signupEmail, setSignupEmail] = useState('');
   const [signupPassword, setSignupPassword] = useState('');
   const [signupDisplayName, setSignupDisplayName] = useState('');
-  
+
   // Error state
-  const [loginErrors, setLoginErrors] = useState<{ email?: string; password?: string }>({});
-  const [signupErrors, setSignupErrors] = useState<{ email?: string; password?: string; displayName?: string }>({});
+  const [loginErrors, setLoginErrors] = useState<{email?: string;password?: string;}>({});
+  const [signupErrors, setSignupErrors] = useState<{email?: string;password?: string;displayName?: string;}>({});
   const [passwordBreachWarning, setPasswordBreachWarning] = useState<string | null>(null);
 
   // Redirect if already logged in
@@ -47,23 +47,23 @@ export default function Auth() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoginErrors({});
-    
+
     // Validate
     const emailResult = emailSchema.safeParse(loginEmail);
     const passwordResult = passwordSchema.safeParse(loginPassword);
-    
+
     if (!emailResult.success || !passwordResult.success) {
       setLoginErrors({
         email: emailResult.success ? undefined : emailResult.error.errors[0].message,
-        password: passwordResult.success ? undefined : passwordResult.error.errors[0].message,
+        password: passwordResult.success ? undefined : passwordResult.error.errors[0].message
       });
       return;
     }
-    
+
     setIsSubmitting(true);
-    
+
     const { error } = await signIn(loginEmail, loginPassword);
-    
+
     if (error) {
       let message = 'Failed to sign in';
       if (error.message.includes('Invalid login credentials')) {
@@ -71,20 +71,20 @@ export default function Auth() {
       } else if (error.message.includes('Email not confirmed')) {
         message = 'Please verify your email before signing in';
       }
-      
+
       toast({
         title: 'Sign in failed',
         description: message,
-        variant: 'destructive',
+        variant: 'destructive'
       });
     } else {
       toast({
         title: 'Welcome back!',
-        description: 'You have successfully signed in.',
+        description: 'You have successfully signed in.'
       });
       navigate('/', { replace: true });
     }
-    
+
     setIsSubmitting(false);
   };
 
@@ -92,23 +92,23 @@ export default function Auth() {
     e.preventDefault();
     setSignupErrors({});
     setPasswordBreachWarning(null);
-    
+
     // Validate
     const emailResult = emailSchema.safeParse(signupEmail);
     const passwordResult = passwordSchema.safeParse(signupPassword);
     const displayNameResult = signupDisplayName ? displayNameSchema.safeParse(signupDisplayName) : { success: true };
-    
+
     if (!emailResult.success || !passwordResult.success || !displayNameResult.success) {
       setSignupErrors({
         email: emailResult.success ? undefined : emailResult.error.errors[0].message,
         password: passwordResult.success ? undefined : passwordResult.error.errors[0].message,
-        displayName: displayNameResult.success ? undefined : (displayNameResult as any).error.errors[0].message,
+        displayName: displayNameResult.success ? undefined : (displayNameResult as any).error.errors[0].message
       });
       return;
     }
-    
+
     setIsSubmitting(true);
-    
+
     // Check if password has been breached
     const breachResult = await isPasswordBreached(signupPassword);
     if (breachResult.breached) {
@@ -118,9 +118,9 @@ export default function Auth() {
       setIsSubmitting(false);
       return;
     }
-    
+
     const { error } = await signUp(signupEmail, signupPassword, signupDisplayName || undefined);
-    
+
     if (error) {
       let message = 'Failed to create account';
       if (error.message.includes('already registered')) {
@@ -128,20 +128,20 @@ export default function Auth() {
       } else if (error.message.includes('Password')) {
         message = error.message;
       }
-      
+
       toast({
         title: 'Sign up failed',
         description: message,
-        variant: 'destructive',
+        variant: 'destructive'
       });
     } else {
       toast({
         title: 'Account created!',
-        description: 'Welcome to Pear Music.',
+        description: 'Welcome to Pear Music.'
       });
       navigate('/', { replace: true });
     }
-    
+
     setIsSubmitting(false);
   };
 
@@ -149,12 +149,12 @@ export default function Auth() {
     return (
       <div className="flex items-center justify-center min-h-screen bg-background">
         <div className="animate-pulse text-muted-foreground">Loading...</div>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-background p-4">
+    <div className="flex items-center justify-center min-h-screen bg-background p-4 mx-[50px] px-[250px]">
       <Card className="w-full max-w-md border-border/50 bg-card/50 backdrop-blur">
         <CardHeader className="text-center space-y-4">
           <div className="flex justify-center">
@@ -191,12 +191,12 @@ export default function Auth() {
                       value={loginEmail}
                       onChange={(e) => setLoginEmail(e.target.value)}
                       className="pl-9"
-                      disabled={isSubmitting}
-                    />
+                      disabled={isSubmitting} />
+
                   </div>
-                  {loginErrors.email && (
-                    <p className="text-sm text-destructive">{loginErrors.email}</p>
-                  )}
+                  {loginErrors.email &&
+                  <p className="text-sm text-destructive">{loginErrors.email}</p>
+                  }
                 </div>
                 
                 <div className="space-y-2">
@@ -210,19 +210,19 @@ export default function Auth() {
                       value={loginPassword}
                       onChange={(e) => setLoginPassword(e.target.value)}
                       className="pl-9 pr-9"
-                      disabled={isSubmitting}
-                    />
+                      disabled={isSubmitting} />
+
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-3 text-muted-foreground hover:text-foreground"
-                    >
+                      className="absolute right-3 top-3 text-muted-foreground hover:text-foreground">
+
                       {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>
-                  {loginErrors.password && (
-                    <p className="text-sm text-destructive">{loginErrors.password}</p>
-                  )}
+                  {loginErrors.password &&
+                  <p className="text-sm text-destructive">{loginErrors.password}</p>
+                  }
                 </div>
                 
                 <Button type="submit" className="w-full" disabled={isSubmitting}>
@@ -246,15 +246,15 @@ export default function Auth() {
                       const isProviderDisabled = error.message.includes('provider is not enabled') || error.message.includes('Unsupported provider');
                       toast({
                         title: 'Google sign in failed',
-                        description: isProviderDisabled 
-                          ? 'Google sign-in is not enabled. Please configure Google OAuth in the backend settings.'
-                          : error.message,
-                        variant: 'destructive',
+                        description: isProviderDisabled ?
+                        'Google sign-in is not enabled. Please configure Google OAuth in the backend settings.' :
+                        error.message,
+                        variant: 'destructive'
                       });
                     }
                   }}
-                  disabled={isSubmitting}
-                >
+                  disabled={isSubmitting}>
+
                   <Chrome className="mr-2 h-4 w-4" />
                   Continue with Google
                 </Button>
@@ -275,12 +275,12 @@ export default function Auth() {
                       value={signupDisplayName}
                       onChange={(e) => setSignupDisplayName(e.target.value)}
                       className="pl-9"
-                      disabled={isSubmitting}
-                    />
+                      disabled={isSubmitting} />
+
                   </div>
-                  {signupErrors.displayName && (
-                    <p className="text-sm text-destructive">{signupErrors.displayName}</p>
-                  )}
+                  {signupErrors.displayName &&
+                  <p className="text-sm text-destructive">{signupErrors.displayName}</p>
+                  }
                 </div>
                 
                 <div className="space-y-2">
@@ -294,12 +294,12 @@ export default function Auth() {
                       value={signupEmail}
                       onChange={(e) => setSignupEmail(e.target.value)}
                       className="pl-9"
-                      disabled={isSubmitting}
-                    />
+                      disabled={isSubmitting} />
+
                   </div>
-                  {signupErrors.email && (
-                    <p className="text-sm text-destructive">{signupErrors.email}</p>
-                  )}
+                  {signupErrors.email &&
+                  <p className="text-sm text-destructive">{signupErrors.email}</p>
+                  }
                 </div>
                 
                 <div className="space-y-2">
@@ -313,25 +313,25 @@ export default function Auth() {
                       value={signupPassword}
                       onChange={(e) => setSignupPassword(e.target.value)}
                       className="pl-9 pr-9"
-                      disabled={isSubmitting}
-                    />
+                      disabled={isSubmitting} />
+
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-3 text-muted-foreground hover:text-foreground"
-                    >
+                      className="absolute right-3 top-3 text-muted-foreground hover:text-foreground">
+
                       {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>
-                  {signupErrors.password && (
-                    <p className="text-sm text-destructive">{signupErrors.password}</p>
-                  )}
-                  {passwordBreachWarning && (
-                    <div className="flex items-start gap-2 p-3 rounded-md bg-destructive/10 border border-destructive/20">
+                  {signupErrors.password &&
+                  <p className="text-sm text-destructive">{signupErrors.password}</p>
+                  }
+                  {passwordBreachWarning &&
+                  <div className="flex items-start gap-2 p-3 rounded-md bg-destructive/10 border border-destructive/20">
                       <AlertTriangle className="h-4 w-4 text-destructive mt-0.5 flex-shrink-0" />
                       <p className="text-sm text-destructive">{passwordBreachWarning}</p>
                     </div>
-                  )}
+                  }
                 </div>
                 
                 <Button type="submit" className="w-full" disabled={isSubmitting}>
@@ -355,15 +355,15 @@ export default function Auth() {
                       const isProviderDisabled = error.message.includes('provider is not enabled') || error.message.includes('Unsupported provider');
                       toast({
                         title: 'Google sign up failed',
-                        description: isProviderDisabled 
-                          ? 'Google sign-in is not enabled. Please configure Google OAuth in the backend settings.'
-                          : error.message,
-                        variant: 'destructive',
+                        description: isProviderDisabled ?
+                        'Google sign-in is not enabled. Please configure Google OAuth in the backend settings.' :
+                        error.message,
+                        variant: 'destructive'
                       });
                     }
                   }}
-                  disabled={isSubmitting}
-                >
+                  disabled={isSubmitting}>
+
                   <Chrome className="mr-2 h-4 w-4" />
                   Continue with Google
                 </Button>
@@ -372,6 +372,6 @@ export default function Auth() {
           </Tabs>
         </CardContent>
       </Card>
-    </div>
-  );
+    </div>);
+
 }
