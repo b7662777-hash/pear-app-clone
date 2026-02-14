@@ -96,7 +96,7 @@ export function SearchBar({ value, onChange, searchResults = [] }: SearchBarProp
           value={value}
           onChange={(e) => handleInputChange(e.target.value)}
           onFocus={handleInputFocus}
-          className="w-full bg-[#3d3d3d] hover:bg-[#4a4a4a] focus:bg-[#4a4a4a] rounded-lg py-2.5 text-white placeholder:text-white/50 focus:outline-none transition-colors text-sm mx-px pr-0 pl-0 ml-0 mr-0 px-[50px]" placeholder="Search Songs " />
+          className="w-full bg-[#3d3d3d] hover:bg-[#4a4a4a] focus:bg-[#4a4a4a] rounded-lg py-2.5 text-white placeholder:text-white/50 focus:outline-none transition-colors text-sm mx-px pr-0 pl-0 ml-0 mr-0 px-[100px]" placeholder="Search Songs " />
 
         {value &&
         <button
