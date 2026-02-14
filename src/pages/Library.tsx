@@ -423,7 +423,7 @@ const Library = () => {
 
               {/* Playlists */}
               <section className="mb-10 animate-fade-in-up animation-delay-200">
-                <div className="flex items-center justify-between mb-4">
+                <div className="mb-4 flex items-center justify-between px-0">
                   <h2 className="text-xl font-semibold">Playlists</h2>
                   <Button
                   variant="ghost"
@@ -496,7 +496,7 @@ const Library = () => {
                   className="aspect-square rounded-xl border-2 border-dashed border-border flex flex-col items-center justify-center cursor-pointer hover:border-primary/50 hover:bg-accent/30 transition-all duration-300">
 
                     <Plus className="w-8 h-8 text-muted-foreground mb-2" />
-                    <span className="text-sm text-muted-foreground">New Playlist</span>
+                    <span className="text-sm text-muted-foreground">        Create New Playlist</span>
                   </div>
                 </div>
               </section>
