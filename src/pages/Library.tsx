@@ -367,7 +367,7 @@ const Library = () => {
           {/* Header */}
           <div className="mb-8 animate-fade-in-up">
             <div className="flex items-center gap-3 mb-2 px-[475px]">
-              <LibraryIcon className="text-primary px-0 w-[32px] h-[32px]" />
+              <LibraryIcon className="text-primary px-0 w-[1024px] h-[32px]" />
               <h1 className="text-3xl font-bold">Your Library</h1>
             </div>
             <p className="text-muted-foreground px-[450px]">Your music collection</p>
