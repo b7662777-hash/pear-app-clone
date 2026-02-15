@@ -65,11 +65,11 @@ const Explore = () => {
         <main className="flex-1 overflow-y-auto px-3 pb-16 md:pb-24 md:px-[75px]">
           {/* Header */}
           <div className="mb-8">
-            <div className="flex items-center gap-3 mb-2">
+            <div className="gap-3 mb-2 flex items-center justify-center px-0">
               <Compass className="w-8 h-8 text-primary" />
               <h1 className="text-3xl font-bold">Explore</h1>
             </div>
-            <p className="text-muted-foreground">Discover new music and artists</p>
+            <p className="text-muted-foreground font-sans px-[375px] mx-0 pl-[350px]">Discover new music and artists</p>
           </div>
 
           {/* Trending Section */}
