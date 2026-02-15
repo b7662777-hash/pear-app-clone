@@ -391,7 +391,7 @@ const Library = () => {
           <>
               {/* Quick Access */}
               <section className="mb-10 animate-fade-in-up animation-delay-100">
-                <h2 className="text-xl font-semibold mb-4">Quick Access</h2>
+                <h2 className="text-xl font-semibold mb-4 px-0">   Quick Access</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {/* Liked Songs */}
                   <div
@@ -424,7 +424,7 @@ const Library = () => {
               {/* Playlists */}
               <section className="mb-10 animate-fade-in-up animation-delay-200">
                 <div className="mb-4 flex items-center justify-between px-0">
-                  <h2 className="text-xl font-semibold">Playlists</h2>
+                  <h2 className="text-xl font-semibold">   Playlists</h2>
                   <Button
                   variant="ghost"
                   size="sm"
@@ -503,7 +503,7 @@ const Library = () => {
 
               {/* Artists */}
               <section className="mb-10 animate-fade-in-up animation-delay-300">
-                <h2 className="text-xl font-semibold mb-4">Artists</h2>
+                <h2 className="text-xl font-semibold mb-4">    Artists</h2>
                 <div className="w-full rounded-xl bg-card/30 border border-border/50 flex items-center justify-center py-16 text-muted-foreground">
                   <p>Artists you follow will appear here</p>
                 </div>
@@ -511,7 +511,7 @@ const Library = () => {
 
               {/* Albums */}
               <section className="mb-10 animate-fade-in-up animation-delay-400">
-                <h2 className="text-xl font-semibold mb-4">Albums</h2>
+                <h2 className="text-xl font-semibold mb-4">     Albums</h2>
                 <div className="w-full rounded-xl bg-card/30 border border-border/50 flex items-center justify-center py-16 text-muted-foreground">
                   <p>Albums you save will appear here</p>
                 </div>
