@@ -69,7 +69,7 @@ const Explore = () => {
               <Compass className="w-8 h-8 text-primary" />
               <h1 className="text-3xl font-bold">Explore</h1>
             </div>
-            <p className="text-muted-foreground font-sans px-[375px] mx-0 pl-[350px]">Discover new music and artists</p>
+            <p className="text-muted-foreground font-sans px-[375px] mx-0 pl-[350px] text-center">Discover new music and artists</p>
           </div>
 
           {/* Trending Section */}
