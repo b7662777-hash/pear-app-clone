@@ -366,8 +366,8 @@ const Library = () => {
         <main className="flex-1 overflow-y-auto px-3 pb-16 md:pb-32 pr-[2px] md:px-0">
           {/* Header */}
           <div className="mb-8 animate-fade-in-up">
-            <div className="flex items-center gap-3 mb-2 px-[400px]">
-              <LibraryIcon className="w-8 h-8 text-primary" />
+            <div className="flex items-center gap-3 mb-2 px-[475px]">
+              <LibraryIcon className="text-primary px-0 w-[32px] h-[32px]" />
               <h1 className="text-3xl font-bold">Your Library</h1>
             </div>
             <p className="text-muted-foreground px-[450px]">Your music collection</p>
@@ -504,8 +504,8 @@ const Library = () => {
               {/* Artists */}
               <section className="mb-10 animate-fade-in-up animation-delay-300">
                 <h2 className="text-xl font-semibold mb-4">    Artists</h2>
-                <div className="w-full rounded-xl bg-card/30 border border-border/50 flex items-center justify-center py-16 text-muted-foreground">
-                  <p>Artists you follow will appear here</p>
+                <div className="w-full rounded-xl bg-card/30 border border-border/50 flex items-center justify-center py-16 text-muted-foreground px-0">
+                  <p>Artists you follow will appear here </p>
                 </div>
               </section>
 
