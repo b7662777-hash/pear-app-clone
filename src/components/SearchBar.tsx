@@ -86,7 +86,7 @@ export function SearchBar({ value, onChange, searchResults = [] }: SearchBarProp
   };
 
   return (
-    <header className="sticky top-0 z-40 flex items-center justify-between gap-2 md:gap-4 bg-transparent md:px-0 pr-0 pl-[250px] my-[10px] py-px px-[25px]">
+    <header className="sticky top-0 z-40 flex items-center justify-between gap-2 md:gap-4 bg-transparent pr-0 pl-[250px] my-[10px] py-px px-[25px] md:px-[25px]">
       {/* Search Input */}
       <div className="relative flex-1 max-w-full md:max-w-[480px] py-0 pt-0 mx-px my-px px-0 pr-0">
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 text-white/50 w-[20px] px-0 pr-0 pb-0 my-0 mx-px" />
