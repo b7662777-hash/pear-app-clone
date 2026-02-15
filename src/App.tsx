@@ -24,7 +24,7 @@ const queryClient = new QueryClient();
 // Simple loading fallback
 const PageLoader = () =>
 <div className="min-h-screen bg-background flex items-center justify-center">
-    <div className="animate-pulse text-muted-foreground px-[500px]">Loading...</div>
+    <div className="animate-pulse text-muted-foreground px-[600px]">Loading...</div>
   </div>;
 
 
