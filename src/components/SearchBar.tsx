@@ -96,7 +96,7 @@ export function SearchBar({ value, onChange, searchResults = [] }: SearchBarProp
           value={value}
           onChange={(e) => handleInputChange(e.target.value)}
           onFocus={handleInputFocus}
-          className="w-full bg-[#3d3d3d] hover:bg-[#4a4a4a] focus:bg-[#4a4a4a] rounded-lg py-2.5 text-white placeholder:text-white/50 focus:outline-none transition-colors text-sm mx-px ml-0 mr-0 pl-[40px] pr-[40px] px-[400px]" placeholder="Search Songs, Music, Artists , Playlists" />
+          className="w-full bg-[#3d3d3d] hover:bg-[#4a4a4a] focus:bg-[#4a4a4a] rounded-lg py-2.5 text-white placeholder:text-white/50 focus:outline-none transition-colors text-sm mx-px ml-0 mr-0 pl-[40px] pr-[40px] px-[45px]" placeholder="Search Songs, Music, Artists , Playlists" />
 
         {value &&
         <button
@@ -121,7 +121,7 @@ export function SearchBar({ value, onChange, searchResults = [] }: SearchBarProp
       </div>
 
       {/* Right Actions */}
-      <div className="flex items-center gap-1 md:gap-2 flex-shrink-0 pt-0 pr-[10px] pl-[500px] px-[50px] mx-px">
+      <div className="flex items-center gap-1 md:gap-2 flex-shrink-0 pt-0 pr-[10px] pl-[500px] mx-px px-[5px]">
         <button
           className="p-2 rounded-full hover:bg-white/[0.08] transition-colors hidden md:block"
           aria-label="Go back">
