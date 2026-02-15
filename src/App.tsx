@@ -13,20 +13,20 @@ const Library = lazy(() => import("./pages/Library"));
 const Profile = lazy(() => import("./pages/Profile"));
 const Settings = lazy(() => import("./pages/Settings"));
 const NotFound = lazy(() => import("./pages/NotFound"));
-const GlobalPlayer = lazy(() => import("@/components/GlobalPlayer").then(m => ({ default: m.GlobalPlayer })));
+const GlobalPlayer = lazy(() => import("@/components/GlobalPlayer").then((m) => ({ default: m.GlobalPlayer })));
 
 // Lazy load toast components - not needed for initial render
-const Toaster = lazy(() => import("@/components/ui/toaster").then(m => ({ default: m.Toaster })));
-const Sonner = lazy(() => import("@/components/ui/sonner").then(m => ({ default: m.Toaster })));
+const Toaster = lazy(() => import("@/components/ui/toaster").then((m) => ({ default: m.Toaster })));
+const Sonner = lazy(() => import("@/components/ui/sonner").then((m) => ({ default: m.Toaster })));
 
 const queryClient = new QueryClient();
 
 // Simple loading fallback
-const PageLoader = () => (
-  <div className="min-h-screen bg-background flex items-center justify-center">
-    <div className="animate-pulse text-muted-foreground">Loading...</div>
-  </div>
-);
+const PageLoader = () =>
+<div className="min-h-screen bg-background flex items-center justify-center">
+    <div className="animate-pulse text-muted-foreground px-[100px]">Loading...</div>
+  </div>;
+
 
 // Conditionally render GlobalPlayer only when a track is loaded
 // This defers loading the 25KB GlobalPlayer bundle until needed
@@ -36,12 +36,12 @@ const ConditionalGlobalPlayer = () => {
   return (
     <Suspense fallback={null}>
       <GlobalPlayer />
-    </Suspense>
-  );
+    </Suspense>);
+
 };
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
+const App = () =>
+<QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Suspense fallback={null}>
         <Toaster />
@@ -67,7 +67,7 @@ const App = () => (
         </PlayerProvider>
       </BrowserRouter>
     </TooltipProvider>
-  </QueryClientProvider>
-);
+  </QueryClientProvider>;
+
 
 export default App;
