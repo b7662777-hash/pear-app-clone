@@ -59,28 +59,28 @@ export function SimilarToSection({
   if (albums.length === 0) return null;
 
   return (
-    <section className="mb-8 min-h-[284px]">
-      {/* Header with featured image and title */}
-      <div className="flex items-start gap-4 mb-4">
-        {featuredImage && (
-          <img 
-            src={optimizeImageUrl(featuredImage, 64)} 
-            alt="" 
-            className="w-14 h-14 rounded object-cover"
-          />
-        )}
-        <div className="flex-1">
-          <span className="text-xs text-white/50 uppercase tracking-wide font-medium">{subtitle}</span>
-          <h2 className="text-2xl font-bold text-white leading-tight">{title}</h2>
+    <section className="mb-10 min-h-[284px]">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-3">
+          {featuredImage && (
+            <img 
+              src={optimizeImageUrl(featuredImage, 56)} 
+              alt="" 
+              className="w-14 h-14 rounded-full object-cover"
+            />
+          )}
+          <div>
+            <span className="text-xs text-white/50 uppercase tracking-wider font-medium">{subtitle}</span>
+            <h2 className="text-[28px] font-bold text-white leading-tight">{title}</h2>
+          </div>
         </div>
         
-        {/* Navigation */}
-        <div className="flex items-center gap-1 self-end">
+        <div className="flex items-center gap-1">
           <button 
             onClick={() => scroll('left')}
             disabled={!canScrollLeft}
             className="p-2 rounded-full hover:bg-white/[0.08] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-            aria-label="Scroll left"
           >
             <ChevronLeft className="w-5 h-5 text-white/60" />
           </button>
@@ -88,7 +88,6 @@ export function SimilarToSection({
             onClick={() => scroll('right')}
             disabled={!canScrollRight}
             className="p-2 rounded-full hover:bg-white/[0.08] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-            aria-label="Scroll right"
           >
             <ChevronRight className="w-5 h-5 text-white/60" />
           </button>
@@ -104,7 +103,7 @@ export function SimilarToSection({
           <div 
             key={album.id} 
             onClick={() => onAlbumClick(album)}
-            className="flex-shrink-0 w-[160px] group cursor-pointer"
+            className="flex-shrink-0 w-[180px] group cursor-pointer"
           >
             <div className="relative aspect-square rounded overflow-hidden mb-2">
               <img
@@ -112,7 +111,6 @@ export function SimilarToSection({
                 alt={album.title}
                 className="w-full h-full object-cover"
               />
-              {/* Play overlay */}
               <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
                 <button 
                   className="w-12 h-12 rounded-full bg-white/90 hover:bg-white flex items-center justify-center shadow-lg"
