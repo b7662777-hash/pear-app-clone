@@ -27,14 +27,11 @@ export function ListenAgainSection({ tracks, featuredTrack, onTrackClick }: List
 
   const displayName = profile?.display_name || user?.email?.split('@')[0] || 'BLUE SUN';
 
-  // Preload LCP images for better discovery
   useEffect(() => {
     const preloadLinks: HTMLLinkElement[] = [];
-    
     if (tracks[0]?.image) {
       const imageUrl = optimizeImageUrl(tracks[0].image, 226);
       const existingPreload = document.querySelector(`link[rel="preload"][href="${imageUrl}"]`);
-      
       if (!existingPreload) {
         const preloadLink = document.createElement('link');
         preloadLink.rel = 'preload';
@@ -45,12 +42,9 @@ export function ListenAgainSection({ tracks, featuredTrack, onTrackClick }: List
         preloadLinks.push(preloadLink);
       }
     }
-    
     return () => {
       preloadLinks.forEach(link => {
-        if (document.head.contains(link)) {
-          document.head.removeChild(link);
-        }
+        if (document.head.contains(link)) document.head.removeChild(link);
       });
     };
   }, [tracks]);
@@ -84,29 +78,26 @@ export function ListenAgainSection({ tracks, featuredTrack, onTrackClick }: List
 
   if (tracks.length === 0) return null;
 
-  const displayTracks = tracks.slice(0, 12);
-
   return (
-    <section className="mb-8">
-      {/* Header with avatar, title, and navigation */}
+    <section className="mb-10">
+      {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           {featuredTrack && (
             <img 
               src={optimizeImageUrl(featuredTrack.image, 48)} 
               alt="" 
-              className="w-12 h-12 rounded object-cover"
+              className="w-12 h-12 rounded-full object-cover"
             />
           )}
           <div>
-            <span className="text-xs text-white/50 uppercase tracking-wide font-medium block">{displayName.toUpperCase()}</span>
-            <h2 className="text-2xl font-bold text-white">Listen again</h2>
+            <span className="text-xs text-white/50 uppercase tracking-wider font-medium block">{displayName.toUpperCase()}</span>
+            <h2 className="text-[28px] font-bold text-white leading-tight">Listen again</h2>
           </div>
         </div>
 
-        {/* Navigation controls */}
         <div className="flex items-center gap-2">
-          <button className="px-4 py-1.5 rounded-full border border-white/20 text-sm font-medium text-white hover:bg-white/[0.05] transition-colors">
+          <button className="px-5 py-1.5 rounded-full border border-white/20 text-sm font-medium text-white hover:bg-white/[0.05] transition-colors">
             More
           </button>
           <button 
@@ -128,18 +119,17 @@ export function ListenAgainSection({ tracks, featuredTrack, onTrackClick }: List
         </div>
       </div>
 
-      {/* Track grid - 6 columns */}
+      {/* Horizontal scroll row */}
       <div 
         ref={scrollContainerRef}
-        className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4"
+        className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide"
       >
-        {displayTracks.map((track, index) => (
+        {tracks.map((track, index) => (
           <div
             key={track.id}
             onClick={() => onTrackClick(track)}
-            className="group relative cursor-pointer"
+            className="group relative cursor-pointer flex-shrink-0 w-[180px]"
           >
-            {/* Album art container */}
             <div className="relative aspect-square rounded overflow-hidden mb-2">
               <img
                 src={optimizeImageUrl(track.image, 226)}
@@ -148,7 +138,6 @@ export function ListenAgainSection({ tracks, featuredTrack, onTrackClick }: List
                 loading={index < 6 ? "eager" : "lazy"}
                 fetchPriority={index < 6 ? "high" : undefined}
               />
-              {/* Play button overlay */}
               <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
                 <button 
                   className="w-12 h-12 rounded-full bg-white/90 hover:bg-white flex items-center justify-center shadow-lg transition-transform hover:scale-105"
@@ -159,7 +148,6 @@ export function ListenAgainSection({ tracks, featuredTrack, onTrackClick }: List
               </div>
             </div>
             
-            {/* Track info */}
             <h3 className="text-sm font-medium text-white truncate">{track.title}</h3>
             <p className="text-xs text-white/50 truncate">
               {track.type || 'Song'} • {track.artist}{track.views ? ` • ${track.views}` : ''}
