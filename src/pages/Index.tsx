@@ -84,7 +84,7 @@ const Index = () => {
   const isHomeLoading = isLoadingRecommended && recommendedTracks.length === 0;
 
   return (
-    <div className="flex h-[100dvh] bg-[#0f0f0f] overflow-hidden relative">
+    <div className="flex h-[100dvh] bg-background overflow-hidden relative">
       <Suspense fallback={null}>
         <AmbientBackground />
       </Suspense>
@@ -92,9 +92,10 @@ const Index = () => {
       <SidebarShell activeTab={activeTab} onTabChange={handleTabChange} />
 
       <div className="flex-1 flex flex-col overflow-hidden relative z-10">
-        <SearchBar 
-          value={searchQuery} 
+        <SearchBar
+          value={searchQuery}
           onChange={setSearchQuery}
+          isSearching={isSearching}
           searchResults={searchResults.map(r => ({
             id: r.videoId, title: r.title, artist: r.artist,
             image: r.thumbnail, videoId: r.videoId,
@@ -102,12 +103,10 @@ const Index = () => {
         />
 
         <main className="flex-1 overflow-y-auto px-4 md:px-6 pb-20">
-          {/* Mood Chips */}
           <div className="mb-8 pt-2">
             <MoodChips selected={selectedMood} onSelect={setSelectedMood} />
           </div>
 
-          {/* Search Results */}
           <SearchResults
             results={searchResults}
             isSearching={isSearching}
@@ -116,7 +115,6 @@ const Index = () => {
             isVisible={searchQuery.trim().length > 0}
           />
 
-          {/* Home content */}
           {!searchQuery.trim() && (
             <>
               <div className="min-h-[320px]">
@@ -138,13 +136,12 @@ const Index = () => {
                   />
                 ) : isHomeLoading ? (
                   <div className="flex flex-col items-center justify-center min-h-[320px]">
-                    <Loader2 className="w-8 h-8 animate-spin text-white/40 mb-4" />
-                    <p className="text-white/50 text-sm">Loading your music...</p>
+                    <Loader2 className="w-8 h-8 animate-spin text-muted-foreground mb-4" />
+                    <p className="text-muted-foreground text-sm">Loading your music...</p>
                   </div>
                 ) : null}
               </div>
 
-              {/* Similar To */}
               {similarAlbums.length > 0 && (
                 <SimilarToSection
                   title={currentTrack?.artist || recommendedTracks[0]?.artist || "Popular Artists"}
@@ -158,7 +155,6 @@ const Index = () => {
                 />
               )}
 
-              {/* Trending */}
               <RecommendedSongs
                 tracks={trendingTracks}
                 isLoading={isLoadingTrending}
@@ -168,7 +164,6 @@ const Index = () => {
                 subtitle="What's hot right now"
               />
 
-              {/* New Releases */}
               <RecommendedSongs
                 tracks={newReleaseTracks}
                 isLoading={isLoadingNewReleases}
@@ -180,8 +175,8 @@ const Index = () => {
 
               {!isHomeLoading && recommendedTracks.length === 0 && trendingTracks.length === 0 && (
                 <div className="flex flex-col items-center justify-center py-20">
-                  <Music className="w-16 h-16 text-white/30 mb-4" />
-                  <p className="text-white/50">No music found. Try refreshing.</p>
+                  <Music className="w-16 h-16 text-muted-foreground mb-4" />
+                  <p className="text-muted-foreground">No music found. Try refreshing.</p>
                 </div>
               )}
             </>
