@@ -84,7 +84,7 @@ const Index = () => {
   const isHomeLoading = isLoadingRecommended && recommendedTracks.length === 0;
 
   return (
-    <div className="flex h-[100dvh] bg-background overflow-hidden relative">
+    <div className="flex w-screen h-[100dvh] bg-background overflow-hidden relative">
       <Suspense fallback={null}>
         <AmbientBackground />
       </Suspense>
