@@ -29,7 +29,7 @@ export const SyncedLyrics = forwardRef<HTMLDivElement, SyncedLyricsProps>(
         const lineRect = activeLine.getBoundingClientRect();
         
         // Calculate the position to center the active line
-        const scrollOffset = lineRect.top - containerRect.top - containerRect.height / 3;
+        const scrollOffset = lineRect.top - containerRect.top - containerRect.height / 2 + lineRect.height / 2;
         
         container.scrollTo({
           top: container.scrollTop + scrollOffset,
