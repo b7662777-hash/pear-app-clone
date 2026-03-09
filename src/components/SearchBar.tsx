@@ -1,4 +1,4 @@
-import { Search, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useState, useCallback } from "react";
 import { SearchDropdown } from "./SearchDropdown";
