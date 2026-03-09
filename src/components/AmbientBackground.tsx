@@ -57,7 +57,7 @@ export function AmbientBackground() {
 
   return (
     <div 
-      className="fixed inset-0 z-0 pointer-events-none transition-colors duration-[2000ms] ease-[cubic-bezier(0.4,0,0.2,1)]"
+      className="fixed inset-0 z-0 pointer-events-none transition-colors duration-[400ms] ease-in-out"
       style={{ backgroundColor: solidBackground }}
     >
       {/* Subtle vignette for depth */}
