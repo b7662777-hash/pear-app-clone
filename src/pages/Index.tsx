@@ -102,7 +102,7 @@ const Index = () => {
           }))}
         />
 
-        <main className="flex-1 overflow-y-auto px-4 md:px-6 pb-20">
+        <main className="flex-1 overflow-y-auto px-4 md:px-6 pb-24">
           <div className="mb-8 pt-2">
             <MoodChips selected={selectedMood} onSelect={setSelectedMood} />
           </div>

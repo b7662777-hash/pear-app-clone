@@ -106,11 +106,10 @@ export function SearchBar({ value, onChange, isSearching = false, searchResults 
 
       <Avatar className="w-8 h-8 cursor-pointer hover:ring-2 hover:ring-ring/50 transition-all flex-shrink-0">
           <AvatarImage src={profile?.avatar_url || user?.user_metadata?.avatar_url || undefined} />
-          <AvatarFallback className="bg-primary text-primary-foreground text-xs font-medium">
+        <AvatarFallback className="bg-primary text-primary-foreground text-xs font-medium">
             {getInitials()}
           </AvatarFallback>
-        </Avatar>
-      </div>
+      </Avatar>
     </header>
   );
 }

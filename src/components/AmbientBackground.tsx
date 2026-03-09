@@ -51,7 +51,7 @@ export function AmbientBackground() {
       // End transition after animation completes
       setTimeout(() => {
         setIsTransitioning(false);
-      }, 2000);
+      }, 500);
     });
   }, [currentTrack, colorExtractionEnabled, setPersistedTheme]);
 

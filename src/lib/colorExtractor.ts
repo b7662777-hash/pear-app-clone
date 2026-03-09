@@ -313,8 +313,8 @@ export function getSolidBackgroundColor(theme: DynamicTheme): string {
   
   // Reduce brightness significantly (to 8-12% lightness) and reduce saturation
   const [r, g, b] = rgb;
-  const factor = 0.12; // Darken to ~12% of original brightness
-  const saturationFactor = 0.4; // Reduce saturation to 40%
+  const factor = 0.18; // Darken to ~18% of original brightness for more visible tint
+  const saturationFactor = 0.55; // Keep more saturation for vibrancy
   
   // Calculate average for desaturation
   const avg = (r + g + b) / 3;
