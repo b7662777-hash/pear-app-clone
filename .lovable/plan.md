@@ -1,32 +1,64 @@
 
 
-# Fix Blank Space on Explore Page
+## Plan: UI Polish, Layout Fixes, and Improvements
 
-## Problem
-The Explore page has visible blank/empty space on the right side. While the grid columns are properly configured, the content is sparse in several sections, creating visual gaps.
+### Current State
+- The API is **working correctly** — all 3 requests (recommended, trending, new releases) return 200 with song data. Songs ARE loading.
+- Color extraction via ColorThief is already implemented in `AmbientBackground.tsx`.
+- Synced lyrics via LRCLIB/Musixmatch/YouTube are already implemented.
+- The layout has some padding/gaps and the profile icon isn't pinned far-right.
 
-## Changes
+### Changes
 
-### File: `src/pages/Explore.tsx`
+#### 1. Edge-to-Edge Layout (No Gaps)
+**Files:** `src/pages/Index.tsx`, `src/pages/Explore.tsx`, `src/pages/Library.tsx`
+- Remove `px-4 md:px-6` padding from `<main>` and replace with `px-0` on outer, `px-4 md:px-6` only on inner content sections.
+- Ensure the root container uses `w-screen h-[100dvh]` with no margin/padding.
+- Remove `pb-20` from main and use `pb-24` (just enough for player bar clearance).
 
-1. **Add more genres** to fill the grid rows evenly (add 4 more genres like "Latin", "Metal", "Indie", "Reggae" to make 12 total -- two full rows of 6)
+#### 2. Profile Icon Pinned Far-Right
+**File:** `src/components/SearchBar.tsx`
+- Restructure the header to: `[search input] [spacer flex-1] [avatar]`
+- Remove the nav arrows (ChevronLeft/ChevronRight) from the search bar — they're non-functional.
+- Pin the Avatar to the absolute right with `ml-auto`.
 
-2. **Add more mood chips** and make the mood section use a grid layout instead of `flex flex-wrap` so items stretch across the full width:
-   - Change from `flex flex-wrap gap-3` to `grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3`
-   - Make each mood button `w-full` so it stretches within its column
+#### 3. Solid Ambient Mode (Already Implemented — Polish)
+**File:** `src/components/AmbientBackground.tsx`
+- Already uses ColorThief. Will reduce transition duration from 2000ms to 400ms for snappier feel per user request.
+- Ensure the solid background color is more prominent (increase lightness slightly in `getSolidBackgroundColor`).
 
-3. **Add more chart items** to fill the grid (add "Top Podcasts" as a 4th item to fill the `lg:grid-cols-4` grid evenly)
+**File:** `src/lib/colorExtractor.ts`
+- Adjust `getSolidBackgroundColor` to produce slightly more vibrant/visible colors (current 8-12% lightness can be bumped to 10-15%).
 
-4. **Add full-width section backgrounds** to each section using rounded `bg-[#1a1a1a]/30` containers with padding, so sections visually span the entire content width even where grid cells are empty
+#### 4. Smooth UI & Performance
+**File:** `src/index.css`
+- Add a global `* { transition-timing-function: ease-in-out; }` for smoother interactions.
+- Ensure scrollbar-hide utility class exists for horizontal scroll sections.
 
----
+**File:** `src/components/ListenAgainSection.tsx`, `src/components/RecommendedSongs.tsx`
+- Add `scroll-smooth` to scroll containers.
+- Add hover scale transitions to track cards.
 
-## Technical Details
+#### 5. 100% Synced Lyrics (Already Implemented — Verify & Polish)
+**File:** `src/components/SyncedLyrics.tsx`
+- Already fully implemented with auto-scroll and seek-on-click.
+- Polish: add a subtle glow/scale effect on the active line for better visibility.
+- Ensure the active line centering uses `containerHeight / 2` instead of `/3` for true center alignment.
 
-| Area | Current | After |
-|------|---------|-------|
-| Genres | 8 items (6+2 rows) | 12 items (6+6 rows, fully filled) |
-| Moods | `flex flex-wrap` (left-aligned chips) | `grid grid-cols-6` (full-width stretch) |
-| Charts | 3 items in 4-col grid | 4 items (fully filled) |
-| Section styling | No backgrounds | Subtle section backgrounds spanning full width |
+**File:** `src/hooks/useYouTubeMusic.ts`
+- Already fetches from LRCLIB with fallback to Musixmatch and YouTube. No changes needed.
+
+### Summary of File Changes
+| File | Change |
+|------|--------|
+| `src/pages/Index.tsx` | Remove outer padding, edge-to-edge layout |
+| `src/pages/Explore.tsx` | Same edge-to-edge treatment |
+| `src/pages/Library.tsx` | Same edge-to-edge treatment |
+| `src/components/SearchBar.tsx` | Pin avatar far-right, remove unused nav arrows |
+| `src/components/AmbientBackground.tsx` | Faster 400ms transition |
+| `src/lib/colorExtractor.ts` | Slightly more vibrant solid background colors |
+| `src/components/SyncedLyrics.tsx` | Better active line styling and centering |
+| `src/components/ListenAgainSection.tsx` | Hover animations on cards |
+| `src/components/RecommendedSongs.tsx` | Hover animations on cards |
+| `src/index.css` | Global smooth transitions |
 
