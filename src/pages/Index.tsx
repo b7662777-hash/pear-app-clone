@@ -84,7 +84,7 @@ const Index = () => {
   const isHomeLoading = isLoadingRecommended && recommendedTracks.length === 0;
 
   return (
-    <div className="flex h-[100dvh] bg-background overflow-hidden relative">
+    <div className="flex w-screen h-[100dvh] bg-background overflow-hidden relative">
       <Suspense fallback={null}>
         <AmbientBackground />
       </Suspense>
@@ -102,7 +102,7 @@ const Index = () => {
           }))}
         />
 
-        <main className="flex-1 overflow-y-auto px-4 md:px-6 pb-20">
+        <main className="flex-1 overflow-y-auto px-4 md:px-6 pb-24">
           <div className="mb-8 pt-2">
             <MoodChips selected={selectedMood} onSelect={setSelectedMood} />
           </div>

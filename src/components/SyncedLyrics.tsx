@@ -29,7 +29,7 @@ export const SyncedLyrics = forwardRef<HTMLDivElement, SyncedLyricsProps>(
         const lineRect = activeLine.getBoundingClientRect();
         
         // Calculate the position to center the active line
-        const scrollOffset = lineRect.top - containerRect.top - containerRect.height / 3;
+        const scrollOffset = lineRect.top - containerRect.top - containerRect.height / 2 + lineRect.height / 2;
         
         container.scrollTo({
           top: container.scrollTop + scrollOffset,
@@ -54,8 +54,8 @@ export const SyncedLyrics = forwardRef<HTMLDivElement, SyncedLyricsProps>(
                 ref={isActive ? activeLineRef : null}
                 onClick={() => onSeek?.(line.time)}
                 className={cn(
-                "text-xl font-semibold leading-relaxed cursor-pointer transition-all duration-300 text-left",
-                isActive && "text-white text-2xl",
+                "text-xl font-semibold leading-relaxed cursor-pointer transition-all duration-300 ease-in-out text-left",
+                isActive && "text-white text-2xl scale-[1.02] origin-left drop-shadow-[0_0_12px_rgba(255,255,255,0.3)]",
                 isPast && "text-white/30",
                 !isActive && !isPast && "text-white/50 hover:text-white/70"
                 )}

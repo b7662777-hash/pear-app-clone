@@ -51,7 +51,7 @@ const Explore = () => {
   };
 
   return (
-    <div className="flex h-screen bg-[#0f0f0f] overflow-hidden relative">
+    <div className="flex w-screen h-[100dvh] bg-background overflow-hidden relative">
       {/* Global Ambient Background */}
       <Suspense fallback={null}>
         <AmbientBackground />
@@ -62,7 +62,7 @@ const Explore = () => {
       <div className="flex-1 flex flex-col overflow-hidden relative z-10">
         <SearchBar value={searchQuery} onChange={setSearchQuery} />
 
-        <main className="flex-1 overflow-y-auto px-3 pb-16 md:pb-24 md:px-[75px]">
+        <main className="flex-1 overflow-y-auto px-4 md:px-6 pb-24">
           {/* Header */}
           <div className="mb-8">
             <div className="gap-3 mb-2 flex items-center justify-center px-0">

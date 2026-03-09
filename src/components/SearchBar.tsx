@@ -1,4 +1,4 @@
-import { Search, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useState, useCallback } from "react";
 import { SearchDropdown } from "./SearchDropdown";
@@ -104,27 +104,12 @@ export function SearchBar({ value, onChange, isSearching = false, searchResults 
 
       <div className="flex-1" />
 
-      <div className="flex items-center gap-1 flex-shrink-0">
-        <button
-          className="p-2 rounded-full hover:bg-accent transition-colors hidden md:block"
-          aria-label="Go back"
-        >
-          <ChevronLeft className="w-6 h-6 text-muted-foreground" />
-        </button>
-        <button
-          className="p-2 rounded-full hover:bg-accent transition-colors hidden md:block"
-          aria-label="Go forward"
-        >
-          <ChevronRight className="w-6 h-6 text-muted-foreground" />
-        </button>
-
-        <Avatar className="w-8 h-8 cursor-pointer hover:ring-2 hover:ring-ring/50 transition-all ml-2">
+      <Avatar className="w-8 h-8 cursor-pointer hover:ring-2 hover:ring-ring/50 transition-all flex-shrink-0">
           <AvatarImage src={profile?.avatar_url || user?.user_metadata?.avatar_url || undefined} />
-          <AvatarFallback className="bg-primary text-primary-foreground text-xs font-medium">
+        <AvatarFallback className="bg-primary text-primary-foreground text-xs font-medium">
             {getInitials()}
           </AvatarFallback>
-        </Avatar>
-      </div>
+      </Avatar>
     </header>
   );
 }

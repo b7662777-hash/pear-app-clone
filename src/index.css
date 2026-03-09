@@ -70,6 +70,13 @@
   body {
     @apply bg-background text-foreground antialiased;
     font-feature-settings: "rlig" 1, "calt" 1;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+  }
+  
+  * {
+    transition-timing-function: ease-in-out;
   }
   
   /* Custom scrollbar */
