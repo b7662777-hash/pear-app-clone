@@ -60,11 +60,11 @@ export function AmbientBackground() {
       className="fixed inset-0 z-0 pointer-events-none transition-colors duration-[400ms] ease-in-out"
       style={{ backgroundColor: solidBackground }}
     >
-      {/* Subtle vignette for depth */}
+      {/* Very subtle edge vignette - minimal so the color shows through */}
       <div 
         className="absolute inset-0"
         style={{
-          background: 'radial-gradient(ellipse at center, transparent 0%, rgba(0,0,0,0.3) 100%)'
+          background: 'radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.15) 100%)'
         }}
       />
     </div>
