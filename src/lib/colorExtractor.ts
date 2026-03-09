@@ -304,25 +304,78 @@ export function clearColorCache(): void {
 }
 
 /**
+ * Boost brightness and saturation of an RGB color
+ */
+function boostColor(r: number, g: number, b: number, minBrightness: number = 0.25): [number, number, number] {
+  // Convert to HSL for easier manipulation
+  const rn = r / 255, gn = g / 255, bn = b / 255;
+  const max = Math.max(rn, gn, bn), min = Math.min(rn, gn, bn);
+  let h = 0, s = 0, l = (max + min) / 2;
+
+  if (max !== min) {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    switch (max) {
+      case rn: h = ((gn - bn) / d + (gn < bn ? 6 : 0)) / 6; break;
+      case gn: h = ((bn - rn) / d + 2) / 6; break;
+      case bn: h = ((rn - gn) / d + 4) / 6; break;
+    }
+  }
+
+  // Boost saturation (at least 50%) and ensure minimum lightness
+  s = Math.max(s, 0.5);
+  s = Math.min(s * 1.3, 1.0);
+  l = Math.max(l, minBrightness);
+
+  // Convert back to RGB
+  const hue2rgb = (p: number, q: number, t: number) => {
+    if (t < 0) t += 1;
+    if (t > 1) t -= 1;
+    if (t < 1/6) return p + (q - p) * 6 * t;
+    if (t < 1/2) return q;
+    if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+    return p;
+  };
+
+  const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+  const p = 2 * l - q;
+  return [
+    Math.round(hue2rgb(p, q, h + 1/3) * 255),
+    Math.round(hue2rgb(p, q, h) * 255),
+    Math.round(hue2rgb(p, q, h - 1/3) * 255),
+  ];
+}
+
+/**
  * Generate a solid background color from the theme
- * Returns a very dark, slightly tinted color for solid ambient backgrounds
+ * Prioritizes vibrant/light vibrant colors for a rich, visible background
  */
 export function getSolidBackgroundColor(theme: DynamicTheme): string {
-  // Extract the darkVibrant color and darken it significantly
-  const rgb = theme.rgbPalette[4] || theme.rgbPalette[0] || [30, 30, 30];
-  
-  // Reduce brightness significantly (to 8-12% lightness) and reduce saturation
-  const [r, g, b] = rgb;
-  const factor = 0.18; // Darken to ~18% of original brightness for more visible tint
-  const saturationFactor = 0.55; // Keep more saturation for vibrancy
-  
-  // Calculate average for desaturation
-  const avg = (r + g + b) / 3;
-  
-  // Blend towards average (reduces saturation) then darken
-  const newR = Math.round((r * saturationFactor + avg * (1 - saturationFactor)) * factor);
-  const newG = Math.round((g * saturationFactor + avg * (1 - saturationFactor)) * factor);
-  const newB = Math.round((b * saturationFactor + avg * (1 - saturationFactor)) * factor);
-  
+  // Prioritize vibrant colors: find the most saturated, bright-enough color
+  const candidates = theme.rgbPalette.map(([r, g, b]) => ({
+    rgb: [r, g, b] as [number, number, number],
+    saturation: getSaturation(r, g, b),
+    brightness: getBrightness(r, g, b),
+  }));
+
+  // Sort by saturation descending, prefer brighter ones
+  candidates.sort((a, b) => {
+    const scoreA = a.saturation * 0.7 + a.brightness * 0.3;
+    const scoreB = b.saturation * 0.7 + b.brightness * 0.3;
+    return scoreB - scoreA;
+  });
+
+  const best = candidates[0]?.rgb || [30, 30, 30];
+  const [r, g, b] = best;
+
+  // Boost the color to ensure it's vibrant and visible
+  const [br, bg, bb] = boostColor(r, g, b, 0.28);
+
+  // Apply a moderate darkening factor so it works as a background (not blinding)
+  const factor = 0.45;
+  const newR = Math.round(br * factor);
+  const newG = Math.round(bg * factor);
+  const newB = Math.round(bb * factor);
+
   return `rgb(${newR}, ${newG}, ${newB})`;
 }
