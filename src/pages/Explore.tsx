@@ -51,7 +51,7 @@ const Explore = () => {
   };
 
   return (
-    <div className="flex h-screen bg-[#0f0f0f] overflow-hidden relative">
+    <div className="flex w-screen h-[100dvh] bg-background overflow-hidden relative">
       {/* Global Ambient Background */}
       <Suspense fallback={null}>
         <AmbientBackground />
