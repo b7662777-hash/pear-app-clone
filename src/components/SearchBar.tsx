@@ -3,7 +3,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useState, useCallback } from "react";
 import { SearchDropdown } from "./SearchDropdown";
 import { usePlayer } from "@/contexts/PlayerContext";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { UserProfileMenu } from "./UserProfileMenu";
 
 interface SearchBarProps {
   value: string;
@@ -61,12 +61,6 @@ export function SearchBar({ value, onChange, isSearching = false, searchResults 
     setIsDropdownOpen(false);
   }, [playTrack]);
 
-  const getInitials = () => {
-    if (profile?.display_name) return profile.display_name.slice(0, 2).toUpperCase();
-    if (user?.email) return user.email.slice(0, 2).toUpperCase();
-    return "U";
-  };
-
   return (
     <header className="sticky top-0 z-40 flex items-center gap-4 bg-background/30 backdrop-blur-sm py-3 px-4 md:px-6">
       <div className="relative flex-1 max-w-[520px]">
@@ -104,13 +98,8 @@ export function SearchBar({ value, onChange, isSearching = false, searchResults 
 
       <div className="flex-1" />
 
-      <Avatar className="w-8 h-8 cursor-pointer hover:ring-2 hover:ring-ring/50 transition-all flex-shrink-0">
-          <AvatarImage src={profile?.avatar_url || user?.user_metadata?.avatar_url || undefined} />
-        <AvatarFallback className="bg-primary text-primary-foreground text-xs font-medium">
-            {getInitials()}
-          </AvatarFallback>
-      </Avatar>
+      {/* Profile icon with full auth dropdown menu */}
+      <UserProfileMenu user={user} profile={profile} />
     </header>
   );
 }
-
