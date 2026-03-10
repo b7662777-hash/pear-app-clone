@@ -32,15 +32,15 @@ async function optionalAuthenticate(req: Request): Promise<{ userId: string | nu
       return { userId: null, isAuthenticated: false };
     }
     
-    const { data, error } = await supabaseClient.auth.getClaims(token);
+    const { data: { user }, error } = await supabaseClient.auth.getUser(token);
     
-    if (error || !data?.claims) {
+    if (error || !user) {
       // Invalid token - treat as guest user (don't reject)
       console.log('Auth token invalid, treating as guest');
       return { userId: null, isAuthenticated: false };
     }
 
-    return { userId: data.claims.sub as string, isAuthenticated: true };
+    return { userId: user.id, isAuthenticated: true };
   } catch (e) {
     console.error('Authentication error, treating as guest:', e);
     return { userId: null, isAuthenticated: false };
