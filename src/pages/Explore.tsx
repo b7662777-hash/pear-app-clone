@@ -42,6 +42,7 @@ const moods = [
 const Explore = () => {
   const [activeTab, setActiveTab] = useState("explore");
   const [searchQuery, setSearchQuery] = useState("");
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const navigate = useNavigate();
   const { currentTrack } = usePlayer();
 
