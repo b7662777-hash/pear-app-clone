@@ -76,7 +76,7 @@ export function PlayerBar({
       </div>
       
       {/* Main controls */}
-      <div className="flex-1 flex items-center justify-between px-4">
+      <div className="flex-1 flex items-center justify-between px-2 md:px-4">
         {/* Left: Transport controls + time */}
         <div className="flex items-center gap-1 md:gap-2">
           <button onClick={onPrevious} className="p-2 hover:bg-white/[0.1] rounded-full transition-colors" aria-label="Previous">
