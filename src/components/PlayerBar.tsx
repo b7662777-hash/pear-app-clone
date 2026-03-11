@@ -114,7 +114,7 @@ export function PlayerBar({
             <h3 className="text-sm font-medium text-white truncate max-w-[120px] md:max-w-[200px]">
               {currentTrack.title}
             </h3>
-            <p className="text-xs text-white/50 truncate max-w-[200px]">
+            <p className="text-xs text-white/50 truncate max-w-[120px] md:max-w-[200px]">
               {currentTrack.artist} • {currentTrack.album}
             </p>
           </div>
