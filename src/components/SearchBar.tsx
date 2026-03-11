@@ -19,7 +19,7 @@ interface SearchBarProps {
   onMenuClick?: () => void;
 }
 
-export function SearchBar({ value, onChange, isSearching = false, searchResults = [] }: SearchBarProps) {
+export function SearchBar({ value, onChange, isSearching = false, searchResults = [], onMenuClick }: SearchBarProps) {
   const { user, profile } = useAuth();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const { playTrack } = usePlayer();
