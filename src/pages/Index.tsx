@@ -92,12 +92,14 @@ const Index = () => {
       </Suspense>
 
       <SidebarShell activeTab={activeTab} onTabChange={handleTabChange} />
+      <MobileSidebar open={mobileSidebarOpen} onOpenChange={setMobileSidebarOpen} activeTab={activeTab} onTabChange={handleTabChange} />
 
       <div className="flex-1 flex flex-col overflow-hidden relative z-10">
         <SearchBar
           value={searchQuery}
           onChange={setSearchQuery}
           isSearching={isSearching}
+          onMenuClick={() => setMobileSidebarOpen(true)}
           searchResults={searchResults.map(r => ({
             id: r.videoId, title: r.title, artist: r.artist,
             image: r.thumbnail, videoId: r.videoId,
