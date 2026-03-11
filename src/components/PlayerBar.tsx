@@ -111,7 +111,7 @@ export function PlayerBar({
             className="w-10 h-10 rounded object-cover flex-shrink-0"
           />
           <div className="min-w-0">
-            <h3 className="text-sm font-medium text-white truncate max-w-[200px]">
+            <h3 className="text-sm font-medium text-white truncate max-w-[120px] md:max-w-[200px]">
               {currentTrack.title}
             </h3>
             <p className="text-xs text-white/50 truncate max-w-[200px]">
