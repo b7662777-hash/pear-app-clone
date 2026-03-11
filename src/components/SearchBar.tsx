@@ -1,4 +1,4 @@
-import { Search, X } from "lucide-react";
+import { Search, X, Menu } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useState, useCallback } from "react";
 import { SearchDropdown } from "./SearchDropdown";
@@ -16,6 +16,7 @@ interface SearchBarProps {
     image: string;
     videoId?: string;
   }>;
+  onMenuClick?: () => void;
 }
 
 export function SearchBar({ value, onChange, isSearching = false, searchResults = [] }: SearchBarProps) {
