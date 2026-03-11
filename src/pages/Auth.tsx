@@ -154,7 +154,7 @@ export default function Auth() {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-background p-4 mx-[50px] px-[250px]">
+    <div className="flex items-center justify-center min-h-screen bg-background p-4">
       <Card className="w-full max-w-md border-border/50 bg-card/50 backdrop-blur">
         <CardHeader className="text-center space-y-4">
           <div className="flex justify-center">
