@@ -58,7 +58,7 @@ export function PlayerBar({
   if (!currentTrack) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 h-[72px] bg-[#181818] flex flex-col z-50 border-t border-white/[0.05]">
+    <div className="fixed bottom-0 left-0 right-0 h-[64px] md:h-[72px] bg-[#181818] flex flex-col z-50 border-t border-white/[0.05]">
       {/* Progress bar */}
       <div className="absolute top-0 left-0 right-0 h-1 bg-white/10">
         <div 
