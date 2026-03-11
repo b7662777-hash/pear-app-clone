@@ -145,9 +145,10 @@ const Library = () => {
         </Suspense>
 
         <SidebarShell activeTab={activeTab} onTabChange={handleTabChange} />
+        <MobileSidebar open={mobileSidebarOpen} onOpenChange={setMobileSidebarOpen} activeTab={activeTab} onTabChange={handleTabChange} />
 
         <div className="flex-1 flex flex-col overflow-hidden relative z-10">
-          <SearchBar value={searchQuery} onChange={setSearchQuery} />
+          <SearchBar value={searchQuery} onChange={setSearchQuery} onMenuClick={() => setMobileSidebarOpen(true)} />
 
           <main className="flex-1 overflow-y-auto px-4 md:px-6 pb-24">
             {/* Header */}
