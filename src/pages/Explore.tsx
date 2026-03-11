@@ -1,5 +1,6 @@
 import { useState, lazy, Suspense } from "react";
 import { SidebarShell } from "@/components/SidebarShell";
+import { MobileSidebar } from "@/components/MobileSidebar";
 import { SearchBar } from "@/components/SearchBar";
 import { useNavigate } from "react-router-dom";
 import { usePlayer } from "@/contexts/PlayerContext";
