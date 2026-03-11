@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, lazy, Suspense, startTransition } from "react";
 import { SidebarShell } from "@/components/SidebarShell";
+import { MobileSidebar } from "@/components/MobileSidebar";
 import { SearchBar } from "@/components/SearchBar";
 import { MoodChips } from "@/components/MoodChips";
 import { SearchResults } from "@/components/SearchResults";
@@ -17,6 +18,7 @@ const Index = () => {
   const [activeTab, setActiveTab] = useState("home");
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const navigate = useNavigate();
   
   const { playTrack, currentTrack } = usePlayer();
@@ -90,12 +92,14 @@ const Index = () => {
       </Suspense>
 
       <SidebarShell activeTab={activeTab} onTabChange={handleTabChange} />
+      <MobileSidebar open={mobileSidebarOpen} onOpenChange={setMobileSidebarOpen} activeTab={activeTab} onTabChange={handleTabChange} />
 
       <div className="flex-1 flex flex-col overflow-hidden relative z-10">
         <SearchBar
           value={searchQuery}
           onChange={setSearchQuery}
           isSearching={isSearching}
+          onMenuClick={() => setMobileSidebarOpen(true)}
           searchResults={searchResults.map(r => ({
             id: r.videoId, title: r.title, artist: r.artist,
             image: r.thumbnail, videoId: r.videoId,

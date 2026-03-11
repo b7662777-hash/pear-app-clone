@@ -58,7 +58,7 @@ export function PlayerBar({
   if (!currentTrack) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 h-[72px] bg-[#181818] flex flex-col z-50 border-t border-white/[0.05]">
+    <div className="fixed bottom-0 left-0 right-0 h-[64px] md:h-[72px] bg-[#181818] flex flex-col z-50 border-t border-white/[0.05]">
       {/* Progress bar */}
       <div className="absolute top-0 left-0 right-0 h-1 bg-white/10">
         <div 
@@ -76,7 +76,7 @@ export function PlayerBar({
       </div>
       
       {/* Main controls */}
-      <div className="flex-1 flex items-center justify-between px-4">
+      <div className="flex-1 flex items-center justify-between px-2 md:px-4">
         {/* Left: Transport controls + time */}
         <div className="flex items-center gap-1 md:gap-2">
           <button onClick={onPrevious} className="p-2 hover:bg-white/[0.1] rounded-full transition-colors" aria-label="Previous">
@@ -111,10 +111,10 @@ export function PlayerBar({
             className="w-10 h-10 rounded object-cover flex-shrink-0"
           />
           <div className="min-w-0">
-            <h3 className="text-sm font-medium text-white truncate max-w-[200px]">
+            <h3 className="text-sm font-medium text-white truncate max-w-[120px] md:max-w-[200px]">
               {currentTrack.title}
             </h3>
-            <p className="text-xs text-white/50 truncate max-w-[200px]">
+            <p className="text-xs text-white/50 truncate max-w-[120px] md:max-w-[200px]">
               {currentTrack.artist} • {currentTrack.album}
             </p>
           </div>

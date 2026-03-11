@@ -1,5 +1,6 @@
 import { useState, lazy, Suspense } from "react";
 import { SidebarShell } from "@/components/SidebarShell";
+import { MobileSidebar } from "@/components/MobileSidebar";
 import { SearchBar } from "@/components/SearchBar";
 import { useNavigate } from "react-router-dom";
 import { usePlayer } from "@/contexts/PlayerContext";
@@ -41,6 +42,7 @@ const moods = [
 const Explore = () => {
   const [activeTab, setActiveTab] = useState("explore");
   const [searchQuery, setSearchQuery] = useState("");
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const navigate = useNavigate();
   const { currentTrack } = usePlayer();
 
@@ -58,9 +60,10 @@ const Explore = () => {
       </Suspense>
 
       <SidebarShell activeTab={activeTab} onTabChange={handleTabChange} />
+      <MobileSidebar open={mobileSidebarOpen} onOpenChange={setMobileSidebarOpen} activeTab={activeTab} onTabChange={handleTabChange} />
 
       <div className="flex-1 flex flex-col overflow-hidden relative z-10">
-        <SearchBar value={searchQuery} onChange={setSearchQuery} />
+        <SearchBar value={searchQuery} onChange={setSearchQuery} onMenuClick={() => setMobileSidebarOpen(true)} />
 
         <main className="flex-1 overflow-y-auto px-4 md:px-6 pb-24">
           {/* Header */}

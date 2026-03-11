@@ -1,4 +1,4 @@
-import { Search, X } from "lucide-react";
+import { Search, X, Menu } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useState, useCallback } from "react";
 import { SearchDropdown } from "./SearchDropdown";
@@ -16,9 +16,10 @@ interface SearchBarProps {
     image: string;
     videoId?: string;
   }>;
+  onMenuClick?: () => void;
 }
 
-export function SearchBar({ value, onChange, isSearching = false, searchResults = [] }: SearchBarProps) {
+export function SearchBar({ value, onChange, isSearching = false, searchResults = [], onMenuClick }: SearchBarProps) {
   const { user, profile } = useAuth();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const { playTrack } = usePlayer();
@@ -62,7 +63,17 @@ export function SearchBar({ value, onChange, isSearching = false, searchResults 
   }, [playTrack]);
 
   return (
-    <header className="sticky top-0 z-40 flex items-center gap-4 bg-background/30 backdrop-blur-sm py-3 px-4 md:px-6">
+    <header className="sticky top-0 z-40 flex items-center gap-2 md:gap-4 bg-background/30 backdrop-blur-sm py-3 px-3 md:px-6">
+      {/* Mobile hamburger menu */}
+      {onMenuClick && (
+        <button
+          onClick={onMenuClick}
+          className="p-2 rounded-full hover:bg-accent transition-colors md:hidden flex-shrink-0"
+          aria-label="Open menu"
+        >
+          <Menu className="w-5 h-5 text-foreground" />
+        </button>
+      )}
       <div className="relative flex-1 max-w-[520px]">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
         <input

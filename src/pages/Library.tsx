@@ -1,5 +1,6 @@
 import { useState, useEffect, lazy, Suspense } from "react";
 import { SidebarShell } from "@/components/SidebarShell";
+import { MobileSidebar } from "@/components/MobileSidebar";
 import { SearchBar } from "@/components/SearchBar";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -29,6 +30,7 @@ const Library = () => {
   const location = useLocation();
   const [activeTab, setActiveTab] = useState("library");
   const [searchQuery, setSearchQuery] = useState("");
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [showCreatePlaylist, setShowCreatePlaylist] = useState(false);
   const [newPlaylistName, setNewPlaylistName] = useState("");
   const [selectedPlaylistId, setSelectedPlaylistId] = useState<string | null>(null);
@@ -143,9 +145,10 @@ const Library = () => {
         </Suspense>
 
         <SidebarShell activeTab={activeTab} onTabChange={handleTabChange} />
+        <MobileSidebar open={mobileSidebarOpen} onOpenChange={setMobileSidebarOpen} activeTab={activeTab} onTabChange={handleTabChange} />
 
         <div className="flex-1 flex flex-col overflow-hidden relative z-10">
-          <SearchBar value={searchQuery} onChange={setSearchQuery} />
+          <SearchBar value={searchQuery} onChange={setSearchQuery} onMenuClick={() => setMobileSidebarOpen(true)} />
 
           <main className="flex-1 overflow-y-auto px-4 md:px-6 pb-24">
             {/* Header */}
@@ -252,9 +255,10 @@ const Library = () => {
         </Suspense>
 
         <SidebarShell activeTab="liked" onTabChange={handleTabChange} />
+        <MobileSidebar open={mobileSidebarOpen} onOpenChange={setMobileSidebarOpen} activeTab="liked" onTabChange={handleTabChange} />
 
         <div className="flex-1 flex flex-col overflow-hidden relative z-10">
-          <SearchBar value={searchQuery} onChange={setSearchQuery} />
+          <SearchBar value={searchQuery} onChange={setSearchQuery} onMenuClick={() => setMobileSidebarOpen(true)} />
 
           <main className="flex-1 overflow-y-auto px-4 md:px-6 pb-24">
             {/* Header */}
@@ -359,9 +363,10 @@ const Library = () => {
       </Suspense>
 
       <SidebarShell activeTab={activeTab} onTabChange={handleTabChange} />
+      <MobileSidebar open={mobileSidebarOpen} onOpenChange={setMobileSidebarOpen} activeTab={activeTab} onTabChange={handleTabChange} />
 
       <div className="flex-1 flex flex-col overflow-hidden relative z-10">
-        <SearchBar value={searchQuery} onChange={setSearchQuery} />
+        <SearchBar value={searchQuery} onChange={setSearchQuery} onMenuClick={() => setMobileSidebarOpen(true)} />
 
         <main className="flex-1 overflow-y-auto px-4 md:px-6 pb-24">
           {/* Header */}

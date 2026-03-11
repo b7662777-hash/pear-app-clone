@@ -27,7 +27,7 @@ export function useDiscordPresence({
   });
   
   const lastSentTrackRef = useRef<string | null>(null);
-  const updateIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const updateIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Save settings to localStorage
   useEffect(() => {
