@@ -7,6 +7,21 @@ interface DownloadOptions {
   videoId: string;
   title: string;
   artist: string;
+  album?: string;
+  thumbnail?: string;
+  duration?: string;
+}
+
+export interface DownloadedSong {
+  id: string;
+  user_id: string;
+  video_id: string;
+  title: string;
+  artist: string;
+  album: string | null;
+  thumbnail: string | null;
+  duration: string | null;
+  downloaded_at: string;
 }
 
 export function useDownload() {
