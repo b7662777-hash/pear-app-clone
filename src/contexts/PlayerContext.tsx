@@ -149,6 +149,9 @@ export function PlayerProvider({ children }: { children: React.ReactNode }) {
         videoId: currentTrack.videoId,
         title: currentTrack.title,
         artist: currentTrack.artist,
+        album: currentTrack.album,
+        thumbnail: currentTrack.image,
+        duration: currentTrack.duration?.toString(),
       });
     }
   }, [currentTrack, download]);

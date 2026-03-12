@@ -6,7 +6,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { usePlaylists, PlaylistSong, LikedSong } from "@/hooks/usePlaylists";
 import { usePlayer, Track } from "@/contexts/PlayerContext";
-import { Library as LibraryIcon, Heart, Clock, ListMusic, Plus, Music, Play, Trash2, MoreVertical, Pause } from "lucide-react";
+import { useDownload, DownloadedSong } from "@/hooks/useDownload";
+import { Library as LibraryIcon, Heart, Clock, ListMusic, Plus, Music, Play, Trash2, MoreVertical, Pause, Download } from "lucide-react";
 
 // Lazy load components
 const AmbientBackground = lazy(() => import("@/components/AmbientBackground").then((m) => ({ default: m.AmbientBackground })));
