@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      downloaded_songs: {
+        Row: {
+          album: string | null
+          artist: string
+          downloaded_at: string
+          duration: string | null
+          id: string
+          thumbnail: string | null
+          title: string
+          user_id: string
+          video_id: string
+        }
+        Insert: {
+          album?: string | null
+          artist: string
+          downloaded_at?: string
+          duration?: string | null
+          id?: string
+          thumbnail?: string | null
+          title: string
+          user_id: string
+          video_id: string
+        }
+        Update: {
+          album?: string | null
+          artist?: string
+          downloaded_at?: string
+          duration?: string | null
+          id?: string
+          thumbnail?: string | null
+          title?: string
+          user_id?: string
+          video_id?: string
+        }
+        Relationships: []
+      }
       liked_songs: {
         Row: {
           album: string | null

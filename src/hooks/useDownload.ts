@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -7,6 +7,21 @@ interface DownloadOptions {
   videoId: string;
   title: string;
   artist: string;
+  album?: string;
+  thumbnail?: string;
+  duration?: string;
+}
+
+export interface DownloadedSong {
+  id: string;
+  user_id: string;
+  video_id: string;
+  title: string;
+  artist: string;
+  album: string | null;
+  thumbnail: string | null;
+  duration: string | null;
+  downloaded_at: string;
 }
 
 export function useDownload() {
@@ -14,7 +29,43 @@ export function useDownload() {
   const [downloadProgress, setDownloadProgress] = useState(0);
   const navigate = useNavigate();
 
-  const downloadTrack = useCallback(async ({ videoId, title, artist }: DownloadOptions) => {
+  const [downloadedSongs, setDownloadedSongs] = useState<DownloadedSong[]>([]);
+
+  // Fetch user's downloaded songs
+  const fetchDownloads = useCallback(async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+    const { data } = await supabase
+      .from('downloaded_songs')
+      .select('*')
+      .eq('user_id', session.user.id)
+      .order('downloaded_at', { ascending: false });
+    if (data) setDownloadedSongs(data);
+  }, []);
+
+  useEffect(() => {
+    fetchDownloads();
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => fetchDownloads());
+    return () => subscription.unsubscribe();
+  }, [fetchDownloads]);
+
+  // Save download record to DB
+  const saveDownloadRecord = useCallback(async (options: DownloadOptions) => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+    await supabase.from('downloaded_songs').upsert({
+      user_id: session.user.id,
+      video_id: options.videoId,
+      title: options.title,
+      artist: options.artist,
+      album: options.album || null,
+      thumbnail: options.thumbnail || null,
+      duration: options.duration || null,
+    }, { onConflict: 'user_id,video_id' });
+    fetchDownloads();
+  }, [fetchDownloads]);
+
+  const downloadTrack = useCallback(async ({ videoId, title, artist, album, thumbnail, duration }: DownloadOptions) => {
     if (!videoId) {
       toast.error('Cannot download this track');
       return;
@@ -109,6 +160,7 @@ export function useDownload() {
             
             setDownloadProgress(100);
             toast.success('Download complete!', { id: 'download-progress' });
+            await saveDownloadRecord({ videoId, title, artist, album, thumbnail, duration });
             return;
           }
         } catch (fetchError) {
@@ -119,6 +171,7 @@ export function useDownload() {
         window.open(data.url, '_blank', 'noopener,noreferrer');
         setDownloadProgress(100);
         toast.success('Download started!', { id: 'download-progress', description: 'Check your downloads folder' });
+        await saveDownloadRecord({ videoId, title, artist, album, thumbnail, duration });
         return;
       }
 
@@ -144,6 +197,7 @@ export function useDownload() {
         
         // Open cobalt.tools (best UX)
         window.open(data.urls[0], '_blank', 'noopener,noreferrer');
+        await saveDownloadRecord({ videoId, title, artist, album, thumbnail, duration });
         return;
       }
 
@@ -162,15 +216,19 @@ export function useDownload() {
       } catch {}
       
       window.open('https://cobalt.tools', '_blank');
+      // Still save the record since user initiated download
+      await saveDownloadRecord({ videoId, title, artist, album, thumbnail, duration });
     } finally {
       setIsDownloading(false);
       setTimeout(() => setDownloadProgress(0), 1500);
     }
-  }, []);
+  }, [saveDownloadRecord]);
 
   return {
     downloadTrack,
     isDownloading,
     downloadProgress,
+    downloadedSongs,
+    fetchDownloads,
   };
 }
