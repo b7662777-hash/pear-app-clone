@@ -171,6 +171,7 @@ export function useDownload() {
         window.open(data.url, '_blank', 'noopener,noreferrer');
         setDownloadProgress(100);
         toast.success('Download started!', { id: 'download-progress', description: 'Check your downloads folder' });
+        await saveDownloadRecord({ videoId, title, artist, album, thumbnail, duration });
         return;
       }
 
