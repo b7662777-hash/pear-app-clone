@@ -160,6 +160,7 @@ export function useDownload() {
             
             setDownloadProgress(100);
             toast.success('Download complete!', { id: 'download-progress' });
+            await saveDownloadRecord({ videoId, title, artist, album, thumbnail, duration });
             return;
           }
         } catch (fetchError) {
