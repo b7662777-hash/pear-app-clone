@@ -52,6 +52,7 @@ const Library = () => {
   } = usePlaylists();
 
   const { playTrack, currentTrack, isPlaying, playPause } = usePlayer();
+  const { downloadedSongs } = useDownload();
 
   // Check URL for liked songs view
   useEffect(() => {
