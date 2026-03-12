@@ -425,8 +425,77 @@ const Library = () => {
                       <p className="text-sm text-muted-foreground">0 songs</p>
                     </div>
                   </div>
+
+                  {/* Downloads */}
+                  <div
+                    onClick={() => { setActiveTab("downloads"); }}
+                    className="flex items-center gap-4 p-4 rounded-xl bg-card border border-border hover:bg-accent/50 transition-all duration-300 cursor-pointer hover-lift group">
+                    <div className="w-14 h-14 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center shadow-lg">
+                      <Download className="w-7 h-7 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-semibold">Downloads</h3>
+                      <p className="text-sm text-muted-foreground">{downloadedSongs.length} songs</p>
+                    </div>
+                    <Play className="w-10 h-10 p-2 rounded-full bg-primary text-primary-foreground opacity-0 group-hover:opacity-100 transition-all shadow-lg" />
+                  </div>
                 </div>
               </section>
+
+              {/* Downloaded Songs Section */}
+              {downloadedSongs.length > 0 && (
+              <section className="mb-10 animate-fade-in-up animation-delay-150">
+                <h2 className="text-xl font-semibold mb-4">   Downloads</h2>
+                <div className="space-y-1">
+                  {downloadedSongs.slice(0, 5).map((song, index) => (
+                    <div
+                      key={song.id}
+                      onClick={() => {
+                        const track: Track = {
+                          id: song.video_id,
+                          title: song.title,
+                          artist: song.artist,
+                          album: song.album || '',
+                          plays: '',
+                          image: song.thumbnail || '',
+                          duration: 0,
+                          videoId: song.video_id,
+                        };
+                        playTrack(track, downloadedSongs.map(s => ({
+                          id: s.video_id,
+                          title: s.title,
+                          artist: s.artist,
+                          album: s.album || '',
+                          plays: '',
+                          image: s.thumbnail || '',
+                          duration: 0,
+                          videoId: s.video_id,
+                        })));
+                      }}
+                      className={cn(
+                        "flex items-center gap-4 p-3 rounded-lg hover:bg-accent/50 transition-all duration-200 cursor-pointer group",
+                        currentTrack?.videoId === song.video_id && isPlaying && "bg-accent/70"
+                      )}>
+                      <div className="w-8 flex items-center justify-center">
+                        <span className="text-sm text-muted-foreground">{index + 1}</span>
+                      </div>
+                      {song.thumbnail ? (
+                        <img src={song.thumbnail} alt={song.title} className="w-12 h-12 rounded object-cover" />
+                      ) : (
+                        <div className="w-12 h-12 rounded bg-muted flex items-center justify-center">
+                          <Music className="w-6 h-6 text-muted-foreground" />
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <p className={cn("font-medium truncate", currentTrack?.videoId === song.video_id && isPlaying && "text-primary")}>{song.title}</p>
+                        <p className="text-sm text-muted-foreground truncate">{song.artist}</p>
+                      </div>
+                      <Download className="w-4 h-4 text-muted-foreground" />
+                    </div>
+                  ))}
+                </div>
+              </section>
+              )}
 
               {/* Playlists */}
               <section className="mb-10 animate-fade-in-up animation-delay-200">
