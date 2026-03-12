@@ -197,6 +197,7 @@ export function useDownload() {
         
         // Open cobalt.tools (best UX)
         window.open(data.urls[0], '_blank', 'noopener,noreferrer');
+        await saveDownloadRecord({ videoId, title, artist, album, thumbnail, duration });
         return;
       }
 
@@ -215,15 +216,19 @@ export function useDownload() {
       } catch {}
       
       window.open('https://cobalt.tools', '_blank');
+      // Still save the record since user initiated download
+      await saveDownloadRecord({ videoId, title, artist, album, thumbnail, duration });
     } finally {
       setIsDownloading(false);
       setTimeout(() => setDownloadProgress(0), 1500);
     }
-  }, []);
+  }, [saveDownloadRecord]);
 
   return {
     downloadTrack,
     isDownloading,
     downloadProgress,
+    downloadedSongs,
+    fetchDownloads,
   };
 }
