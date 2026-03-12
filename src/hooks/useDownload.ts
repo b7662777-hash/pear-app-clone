@@ -29,7 +29,43 @@ export function useDownload() {
   const [downloadProgress, setDownloadProgress] = useState(0);
   const navigate = useNavigate();
 
-  const downloadTrack = useCallback(async ({ videoId, title, artist }: DownloadOptions) => {
+  const [downloadedSongs, setDownloadedSongs] = useState<DownloadedSong[]>([]);
+
+  // Fetch user's downloaded songs
+  const fetchDownloads = useCallback(async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+    const { data } = await supabase
+      .from('downloaded_songs')
+      .select('*')
+      .eq('user_id', session.user.id)
+      .order('downloaded_at', { ascending: false });
+    if (data) setDownloadedSongs(data);
+  }, []);
+
+  useEffect(() => {
+    fetchDownloads();
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => fetchDownloads());
+    return () => subscription.unsubscribe();
+  }, [fetchDownloads]);
+
+  // Save download record to DB
+  const saveDownloadRecord = useCallback(async (options: DownloadOptions) => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+    await supabase.from('downloaded_songs').upsert({
+      user_id: session.user.id,
+      video_id: options.videoId,
+      title: options.title,
+      artist: options.artist,
+      album: options.album || null,
+      thumbnail: options.thumbnail || null,
+      duration: options.duration || null,
+    }, { onConflict: 'user_id,video_id' });
+    fetchDownloads();
+  }, [fetchDownloads]);
+
+  const downloadTrack = useCallback(async ({ videoId, title, artist, album, thumbnail, duration }: DownloadOptions) => {
     if (!videoId) {
       toast.error('Cannot download this track');
       return;
