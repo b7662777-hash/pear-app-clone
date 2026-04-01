@@ -17,6 +17,8 @@ export function SearchResults({
   results,
   isSearching,
   onTrackClick,
+  onDownloadClick,
+  isDownloading,
   currentVideoId,
   isVisible,
 }: SearchResultsProps) {
