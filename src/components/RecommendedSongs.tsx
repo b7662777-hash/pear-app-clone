@@ -1,4 +1,4 @@
-import { Play, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
+import { Play, Loader2, ChevronLeft, ChevronRight, Download } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { optimizeImageUrl } from "@/lib/imageUtils";
 import { YouTubeTrack } from "@/hooks/useYouTubeMusic";
@@ -8,6 +8,8 @@ interface RecommendedSongsProps {
   tracks: YouTubeTrack[];
   isLoading: boolean;
   onTrackClick: (track: YouTubeTrack) => void;
+  onDownloadClick?: (track: YouTubeTrack) => void;
+  isDownloading?: boolean;
   currentVideoId?: string;
   title?: string;
   subtitle?: string;
@@ -16,7 +18,9 @@ interface RecommendedSongsProps {
 export function RecommendedSongs({ 
   tracks, 
   isLoading, 
-  onTrackClick, 
+  onTrackClick,
+  onDownloadClick,
+  isDownloading,
   currentVideoId,
   title = "Recommended for you",
   subtitle = "Based on what's popular",
@@ -136,6 +140,21 @@ export function RecommendedSongs({
                     </button>
                   )}
                 </div>
+                {/* Download button */}
+                {onDownloadClick && !isPlaying && (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); onDownloadClick(track); }}
+                    disabled={isDownloading}
+                    className="absolute bottom-2 right-2 p-1.5 rounded-full bg-black/60 hover:bg-black/80 opacity-0 group-hover:opacity-100 transition-all duration-200 disabled:opacity-50 z-10"
+                    aria-label={`Download ${track.title}`}
+                  >
+                    {isDownloading ? (
+                      <Loader2 className="w-4 h-4 text-white animate-spin" />
+                    ) : (
+                      <Download className="w-4 h-4 text-white" />
+                    )}
+                  </button>
+                )}
               </div>
               
               <h3 className={cn(

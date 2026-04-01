@@ -9,6 +9,7 @@ import { SimilarToSection } from "@/components/SimilarToSection";
 import { RecommendedSongs } from "@/components/RecommendedSongs";
 import { useYouTubeMusic, YouTubeTrack } from "@/hooks/useYouTubeMusic";
 import { Loader2, Music } from "lucide-react";
+import { useDownload } from "@/hooks/useDownload";
 
 const AmbientBackground = lazy(() => import("@/components/AmbientBackground").then(m => ({ default: m.AmbientBackground })));
 import { usePlayer, Track } from "@/contexts/PlayerContext";
@@ -22,6 +23,18 @@ const Index = () => {
   const navigate = useNavigate();
   
   const { playTrack, currentTrack } = usePlayer();
+  const { downloadTrack, isDownloading } = useDownload();
+
+  const handleDownloadTrack = useCallback((track: YouTubeTrack) => {
+    downloadTrack({
+      videoId: track.videoId,
+      title: track.title,
+      artist: track.artist,
+      album: track.album,
+      thumbnail: track.thumbnail,
+      duration: track.duration,
+    });
+  }, [downloadTrack]);
 
   const {
     isSearching, searchResults, searchTracks, clearSearch,
@@ -115,6 +128,8 @@ const Index = () => {
             results={searchResults}
             isSearching={isSearching}
             onTrackClick={handleYouTubeTrackClick}
+            onDownloadClick={handleDownloadTrack}
+            isDownloading={isDownloading}
             currentVideoId={currentTrack?.videoId}
             isVisible={searchQuery.trim().length > 0}
           />
@@ -163,6 +178,8 @@ const Index = () => {
                 tracks={trendingTracks}
                 isLoading={isLoadingTrending}
                 onTrackClick={handleYouTubeTrackClick}
+                onDownloadClick={handleDownloadTrack}
+                isDownloading={isDownloading}
                 currentVideoId={currentTrack?.videoId}
                 title="Trending Now"
                 subtitle="What's hot right now"
@@ -172,6 +189,8 @@ const Index = () => {
                 tracks={newReleaseTracks}
                 isLoading={isLoadingNewReleases}
                 onTrackClick={handleYouTubeTrackClick}
+                onDownloadClick={handleDownloadTrack}
+                isDownloading={isDownloading}
                 currentVideoId={currentTrack?.videoId}
                 title="New Releases"
                 subtitle="Fresh tracks just dropped"

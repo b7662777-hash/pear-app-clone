@@ -1,4 +1,4 @@
-import { Play, Loader2 } from "lucide-react";
+import { Play, Loader2, Download } from "lucide-react";
 import { YouTubeTrack } from "@/hooks/useYouTubeMusic";
 import { cn } from "@/lib/utils";
 import { optimizeImageUrl } from "@/lib/imageUtils";
@@ -7,6 +7,8 @@ interface SearchResultsProps {
   results: YouTubeTrack[];
   isSearching: boolean;
   onTrackClick: (track: YouTubeTrack) => void;
+  onDownloadClick?: (track: YouTubeTrack) => void;
+  isDownloading?: boolean;
   currentVideoId?: string | null;
   isVisible: boolean;
 }
@@ -15,6 +17,8 @@ export function SearchResults({
   results,
   isSearching,
   onTrackClick,
+  onDownloadClick,
+  isDownloading,
   currentVideoId,
   isVisible,
 }: SearchResultsProps) {
@@ -70,6 +74,20 @@ export function SearchResults({
                 {track.album} {track.duration && `• ${track.duration}`}
               </p>
             </div>
+            {onDownloadClick && (
+              <button
+                onClick={(e) => { e.stopPropagation(); onDownloadClick(track); }}
+                disabled={isDownloading}
+                className="flex-shrink-0 p-1.5 rounded-full opacity-0 group-hover:opacity-100 hover:bg-muted transition-all duration-200 disabled:opacity-50"
+                aria-label={`Download ${track.title}`}
+              >
+                {isDownloading ? (
+                  <Loader2 className="w-4 h-4 text-primary animate-spin" />
+                ) : (
+                  <Download className="w-4 h-4 text-muted-foreground" />
+                )}
+              </button>
+            )}
           </button>
         ))}
       </div>
