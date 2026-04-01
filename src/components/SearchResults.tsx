@@ -1,4 +1,4 @@
-import { Play, Loader2 } from "lucide-react";
+import { Play, Loader2, Download } from "lucide-react";
 import { YouTubeTrack } from "@/hooks/useYouTubeMusic";
 import { cn } from "@/lib/utils";
 import { optimizeImageUrl } from "@/lib/imageUtils";
@@ -7,6 +7,8 @@ interface SearchResultsProps {
   results: YouTubeTrack[];
   isSearching: boolean;
   onTrackClick: (track: YouTubeTrack) => void;
+  onDownloadClick?: (track: YouTubeTrack) => void;
+  isDownloading?: boolean;
   currentVideoId?: string | null;
   isVisible: boolean;
 }
