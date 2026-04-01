@@ -77,7 +77,7 @@ export function useDownload() {
         description: 'Please sign in to download tracks',
         action: {
           label: 'Sign In',
-          onClick: () => navigate('/auth'),
+          onClick: () => navigateToAuth(),
         },
       });
       return;
@@ -114,7 +114,7 @@ export function useDownload() {
             description: 'Please sign in again to download',
             action: {
               label: 'Sign In',
-              onClick: () => navigate('/auth'),
+              onClick: () => navigateToAuth(),
             },
           });
           return;
@@ -128,7 +128,7 @@ export function useDownload() {
           description: data.error || 'Please sign in to download tracks',
           action: {
             label: 'Sign In',
-            onClick: () => navigate('/auth'),
+            onClick: () => navigateToAuth(),
           },
         });
         return;
