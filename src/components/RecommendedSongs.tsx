@@ -8,6 +8,8 @@ interface RecommendedSongsProps {
   tracks: YouTubeTrack[];
   isLoading: boolean;
   onTrackClick: (track: YouTubeTrack) => void;
+  onDownloadClick?: (track: YouTubeTrack) => void;
+  isDownloading?: boolean;
   currentVideoId?: string;
   title?: string;
   subtitle?: string;
@@ -16,7 +18,9 @@ interface RecommendedSongsProps {
 export function RecommendedSongs({ 
   tracks, 
   isLoading, 
-  onTrackClick, 
+  onTrackClick,
+  onDownloadClick,
+  isDownloading,
   currentVideoId,
   title = "Recommended for you",
   subtitle = "Based on what's popular",
