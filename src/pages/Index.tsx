@@ -128,6 +128,8 @@ const Index = () => {
             results={searchResults}
             isSearching={isSearching}
             onTrackClick={handleYouTubeTrackClick}
+            onDownloadClick={handleDownloadTrack}
+            isDownloading={isDownloading}
             currentVideoId={currentTrack?.videoId}
             isVisible={searchQuery.trim().length > 0}
           />
