@@ -1,5 +1,4 @@
 import { useState, useCallback, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -27,7 +26,7 @@ export interface DownloadedSong {
 export function useDownload() {
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadProgress, setDownloadProgress] = useState(0);
-  const navigate = useNavigate();
+  const navigateToAuth = () => { window.location.href = '/auth'; };
 
   const [downloadedSongs, setDownloadedSongs] = useState<DownloadedSong[]>([]);
 
@@ -78,7 +77,7 @@ export function useDownload() {
         description: 'Please sign in to download tracks',
         action: {
           label: 'Sign In',
-          onClick: () => navigate('/auth'),
+          onClick: () => navigateToAuth(),
         },
       });
       return;
@@ -115,7 +114,7 @@ export function useDownload() {
             description: 'Please sign in again to download',
             action: {
               label: 'Sign In',
-              onClick: () => navigate('/auth'),
+              onClick: () => navigateToAuth(),
             },
           });
           return;
@@ -129,7 +128,7 @@ export function useDownload() {
           description: data.error || 'Please sign in to download tracks',
           action: {
             label: 'Sign In',
-            onClick: () => navigate('/auth'),
+            onClick: () => navigateToAuth(),
           },
         });
         return;
