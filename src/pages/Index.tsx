@@ -23,6 +23,18 @@ const Index = () => {
   const navigate = useNavigate();
   
   const { playTrack, currentTrack } = usePlayer();
+  const { downloadTrack, isDownloading } = useDownload();
+
+  const handleDownloadTrack = useCallback((track: YouTubeTrack) => {
+    downloadTrack({
+      videoId: track.videoId,
+      title: track.title,
+      artist: track.artist,
+      album: track.album,
+      thumbnail: track.thumbnail,
+      duration: track.duration,
+    });
+  }, [downloadTrack]);
 
   const {
     isSearching, searchResults, searchTracks, clearSearch,
