@@ -26,7 +26,7 @@ export interface DownloadedSong {
 export function useDownload() {
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadProgress, setDownloadProgress] = useState(0);
-  const navigate = useNavigate();
+  const navigateToAuth = () => { window.location.href = '/auth'; };
 
   const [downloadedSongs, setDownloadedSongs] = useState<DownloadedSong[]>([]);
 
