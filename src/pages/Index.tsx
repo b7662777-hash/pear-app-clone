@@ -178,6 +178,8 @@ const Index = () => {
                 tracks={trendingTracks}
                 isLoading={isLoadingTrending}
                 onTrackClick={handleYouTubeTrackClick}
+                onDownloadClick={handleDownloadTrack}
+                isDownloading={isDownloading}
                 currentVideoId={currentTrack?.videoId}
                 title="Trending Now"
                 subtitle="What's hot right now"
