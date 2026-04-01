@@ -1,4 +1,4 @@
-import { Play, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
+import { Play, Loader2, ChevronLeft, ChevronRight, Download } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { optimizeImageUrl } from "@/lib/imageUtils";
 import { YouTubeTrack } from "@/hooks/useYouTubeMusic";
