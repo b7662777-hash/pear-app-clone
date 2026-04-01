@@ -6,186 +6,143 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Get client IP from request headers
-function getClientIp(req: Request): string {
-  const forwardedFor = req.headers.get('x-forwarded-for');
-  if (forwardedFor) {
-    return forwardedFor.split(',')[0].trim();
-  }
-  const realIp = req.headers.get('x-real-ip');
-  if (realIp) {
-    return realIp.trim();
-  }
-  const userAgent = req.headers.get('user-agent') || '';
-  const acceptLanguage = req.headers.get('accept-language') || '';
-  let hash = 0;
-  const str = userAgent + acceptLanguage;
-  for (let i = 0; i < str.length; i++) {
-    const char = str.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash = hash & hash;
-  }
-  return `fingerprint-${Math.abs(hash).toString(36)}`;
-}
-
-// Authentication helper - REQUIRES authentication for downloads
+// Authentication helper
 async function authenticate(req: Request): Promise<{ userId: string | null; error?: string }> {
   const authHeader = req.headers.get('Authorization');
-  
   if (!authHeader?.startsWith('Bearer ')) {
     return { userId: null, error: 'Authentication required. Please sign in to download tracks.' };
   }
-
   try {
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_ANON_KEY') ?? '',
       { global: { headers: { Authorization: authHeader } } }
     );
-
     const token = authHeader.replace('Bearer ', '');
-    const { data, error } = await supabaseClient.auth.getClaims(token);
-    
-    if (error || !data?.claims) {
+    const { data, error } = await supabaseClient.auth.getUser(token);
+    if (error || !data?.user) {
       return { userId: null, error: 'Invalid or expired session. Please sign in again.' };
     }
-
-    return { userId: data.claims.sub as string };
+    return { userId: data.user.id };
   } catch (e) {
     console.error('Auth error:', e);
     return { userId: null, error: 'Authentication failed' };
   }
 }
 
-// List of public cobalt instances
-const COBALT_INSTANCES = [
-  'https://cobalt.api.kityune.moe',
-  'https://api.cobalt.tools',
-  'https://co.wuk.sh',
+// ── Piped instances (open-source YouTube proxy with audio streams) ──
+const PIPED_INSTANCES = [
+  'https://pipedapi.kavin.rocks',
+  'https://pipedapi.adminforge.de',
+  'https://pipedapi.in.projectsegfau.lt',
+  'https://api.piped.yt',
+  'https://pipedapi.darkness.services',
 ];
 
-// Try multiple cobalt instances with the new API format
-const getDownloadUrl = async (videoId: string): Promise<{ url: string; filename?: string } | null> => {
-  const youtubeUrl = `https://www.youtube.com/watch?v=${videoId}`;
-  
-  for (const instance of COBALT_INSTANCES) {
+// ── Invidious instances (another open-source YouTube frontend) ──
+const INVIDIOUS_INSTANCES = [
+  'https://inv.nadeko.net',
+  'https://invidious.nerdvpn.de',
+  'https://invidious.jing.rocks',
+  'https://invidious.privacyredirect.com',
+  'https://yt.cdaut.de',
+];
+
+// Try Piped API — returns direct audio stream URL
+async function tryPiped(videoId: string): Promise<string | null> {
+  for (const instance of PIPED_INSTANCES) {
     try {
-      console.log(`Trying cobalt instance: ${instance}`);
-      
-      const response = await fetch(instance, {
-        method: 'POST',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          url: youtubeUrl,
-          downloadMode: "audio",
-          audioFormat: "mp3",
-          audioBitrate: "128",
-          filenameStyle: "pretty",
-        }),
+      console.log(`Trying Piped: ${instance}`);
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 8000);
+
+      const resp = await fetch(`${instance}/streams/${videoId}`, {
+        signal: controller.signal,
       });
-      
-      if (!response.ok) {
-        console.log(`${instance} returned status ${response.status}`);
+      clearTimeout(timeout);
+
+      if (!resp.ok) {
+        console.log(`Piped ${instance} returned ${resp.status}`);
         continue;
       }
-      
-      const data = await response.json();
-      console.log(`${instance} response:`, JSON.stringify(data).substring(0, 500));
-      
-      // Handle different response statuses from cobalt
-      // status: tunnel, redirect, picker, error
-      if (data.status === 'tunnel' || data.status === 'redirect') {
-        if (data.url) {
-          return { url: data.url, filename: data.filename };
+
+      const data = await resp.json();
+
+      // audioStreams is sorted; pick highest quality mp3/m4a/opus
+      if (data.audioStreams && data.audioStreams.length > 0) {
+        // Prefer higher bitrate; filter for audio-only
+        const sorted = [...data.audioStreams].sort(
+          (a: any, b: any) => (b.bitrate ?? 0) - (a.bitrate ?? 0)
+        );
+        const best = sorted[0];
+        if (best?.url) {
+          console.log(`Piped success via ${instance}, bitrate=${best.bitrate}`);
+          return best.url;
         }
       }
-      
-      if (data.status === 'picker' && data.picker?.length > 0) {
-        // For picker, get the first audio option
-        const audioItem = data.picker.find((p: any) => p.type === 'audio') || data.picker[0];
-        if (audioItem?.url) {
-          return { url: audioItem.url, filename: data.filename };
-        }
-      }
-      
-      // Legacy format support
-      if (data.url) {
-        return { url: data.url, filename: data.filename };
-      }
-      if (data.audio) {
-        return { url: data.audio, filename: data.filename };
-      }
-      
     } catch (e) {
-      console.log(`${instance} error:`, e);
+      console.log(`Piped ${instance} error:`, e);
     }
   }
+  return null;
+}
 
-  // Fallback: Try y2mate style services
-  try {
-    console.log('Trying y2mate fallback...');
-    const searchResp = await fetch("https://www.y2mate.com/mates/analyzeV2/ajax", {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: `k_query=${encodeURIComponent(youtubeUrl)}&k_page=home&hl=en&q_auto=0`,
-    });
-    
-    if (searchResp.ok) {
-      const searchData = await searchResp.json();
-      console.log('y2mate search response:', JSON.stringify(searchData).substring(0, 300));
-      
-      if (searchData.links?.mp3) {
-        const mp3Key = Object.keys(searchData.links.mp3)[0];
-        if (mp3Key) {
-          const mp3Info = searchData.links.mp3[mp3Key];
-          
-          const convertResp = await fetch("https://www.y2mate.com/mates/convertV2/index", {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: `vid=${searchData.vid}&k=${encodeURIComponent(mp3Info.k)}`,
-          });
-          
-          if (convertResp.ok) {
-            const convertData = await convertResp.json();
-            console.log('y2mate convert response:', JSON.stringify(convertData).substring(0, 300));
-            
-            if (convertData.dlink) {
-              return { url: convertData.dlink };
-            }
+// Try Invidious API — returns direct audio stream URL
+async function tryInvidious(videoId: string): Promise<string | null> {
+  for (const instance of INVIDIOUS_INSTANCES) {
+    try {
+      console.log(`Trying Invidious: ${instance}`);
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 8000);
+
+      const resp = await fetch(`${instance}/api/v1/videos/${videoId}`, {
+        signal: controller.signal,
+      });
+      clearTimeout(timeout);
+
+      if (!resp.ok) {
+        console.log(`Invidious ${instance} returned ${resp.status}`);
+        continue;
+      }
+
+      const data = await resp.json();
+
+      if (data.adaptiveFormats && data.adaptiveFormats.length > 0) {
+        // Find audio-only formats
+        const audioFormats = data.adaptiveFormats.filter(
+          (f: any) => f.type?.startsWith('audio/')
+        );
+        if (audioFormats.length > 0) {
+          // Sort by bitrate descending
+          audioFormats.sort((a: any, b: any) => (b.bitrate ?? 0) - (a.bitrate ?? 0));
+          const best = audioFormats[0];
+          if (best?.url) {
+            console.log(`Invidious success via ${instance}, bitrate=${best.bitrate}`);
+            return best.url;
           }
         }
       }
+    } catch (e) {
+      console.log(`Invidious ${instance} error:`, e);
     }
-  } catch (e) {
-    console.log('y2mate error:', e);
   }
-
   return null;
-};
+}
 
 serve(async (req) => {
-  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
-  // REQUIRE authentication for downloads
+  // Require auth
   const { userId, error: authError } = await authenticate(req);
   if (!userId) {
-    console.log('Unauthenticated download attempt rejected');
     return new Response(
       JSON.stringify({ error: authError, requiresAuth: true }),
       { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
-  console.log(`Authenticated download request from user: ${userId.slice(0, 8)}...`);
+  console.log(`Download request from user: ${userId.slice(0, 8)}...`);
 
   try {
     const { videoId, title, artist } = await req.json();
@@ -197,44 +154,39 @@ serve(async (req) => {
       );
     }
 
-    console.log(`Download request for: ${videoId} - ${title} by ${artist}`);
-
+    console.log(`Download: ${videoId} - ${title} by ${artist}`);
     const filename = `${title || 'audio'} - ${artist || 'unknown'}.mp3`.replace(/[<>:"/\\|?*]/g, '');
 
-    // Try to get download URL
-    const result = await getDownloadUrl(videoId);
-    
-    if (result?.url) {
-      console.log(`Got download URL: ${result.url.substring(0, 100)}...`);
-      
+    // Strategy 1: Piped
+    let audioUrl = await tryPiped(videoId);
+
+    // Strategy 2: Invidious
+    if (!audioUrl) {
+      audioUrl = await tryInvidious(videoId);
+    }
+
+    if (audioUrl) {
       return new Response(
-        JSON.stringify({ 
-          status: 'success',
-          url: result.url,
-          filename: result.filename || filename,
-        }),
+        JSON.stringify({ status: 'success', url: audioUrl, filename }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // If all services fail, return fallback URLs for manual download
-    console.log('All services failed, returning fallback pages');
-    
+    // All strategies failed — return fallback links
+    console.log('All download sources failed, returning fallbacks');
     return new Response(
-      JSON.stringify({ 
+      JSON.stringify({
         status: 'fallback',
         urls: [
-          `https://cobalt.tools`,
-          `https://y2mate.com/youtube-mp3/${videoId}`,
-          `https://www.yt-download.org/api/button/mp3/${videoId}`,
+          `https://ytapi.pro/?vid=${videoId}`,
+          `https://ezmp3.to/?url=https://www.youtube.com/watch?v=${videoId}`,
         ],
         youtubeUrl: `https://www.youtube.com/watch?v=${videoId}`,
         filename,
-        message: 'Direct download unavailable. Opening download page.'
+        message: 'Direct download unavailable. Opening download page.',
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
-
   } catch (error) {
     console.error('Download error:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
