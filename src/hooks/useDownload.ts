@@ -26,11 +26,10 @@ export interface DownloadedSong {
 export function useDownload() {
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadProgress, setDownloadProgress] = useState(0);
-  const navigateToAuth = () => { window.location.href = '/auth'; };
-
   const [downloadedSongs, setDownloadedSongs] = useState<DownloadedSong[]>([]);
 
-  // Fetch user's downloaded songs
+  const navigateToAuth = () => { window.location.href = '/auth'; };
+
   const fetchDownloads = useCallback(async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
@@ -48,7 +47,6 @@ export function useDownload() {
     return () => subscription.unsubscribe();
   }, [fetchDownloads]);
 
-  // Save download record to DB
   const saveDownloadRecord = useCallback(async (options: DownloadOptions) => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
@@ -70,15 +68,11 @@ export function useDownload() {
       return;
     }
 
-    // Check if user is authenticated
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
       toast.error('Sign in required', {
         description: 'Please sign in to download tracks',
-        action: {
-          label: 'Sign In',
-          onClick: () => navigateToAuth(),
-        },
+        action: { label: 'Sign In', onClick: navigateToAuth },
       });
       return;
     }
@@ -90,8 +84,7 @@ export function useDownload() {
 
     try {
       toast.info('Finding download source...', { duration: 3000 });
-      
-      // Smooth progress animation
+
       let progressValue = 0;
       const progressInterval = setInterval(() => {
         progressValue += Math.random() * 10 + 3;
@@ -99,7 +92,6 @@ export function useDownload() {
         setDownloadProgress(Math.round(progressValue));
       }, 200);
 
-      // Call the edge function
       const { data, error } = await supabase.functions.invoke('youtube-download', {
         body: { videoId, title, artist },
       });
@@ -108,47 +100,33 @@ export function useDownload() {
 
       if (error) {
         console.error('Download function error:', error);
-        // Check if it's an auth error
         if (error.message?.includes('401') || error.message?.includes('auth')) {
           toast.error('Session expired', {
             description: 'Please sign in again to download',
-            action: {
-              label: 'Sign In',
-              onClick: () => navigateToAuth(),
-            },
+            action: { label: 'Sign In', onClick: navigateToAuth },
           });
           return;
         }
         throw new Error('Download service unavailable');
       }
 
-      // Check for auth requirement in response
       if (data?.requiresAuth) {
         toast.error('Sign in required', {
           description: data.error || 'Please sign in to download tracks',
-          action: {
-            label: 'Sign In',
-            onClick: () => navigateToAuth(),
-          },
+          action: { label: 'Sign In', onClick: navigateToAuth },
         });
         return;
       }
 
-      console.log('Download response:', data);
-
-      // Handle successful URL response
+      // Handle direct audio URL
       if (data?.status === 'success' && data?.url) {
         setDownloadProgress(90);
-        
-        // Try to download directly
         try {
-          toast.loading('Downloading...', { id: 'download-progress' });
-          
+          toast.loading('Downloading audio...', { id: 'download-progress' });
           const response = await fetch(data.url);
           if (response.ok) {
             const blob = await response.blob();
             const url = URL.createObjectURL(blob);
-            
             const link = document.createElement('a');
             link.href = url;
             link.download = data.filename || filename;
@@ -156,17 +134,15 @@ export function useDownload() {
             link.click();
             document.body.removeChild(link);
             URL.revokeObjectURL(url);
-            
             setDownloadProgress(100);
             toast.success('Download complete!', { id: 'download-progress' });
             await saveDownloadRecord({ videoId, title, artist, album, thumbnail, duration });
             return;
           }
         } catch (fetchError) {
-          console.log('Direct fetch failed, trying redirect:', fetchError);
+          console.log('Direct fetch failed, opening URL:', fetchError);
         }
-        
-        // Fallback: Open URL directly (will trigger browser download)
+
         window.open(data.url, '_blank', 'noopener,noreferrer');
         setDownloadProgress(100);
         toast.success('Download started!', { id: 'download-progress', description: 'Check your downloads folder' });
@@ -177,8 +153,6 @@ export function useDownload() {
       // Handle fallback URLs
       if (data?.status === 'fallback' && data?.urls?.length > 0) {
         setDownloadProgress(100);
-        
-        // Copy YouTube URL to clipboard for easy pasting
         if (data.youtubeUrl) {
           try {
             await navigator.clipboard.writeText(data.youtubeUrl);
@@ -187,14 +161,9 @@ export function useDownload() {
               duration: 6000,
             });
           } catch {
-            toast.info('Opening download page...', {
-              description: 'Paste the YouTube URL to download',
-              duration: 5000,
-            });
+            toast.info('Opening download page...', { duration: 5000 });
           }
         }
-        
-        // Open cobalt.tools (best UX)
         window.open(data.urls[0], '_blank', 'noopener,noreferrer');
         await saveDownloadRecord({ videoId, title, artist, album, thumbnail, duration });
         return;
@@ -203,19 +172,13 @@ export function useDownload() {
       throw new Error('No download URL received');
     } catch (error) {
       console.error('Download error:', error);
-      
-      // Fallback: open cobalt.tools directly
-      toast.info('Opening cobalt.tools...', {
-        description: 'Paste the song URL to download',
+      // Final fallback
+      const ytUrl = `https://www.youtube.com/watch?v=${videoId}`;
+      try { await navigator.clipboard.writeText(ytUrl); } catch {}
+      toast.info('Opening download page...', {
+        description: 'YouTube URL copied to clipboard',
       });
-      
-      const youtubeUrl = `https://www.youtube.com/watch?v=${videoId}`;
-      try {
-        await navigator.clipboard.writeText(youtubeUrl);
-      } catch {}
-      
-      window.open('https://cobalt.tools', '_blank');
-      // Still save the record since user initiated download
+      window.open(`https://ezmp3.to/?url=${encodeURIComponent(ytUrl)}`, '_blank');
       await saveDownloadRecord({ videoId, title, artist, album, thumbnail, duration });
     } finally {
       setIsDownloading(false);
@@ -223,11 +186,5 @@ export function useDownload() {
     }
   }, [saveDownloadRecord]);
 
-  return {
-    downloadTrack,
-    isDownloading,
-    downloadProgress,
-    downloadedSongs,
-    fetchDownloads,
-  };
+  return { downloadTrack, isDownloading, downloadProgress, downloadedSongs, fetchDownloads };
 }
