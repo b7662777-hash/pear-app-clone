@@ -9,6 +9,7 @@ import { SimilarToSection } from "@/components/SimilarToSection";
 import { RecommendedSongs } from "@/components/RecommendedSongs";
 import { useYouTubeMusic, YouTubeTrack } from "@/hooks/useYouTubeMusic";
 import { Loader2, Music } from "lucide-react";
+import { useDownload } from "@/hooks/useDownload";
 
 const AmbientBackground = lazy(() => import("@/components/AmbientBackground").then(m => ({ default: m.AmbientBackground })));
 import { usePlayer, Track } from "@/contexts/PlayerContext";
