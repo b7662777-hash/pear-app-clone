@@ -1,4 +1,4 @@
-import { Play } from "lucide-react";
+import { Play, Download, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { optimizeImageUrl } from "@/lib/imageUtils";
 
@@ -10,9 +10,11 @@ interface TrackCardProps {
   isPlaying?: boolean;
   onClick: () => void;
   accentColor?: string;
+  onDownload?: () => void;
+  isDownloading?: boolean;
 }
 
-export function TrackCard({ title, artist, image, plays, isPlaying, onClick, accentColor }: TrackCardProps) {
+export function TrackCard({ title, artist, image, plays, isPlaying, onClick, accentColor, onDownload, isDownloading }: TrackCardProps) {
   return (
     <div
       onClick={onClick}
@@ -57,6 +59,22 @@ export function TrackCard({ title, artist, image, plays, isPlaying, onClick, acc
           {artist} {plays && `• ${plays}`}
         </p>
       </div>
+
+      {/* Download Button */}
+      {onDownload && (
+        <button
+          onClick={(e) => { e.stopPropagation(); onDownload(); }}
+          disabled={isDownloading}
+          className="flex-shrink-0 p-1.5 rounded-full opacity-0 group-hover:opacity-100 hover:bg-white/10 transition-all duration-200 disabled:opacity-50"
+          aria-label={`Download ${title}`}
+        >
+          {isDownloading ? (
+            <Loader2 className="w-4 h-4 text-primary animate-spin" />
+          ) : (
+            <Download className="w-4 h-4 text-muted-foreground" />
+          )}
+        </button>
+      )}
     </div>
   );
 }
