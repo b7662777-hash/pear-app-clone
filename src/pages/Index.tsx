@@ -189,6 +189,8 @@ const Index = () => {
                 tracks={newReleaseTracks}
                 isLoading={isLoadingNewReleases}
                 onTrackClick={handleYouTubeTrackClick}
+                onDownloadClick={handleDownloadTrack}
+                isDownloading={isDownloading}
                 currentVideoId={currentTrack?.videoId}
                 title="New Releases"
                 subtitle="Fresh tracks just dropped"
