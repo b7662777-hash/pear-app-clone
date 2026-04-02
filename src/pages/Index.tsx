@@ -10,6 +10,7 @@ import { RecommendedSongs } from "@/components/RecommendedSongs";
 import { useYouTubeMusic, YouTubeTrack } from "@/hooks/useYouTubeMusic";
 import { Loader2, Music } from "lucide-react";
 import { useDownload } from "@/hooks/useDownload";
+import { WelcomePopup } from "@/components/WelcomePopup";
 
 const AmbientBackground = lazy(() => import("@/components/AmbientBackground").then(m => ({ default: m.AmbientBackground })));
 import { usePlayer, Track } from "@/contexts/PlayerContext";
@@ -100,6 +101,7 @@ const Index = () => {
 
   return (
     <div className="flex w-screen h-[100dvh] bg-background overflow-hidden relative">
+      <WelcomePopup />
       <Suspense fallback={null}>
         <AmbientBackground />
       </Suspense>
