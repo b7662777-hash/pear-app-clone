@@ -72,9 +72,17 @@ export function useAuth() {
   }, []);
 
   useEffect(() => {
+    let mounted = true;
+
+    // Safety timeout — never stay stuck on loading for more than 3 seconds
+    const safetyTimer = setTimeout(() => {
+      if (mounted) setLoading(false);
+    }, 3000);
+
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
+        if (!mounted) return;
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
@@ -82,7 +90,7 @@ export function useAuth() {
         // Defer profile fetch to avoid deadlock
         if (session?.user) {
           setTimeout(() => {
-            fetchProfile(session.user.id, session.user.user_metadata);
+            if (mounted) fetchProfile(session.user.id, session.user.user_metadata);
           }, 0);
         } else {
           setProfile(null);
@@ -92,6 +100,7 @@ export function useAuth() {
 
     // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!mounted) return;
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
@@ -99,9 +108,15 @@ export function useAuth() {
       if (session?.user) {
         fetchProfile(session.user.id, session.user.user_metadata);
       }
+    }).catch(() => {
+      if (mounted) setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      clearTimeout(safetyTimer);
+      subscription.unsubscribe();
+    };
   }, [fetchProfile]);
 
   const signUp = async (email: string, password: string, displayName?: string) => {
