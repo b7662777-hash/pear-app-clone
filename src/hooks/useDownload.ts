@@ -80,106 +80,29 @@ export function useDownload() {
     setIsDownloading(true);
     setDownloadProgress(0);
 
-    const filename = `${title} - ${artist}.mp3`.replace(/[<>:"/\\|?*]/g, '');
-
     try {
-      toast.info('Finding download source...', { duration: 3000 });
+      const ytUrl = `https://www.youtube.com/watch?v=${videoId}`;
 
-      let progressValue = 0;
-      const progressInterval = setInterval(() => {
-        progressValue += Math.random() * 10 + 3;
-        if (progressValue > 85) progressValue = 85;
-        setDownloadProgress(Math.round(progressValue));
-      }, 200);
+      // Copy URL to clipboard
+      try {
+        await navigator.clipboard.writeText(ytUrl);
+      } catch {}
 
-      const { data, error } = await supabase.functions.invoke('youtube-download', {
-        body: { videoId, title, artist },
+      // Open ytmp3.cc with the YouTube URL auto-filled
+      const ytmp3Url = `https://ytmp3.cc/en/?url=${encodeURIComponent(ytUrl)}`;
+      window.open(ytmp3Url, '_blank', 'noopener,noreferrer');
+
+      setDownloadProgress(100);
+      toast.success('Download page opened!', {
+        description: `YouTube URL copied to clipboard. Converting "${title}" to MP3...`,
+        duration: 5000,
       });
 
-      clearInterval(progressInterval);
-
-      if (error) {
-        console.error('Download function error:', error);
-        if (error.message?.includes('401') || error.message?.includes('auth')) {
-          toast.error('Session expired', {
-            description: 'Please sign in again to download',
-            action: { label: 'Sign In', onClick: navigateToAuth },
-          });
-          return;
-        }
-        throw new Error('Download service unavailable');
-      }
-
-      if (data?.requiresAuth) {
-        toast.error('Sign in required', {
-          description: data.error || 'Please sign in to download tracks',
-          action: { label: 'Sign In', onClick: navigateToAuth },
-        });
-        return;
-      }
-
-      // Handle direct audio URL
-      if (data?.status === 'success' && data?.url) {
-        setDownloadProgress(90);
-        try {
-          toast.loading('Downloading audio...', { id: 'download-progress' });
-          const response = await fetch(data.url);
-          if (response.ok) {
-            const blob = await response.blob();
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = data.filename || filename;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
-            setDownloadProgress(100);
-            toast.success('Download complete!', { id: 'download-progress' });
-            await saveDownloadRecord({ videoId, title, artist, album, thumbnail, duration });
-            return;
-          }
-        } catch (fetchError) {
-          console.log('Direct fetch failed, opening URL:', fetchError);
-        }
-
-        window.open(data.url, '_blank', 'noopener,noreferrer');
-        setDownloadProgress(100);
-        toast.success('Download started!', { id: 'download-progress', description: 'Check your downloads folder' });
-        await saveDownloadRecord({ videoId, title, artist, album, thumbnail, duration });
-        return;
-      }
-
-      // Handle fallback URLs
-      if (data?.status === 'fallback' && data?.urls?.length > 0) {
-        setDownloadProgress(100);
-        if (data.youtubeUrl) {
-          try {
-            await navigator.clipboard.writeText(data.youtubeUrl);
-            toast.info('Opening download page...', {
-              description: 'YouTube URL copied! Paste it on the download site.',
-              duration: 6000,
-            });
-          } catch {
-            toast.info('Opening download page...', { duration: 5000 });
-          }
-        }
-        window.open(data.urls[0], '_blank', 'noopener,noreferrer');
-        await saveDownloadRecord({ videoId, title, artist, album, thumbnail, duration });
-        return;
-      }
-
-      throw new Error('No download URL received');
+      // Save to download history
+      await saveDownloadRecord({ videoId, title, artist, album, thumbnail, duration });
     } catch (error) {
       console.error('Download error:', error);
-      // Final fallback
-      const ytUrl = `https://www.youtube.com/watch?v=${videoId}`;
-      try { await navigator.clipboard.writeText(ytUrl); } catch {}
-      toast.info('Opening download page...', {
-        description: 'YouTube URL copied to clipboard',
-      });
-      window.open(`https://ezmp3.to/?url=${encodeURIComponent(ytUrl)}`, '_blank');
-      await saveDownloadRecord({ videoId, title, artist, album, thumbnail, duration });
+      toast.error('Failed to open download page');
     } finally {
       setIsDownloading(false);
       setTimeout(() => setDownloadProgress(0), 1500);
