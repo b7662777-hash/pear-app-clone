@@ -101,6 +101,7 @@ const Index = () => {
 
   return (
     <div className="flex w-screen h-[100dvh] bg-background overflow-hidden relative">
+      <WelcomePopup />
       <Suspense fallback={null}>
         <AmbientBackground />
       </Suspense>
