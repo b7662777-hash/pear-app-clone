@@ -274,14 +274,25 @@ export default function Auth() {
                 </div>
 
                 <Button type="button" variant="outline" className="w-full" onClick={async () => {
-                  const { error } = await signInWithGoogle();
-                  if (error) {
-                    const isProviderDisabled = error.message.includes('provider is not enabled') || error.message.includes('Unsupported provider');
-                    toast({ title: 'Google sign up failed', description: isProviderDisabled ? 'Google sign-in is not enabled yet.' : error.message, variant: 'destructive' });
+                  setIsSubmitting(true);
+                  try {
+                    const result = await lovable.auth.signInWithOAuth("google", {
+                      redirect_uri: window.location.origin,
+                    });
+                    if (result.error) {
+                      toast({ title: 'Google sign up failed', description: String(result.error), variant: 'destructive' });
+                    }
+                    if (result.redirected) return;
+                    window.location.href = '/';
+                  } catch (err) {
+                    toast({ title: 'Google sign up failed', description: 'An unexpected error occurred.', variant: 'destructive' });
+                  } finally {
+                    setIsSubmitting(false);
                   }
                 }} disabled={isSubmitting}>
                   <Chrome className="mr-2 h-4 w-4" />
                   Continue with Google
+                </Button>
                 </Button>
               </form>
             </TabsContent>
