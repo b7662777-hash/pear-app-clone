@@ -56,9 +56,10 @@ export function useYouTubeMusic() {
     preloadLCPFromCache();
   }, []);
 
-  // Helper to handle auth errors
+  // Helper to handle auth errors — only redirect for explicit requiresAuth, not generic 401s
   const handleAuthError = useCallback((data: any, error: any) => {
-    if (error?.message?.includes('401') || data?.requiresAuth) {
+    if (data?.requiresAuth === true) {
+      console.warn("[useYouTubeMusic] Server requires auth, redirecting");
       setRequiresAuth(true);
       toast({
         title: "Login required",
@@ -67,6 +68,9 @@ export function useYouTubeMusic() {
       });
       navigate('/auth');
       return true;
+    }
+    if (error?.message?.includes('401')) {
+      console.warn("[useYouTubeMusic] 401 error, but not redirecting — treating as transient");
     }
     return false;
   }, [navigate, toast]);
