@@ -293,7 +293,6 @@ export default function Auth() {
                   <Chrome className="mr-2 h-4 w-4" />
                   Continue with Google
                 </Button>
-                </Button>
               </form>
             </TabsContent>
           </Tabs>
