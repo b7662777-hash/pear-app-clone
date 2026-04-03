@@ -12,6 +12,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Separator } from '@/components/ui/separator';
 import { isPasswordBreached, formatBreachCount } from '@/lib/passwordSecurity';
 import { supabase } from '@/integrations/supabase/client';
+import { lovable } from '@/integrations/lovable/index';
 import pearLogo from '@/assets/pear-music-logo.png';
 
 const emailSchema = z.string().email('Please enter a valid email address');
@@ -59,25 +60,31 @@ export default function Auth() {
 
     setIsSubmitting(true);
 
-    // Use supabase directly to avoid hook state race conditions
-    const { error } = await supabase.auth.signInWithPassword({
-      email: loginEmail,
-      password: loginPassword,
-    });
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: loginEmail,
+        password: loginPassword,
+      });
 
-    if (error) {
-      let message = 'Failed to sign in';
-      if (error.message.includes('Invalid login credentials')) {
-        message = 'Invalid email or password';
-      } else if (error.message.includes('Email not confirmed')) {
-        message = 'Please verify your email before signing in';
+      if (error) {
+        let message = 'Failed to sign in';
+        if (error.message.includes('Invalid login credentials')) {
+          message = 'Invalid email or password';
+        } else if (error.message.includes('Email not confirmed')) {
+          message = 'Please verify your email before signing in';
+        }
+        toast({ title: 'Sign in failed', description: message, variant: 'destructive' });
+      } else {
+        toast({ title: 'Welcome back!', description: 'You have successfully signed in.' });
+        // Use window.location for reliable redirect after auth
+        window.location.href = '/';
+        return;
       }
-      toast({ title: 'Sign in failed', description: message, variant: 'destructive' });
+    } catch (err) {
+      console.error('[Auth] Sign in error:', err);
+      toast({ title: 'Sign in failed', description: 'An unexpected error occurred.', variant: 'destructive' });
+    } finally {
       setIsSubmitting(false);
-    } else {
-      toast({ title: 'Welcome back!', description: 'You have successfully signed in.' });
-      // Small delay to let auth state propagate, then navigate
-      setTimeout(() => navigate('/', { replace: true }), 100);
     }
   };
 
@@ -122,7 +129,7 @@ export default function Auth() {
       toast({ title: 'Sign up failed', description: message, variant: 'destructive' });
     } else {
       toast({ title: 'Account created!', description: 'Welcome to Pear Music.' });
-      setTimeout(() => navigate('/', { replace: true }), 100);
+      window.location.href = '/';
     }
 
     setIsSubmitting(false);
@@ -197,10 +204,20 @@ export default function Auth() {
                 </div>
 
                 <Button type="button" variant="outline" className="w-full" onClick={async () => {
-                  const { error } = await signInWithGoogle();
-                  if (error) {
-                    const isProviderDisabled = error.message.includes('provider is not enabled') || error.message.includes('Unsupported provider');
-                    toast({ title: 'Google sign in failed', description: isProviderDisabled ? 'Google sign-in is not enabled yet.' : error.message, variant: 'destructive' });
+                  setIsSubmitting(true);
+                  try {
+                    const result = await lovable.auth.signInWithOAuth("google", {
+                      redirect_uri: window.location.origin,
+                    });
+                    if (result.error) {
+                      toast({ title: 'Google sign in failed', description: String(result.error), variant: 'destructive' });
+                    }
+                    if (result.redirected) return;
+                    window.location.href = '/';
+                  } catch (err) {
+                    toast({ title: 'Google sign in failed', description: 'An unexpected error occurred.', variant: 'destructive' });
+                  } finally {
+                    setIsSubmitting(false);
                   }
                 }} disabled={isSubmitting}>
                   <Chrome className="mr-2 h-4 w-4" />
@@ -257,10 +274,20 @@ export default function Auth() {
                 </div>
 
                 <Button type="button" variant="outline" className="w-full" onClick={async () => {
-                  const { error } = await signInWithGoogle();
-                  if (error) {
-                    const isProviderDisabled = error.message.includes('provider is not enabled') || error.message.includes('Unsupported provider');
-                    toast({ title: 'Google sign up failed', description: isProviderDisabled ? 'Google sign-in is not enabled yet.' : error.message, variant: 'destructive' });
+                  setIsSubmitting(true);
+                  try {
+                    const result = await lovable.auth.signInWithOAuth("google", {
+                      redirect_uri: window.location.origin,
+                    });
+                    if (result.error) {
+                      toast({ title: 'Google sign up failed', description: String(result.error), variant: 'destructive' });
+                    }
+                    if (result.redirected) return;
+                    window.location.href = '/';
+                  } catch (err) {
+                    toast({ title: 'Google sign up failed', description: 'An unexpected error occurred.', variant: 'destructive' });
+                  } finally {
+                    setIsSubmitting(false);
                   }
                 }} disabled={isSubmitting}>
                   <Chrome className="mr-2 h-4 w-4" />
