@@ -12,6 +12,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Separator } from '@/components/ui/separator';
 import { isPasswordBreached, formatBreachCount } from '@/lib/passwordSecurity';
 import { supabase } from '@/integrations/supabase/client';
+import { lovable } from '@/integrations/lovable/index';
 import pearLogo from '@/assets/pear-music-logo.png';
 
 const emailSchema = z.string().email('Please enter a valid email address');
