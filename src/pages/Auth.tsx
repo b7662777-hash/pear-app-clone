@@ -60,25 +60,31 @@ export default function Auth() {
 
     setIsSubmitting(true);
 
-    // Use supabase directly to avoid hook state race conditions
-    const { error } = await supabase.auth.signInWithPassword({
-      email: loginEmail,
-      password: loginPassword,
-    });
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: loginEmail,
+        password: loginPassword,
+      });
 
-    if (error) {
-      let message = 'Failed to sign in';
-      if (error.message.includes('Invalid login credentials')) {
-        message = 'Invalid email or password';
-      } else if (error.message.includes('Email not confirmed')) {
-        message = 'Please verify your email before signing in';
+      if (error) {
+        let message = 'Failed to sign in';
+        if (error.message.includes('Invalid login credentials')) {
+          message = 'Invalid email or password';
+        } else if (error.message.includes('Email not confirmed')) {
+          message = 'Please verify your email before signing in';
+        }
+        toast({ title: 'Sign in failed', description: message, variant: 'destructive' });
+      } else {
+        toast({ title: 'Welcome back!', description: 'You have successfully signed in.' });
+        // Use window.location for reliable redirect after auth
+        window.location.href = '/';
+        return;
       }
-      toast({ title: 'Sign in failed', description: message, variant: 'destructive' });
+    } catch (err) {
+      console.error('[Auth] Sign in error:', err);
+      toast({ title: 'Sign in failed', description: 'An unexpected error occurred.', variant: 'destructive' });
+    } finally {
       setIsSubmitting(false);
-    } else {
-      toast({ title: 'Welcome back!', description: 'You have successfully signed in.' });
-      // Small delay to let auth state propagate, then navigate
-      setTimeout(() => navigate('/', { replace: true }), 100);
     }
   };
 
