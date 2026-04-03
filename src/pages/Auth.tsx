@@ -129,7 +129,7 @@ export default function Auth() {
       toast({ title: 'Sign up failed', description: message, variant: 'destructive' });
     } else {
       toast({ title: 'Account created!', description: 'Welcome to Pear Music.' });
-      setTimeout(() => navigate('/', { replace: true }), 100);
+      window.location.href = '/';
     }
 
     setIsSubmitting(false);
