@@ -44,13 +44,14 @@ const Index = () => {
     newReleaseTracks, isLoadingNewReleases, fetchNewReleases,
   } = useYouTubeMusic();
 
+  // Fetch music data once on mount — empty deps to prevent re-trigger loops
   useEffect(() => {
-    if (recommendedTracks.length === 0) {
-      startTransition(() => { fetchRecommendedTracks(); });
-    }
-    startTransition(() => { fetchTrendingTracks(); });
-    startTransition(() => { fetchNewReleases(); });
-  }, [fetchRecommendedTracks, fetchTrendingTracks, fetchNewReleases, recommendedTracks.length]);
+    console.log("[Index] Mounting — fetching music data");
+    fetchRecommendedTracks().catch(e => console.error("[Index] Recommended fetch failed:", e));
+    fetchTrendingTracks().catch(e => console.error("[Index] Trending fetch failed:", e));
+    fetchNewReleases().catch(e => console.error("[Index] New releases fetch failed:", e));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     const timer = setTimeout(() => {
