@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, lazy, Suspense, startTransition } from "react";
+import { useState, useEffect, useCallback, lazy, Suspense } from "react";
 import { SidebarShell } from "@/components/SidebarShell";
 import { MobileSidebar } from "@/components/MobileSidebar";
 import { SearchBar } from "@/components/SearchBar";
