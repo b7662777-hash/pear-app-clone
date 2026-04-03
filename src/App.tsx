@@ -35,24 +35,26 @@ const ConditionalGlobalPlayer = () => {
   );
 };
 
-const AppContent = () => (
-  <PlayerProvider>
-    <Suspense fallback={<PageLoader />}>
-      <Routes>
-        <Route path="/" element={<Index />} />
-        <Route path="/auth" element={<Auth />} />
-        <Route path="/auth/callback" element={<AuthCallback />} />
-        <Route path="/explore" element={<Explore />} />
-        <Route path="/library" element={<Library />} />
-        <Route path="/library/liked" element={<Library />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/settings" element={<Settings />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-      <ConditionalGlobalPlayer />
-    </Suspense>
-  </PlayerProvider>
-);
+const AppContent = () => {
+  return (
+    <PlayerProvider>
+      <Suspense fallback={<PageLoader />}>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/auth/callback" element={<AuthCallback />} />
+          <Route path="/explore" element={<Explore />} />
+          <Route path="/library" element={<Library />} />
+          <Route path="/library/liked" element={<Library />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+        <ConditionalGlobalPlayer />
+      </Suspense>
+    </PlayerProvider>
+  );
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
