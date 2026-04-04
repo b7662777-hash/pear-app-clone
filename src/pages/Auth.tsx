@@ -22,7 +22,7 @@ const displayNameSchema = z.string().min(2, 'Display name must be at least 2 cha
 export default function Auth() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { user, loading, signUp, signInWithGoogle } = useAuth();
+  const { user, loading, signUp } = useAuth();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -206,8 +206,11 @@ export default function Auth() {
                 <Button type="button" variant="outline" className="w-full" onClick={async () => {
                   setIsSubmitting(true);
                   try {
-                    const result = await lovable.auth.signInWithOAuth("google", {
-                      redirect_uri: window.location.origin,
+                     const result = await lovable.auth.signInWithOAuth("google", {
+                       redirect_uri: `${window.location.origin}/auth/callback`,
+                       extraParams: {
+                         prompt: "select_account",
+                       },
                     });
                     if (result.error) {
                       toast({ title: 'Google sign in failed', description: String(result.error), variant: 'destructive' });
@@ -276,8 +279,11 @@ export default function Auth() {
                 <Button type="button" variant="outline" className="w-full" onClick={async () => {
                   setIsSubmitting(true);
                   try {
-                    const result = await lovable.auth.signInWithOAuth("google", {
-                      redirect_uri: window.location.origin,
+                     const result = await lovable.auth.signInWithOAuth("google", {
+                       redirect_uri: `${window.location.origin}/auth/callback`,
+                       extraParams: {
+                         prompt: "select_account",
+                       },
                     });
                     if (result.error) {
                       toast({ title: 'Google sign up failed', description: String(result.error), variant: 'destructive' });
