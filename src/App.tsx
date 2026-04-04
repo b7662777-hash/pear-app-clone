@@ -1,8 +1,9 @@
 import { lazy, Suspense } from "react";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { PlayerProvider, usePlayer } from "@/contexts/PlayerContext";
+import { useAuthReady } from "@/hooks/useAuthReady";
 
 const Index = lazy(() => import("./pages/Index"));
 const Auth = lazy(() => import("./pages/Auth"));
@@ -35,22 +36,36 @@ const ConditionalGlobalPlayer = () => {
   );
 };
 
+const AppRoutes = () => {
+  const { user, isReady } = useAuthReady();
+
+  if (!isReady) {
+    return <PageLoader />;
+  }
+
+  return (
+    <>
+      <Routes>
+        <Route path="/auth" element={user ? <Navigate to="/" replace /> : <Auth />} />
+        <Route path="/auth/callback" element={<AuthCallback />} />
+        <Route path="/" element={user ? <Index /> : <Navigate to="/auth" replace />} />
+        <Route path="/explore" element={user ? <Explore /> : <Navigate to="/auth" replace />} />
+        <Route path="/library" element={user ? <Library /> : <Navigate to="/auth" replace />} />
+        <Route path="/library/liked" element={user ? <Library /> : <Navigate to="/auth" replace />} />
+        <Route path="/profile" element={user ? <Profile /> : <Navigate to="/auth" replace />} />
+        <Route path="/settings" element={user ? <Settings /> : <Navigate to="/auth" replace />} />
+        <Route path="*" element={user ? <NotFound /> : <Navigate to="/auth" replace />} />
+      </Routes>
+      {user ? <ConditionalGlobalPlayer /> : null}
+    </>
+  );
+};
+
 const AppContent = () => {
   return (
     <PlayerProvider>
       <Suspense fallback={<PageLoader />}>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/auth" element={<Auth />} />
-          <Route path="/auth/callback" element={<AuthCallback />} />
-          <Route path="/explore" element={<Explore />} />
-          <Route path="/library" element={<Library />} />
-          <Route path="/library/liked" element={<Library />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-        <ConditionalGlobalPlayer />
+        <AppRoutes />
       </Suspense>
     </PlayerProvider>
   );
