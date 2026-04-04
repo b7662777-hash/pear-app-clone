@@ -9,32 +9,46 @@ export function useAuthReady() {
 
   useEffect(() => {
     let mounted = true;
+    let resolved = false;
 
+    const resolve = (s: Session | null) => {
+      if (!mounted || resolved) return;
+      resolved = true;
+      setSession(s);
+      setUser(s?.user ?? null);
+      setIsReady(true);
+    };
+
+    // Listen for auth changes FIRST
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, nextSession) => {
       if (!mounted) return;
-
+      // Always update on subsequent changes even after initial resolve
       setSession(nextSession);
       setUser(nextSession?.user ?? null);
-      setIsReady(true);
+      if (!resolved) {
+        resolved = true;
+        setIsReady(true);
+      }
     });
 
+    // THEN check existing session
     supabase.auth
       .getSession()
       .then(({ data: { session: existingSession } }) => {
-        if (!mounted) return;
-
-        setSession(existingSession);
-        setUser(existingSession?.user ?? null);
-        setIsReady(true);
+        resolve(existingSession);
       })
       .catch(() => {
-        if (mounted) setIsReady(true);
+        resolve(null);
       });
+
+    // Safety: always resolve after 4 seconds
+    const safety = setTimeout(() => resolve(null), 4000);
 
     return () => {
       mounted = false;
+      clearTimeout(safety);
       subscription.unsubscribe();
     };
   }, []);
