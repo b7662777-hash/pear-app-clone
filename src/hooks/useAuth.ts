@@ -74,13 +74,13 @@ export function useAuth() {
   useEffect(() => {
     let mounted = true;
 
-    // Safety timeout — never stay stuck on loading for more than 2 seconds
+    // Safety timeout — never stay stuck on loading for more than 5 seconds
     const safetyTimer = setTimeout(() => {
-      if (mounted) {
+      if (mounted && loading) {
         console.warn("[useAuth] Safety timeout reached — forcing loading=false");
         setLoading(false);
       }
-    }, 2000);
+    }, 5000);
 
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
