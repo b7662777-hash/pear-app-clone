@@ -36,8 +36,12 @@ const ConditionalGlobalPlayer = () => {
   );
 };
 
+const GUEST_MODE_KEY = "pear-music-guest-mode";
+
 const AppRoutes = () => {
   const { user, isReady } = useAuthReady();
+  const isGuest = localStorage.getItem(GUEST_MODE_KEY) === "true";
+  const hasAccess = !!user || isGuest;
 
   if (!isReady) {
     return <PageLoader />;
@@ -46,17 +50,17 @@ const AppRoutes = () => {
   return (
     <>
       <Routes>
-        <Route path="/auth" element={user ? <Navigate to="/" replace /> : <Auth />} />
+        <Route path="/auth" element={hasAccess ? <Navigate to="/" replace /> : <Auth />} />
         <Route path="/auth/callback" element={<AuthCallback />} />
-        <Route path="/" element={user ? <Index /> : <Navigate to="/auth" replace />} />
-        <Route path="/explore" element={user ? <Explore /> : <Navigate to="/auth" replace />} />
-        <Route path="/library" element={user ? <Library /> : <Navigate to="/auth" replace />} />
-        <Route path="/library/liked" element={user ? <Library /> : <Navigate to="/auth" replace />} />
-        <Route path="/profile" element={user ? <Profile /> : <Navigate to="/auth" replace />} />
-        <Route path="/settings" element={user ? <Settings /> : <Navigate to="/auth" replace />} />
-        <Route path="*" element={user ? <NotFound /> : <Navigate to="/auth" replace />} />
+        <Route path="/" element={hasAccess ? <Index /> : <Navigate to="/auth" replace />} />
+        <Route path="/explore" element={hasAccess ? <Explore /> : <Navigate to="/auth" replace />} />
+        <Route path="/library" element={hasAccess ? <Library /> : <Navigate to="/auth" replace />} />
+        <Route path="/library/liked" element={hasAccess ? <Library /> : <Navigate to="/auth" replace />} />
+        <Route path="/profile" element={hasAccess ? <Profile /> : <Navigate to="/auth" replace />} />
+        <Route path="/settings" element={hasAccess ? <Settings /> : <Navigate to="/auth" replace />} />
+        <Route path="*" element={hasAccess ? <NotFound /> : <Navigate to="/auth" replace />} />
       </Routes>
-      {user ? <ConditionalGlobalPlayer /> : null}
+      {hasAccess ? <ConditionalGlobalPlayer /> : null}
     </>
   );
 };

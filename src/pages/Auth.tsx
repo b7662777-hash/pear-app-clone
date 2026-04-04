@@ -276,7 +276,7 @@ export default function Auth() {
                   <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-2 text-xs text-muted-foreground">or</span>
                 </div>
 
-                <Button type="button" variant="outline" className="w-full" onClick={async () => {
+        <Button type="button" variant="outline" className="w-full" onClick={async () => {
                   setIsSubmitting(true);
                   try {
                      const result = await lovable.auth.signInWithOAuth("google", {
@@ -303,7 +303,20 @@ export default function Auth() {
             </TabsContent>
           </Tabs>
 
-          <p className="text-center text-xs text-muted-foreground/60 mt-6">
+          <Separator className="my-4" />
+
+          <Button
+            variant="ghost"
+            className="w-full text-muted-foreground"
+            onClick={() => {
+              localStorage.setItem("pear-music-guest-mode", "true");
+              window.location.href = '/';
+            }}
+          >
+            Sign up later
+          </Button>
+
+          <p className="text-center text-xs text-muted-foreground/60 mt-4">
             Made by <span className="font-semibold text-muted-foreground">Gojo-kun</span>
           </p>
         </CardContent>

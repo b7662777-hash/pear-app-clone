@@ -83,8 +83,12 @@ export function WelcomePopup() {
           <Button onClick={handleSignUp} className="w-full">
             Sign Up Free
           </Button>
-          <Button variant="ghost" onClick={handleClose} className="w-full text-muted-foreground">
-            Maybe Later
+          <Button variant="ghost" onClick={() => {
+            localStorage.setItem(WELCOME_SEEN_KEY, "true");
+            localStorage.setItem("pear-music-guest-mode", "true");
+            setOpen(false);
+          }} className="w-full text-muted-foreground">
+            Sign up later
           </Button>
         </div>
 
